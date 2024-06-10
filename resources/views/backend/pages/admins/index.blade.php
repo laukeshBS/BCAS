@@ -39,7 +39,9 @@ Admins - Admin Panel
     <div class="row">
         <!-- data table start -->
         <div class="col-12 mt-5">
+            
             <div class="card">
+           
                 <div class="card-body">
                     <h4 class="header-title float-left">Admins List</h4>
                     <p class="float-right mb-2">
@@ -47,10 +49,18 @@ Admins - Admin Panel
                             <a class="btn btn-primary text-white" href="{{ route('admin.admins.create') }}">Create New Admin</a>
                         @endif
                     </p>
+                    <div class="mx-auto d-block"> 
+                        <form action="{{ route('admin.search') }}" method="get">
+                            @csrf
+                            <input class="form-control" type="text" name="search" placeholder="Search Admins">
+                            <input type="hidden" name ="type" value="admins">
+                            <button type="submit" class="btn btn-primary" >Search</button>
+                        </form>
+                    </div>
                     <div class="clearfix"></div>
                     <div class="data-tables">
                         @include('backend.layouts.partials.messages')
-                        <table id="dataTable" class="text-center">
+                        <table id="dataTable1" class="text-center">
                             <thead class="bg-light text-capitalize">
                                 <tr>
                                     <th width="5%">Sl</th>
@@ -93,6 +103,7 @@ Admins - Admin Panel
                                @endforeach
                             </tbody>
                         </table>
+                        {!! $admins->withQueryString()->links('pagination::bootstrap-5') !!}
                     </div>
                 </div>
             </div>

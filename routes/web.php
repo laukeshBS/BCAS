@@ -13,13 +13,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+Route::get('/', function () {
+    return view('welcome');
+});
+Route::get('my-captcha', 'Backend\Auth\LoginController@myCaptcha')->name('myCaptcha');
 
+Route::get('refresh_captcha', 'Backend\Auth\LoginController@refreshCaptcha')->name('refresh_captcha');
+Route::post('session/ajaxCheck', ['uses' => 'Backend\SessionController@ajaxCheck', 'as' => 'session.ajax.check']);
+
+Route::group(['middleware' => 'resetLastActive'], function () {
+    Route::get('/admin', 'Backend\DashboardController@index')->name('admin.dashboard');
+});
 Auth::routes();
 
-Route::get('/', 'HomeController@redirectAdmin')->name('index');
+//Route::get('/', 'HomeController@redirectAdmin')->name('index');
 Route::get('/home', 'HomeController@index')->name('home');
 
 /**
@@ -30,7 +37,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::resource('roles', 'Backend\RolesController', ['names' => 'admin.roles']);
     Route::resource('users', 'Backend\UsersController', ['names' => 'admin.users']);
     Route::resource('admins', 'Backend\AdminsController', ['names' => 'admin.admins']);
-
+    Route::any('search', 'Backend\SearchContoller@index')->name('admin.search');
 
     // Login Routes
     Route::get('/login', 'Backend\Auth\LoginController@showLoginForm')->name('admin.login');

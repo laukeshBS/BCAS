@@ -32,7 +32,7 @@ class AdminsController extends Controller
             abort(403, 'Sorry !! You are Unauthorized to view any admin !');
         }
 
-        $admins = Admin::all();
+        $admins = Admin::paginate(10);
         return view('backend.pages.admins.index', compact('admins'));
     }
 

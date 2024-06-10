@@ -20,17 +20,21 @@
     </div>
     <!-- preloader area end -->
     <!-- page container area start -->
-    <div class="page-container">
-
+    <div  id="main" class="page-container">
+    
        @include('backend.layouts.partials.sidebar')
-
+       
+       <div  class="main-content">
         <!-- main content area start -->
-        <div class="main-content">
+        <button class="openbtn" onclick="toggleNav()">☰</button>
             @include('backend.layouts.partials.header')
-            @yield('admin-content')
-        </div>
+           
+               
+                @yield('admin-content')
+         
         <!-- main content area end -->
         @include('backend.layouts.partials.footer')
+        </div>
     </div>
     <!-- page container area end -->
 
@@ -38,5 +42,24 @@
     @include('backend.layouts.partials.scripts')
     @yield('scripts')
 </body>
+
+
+<script>
+   // document.getElementById("mySidebar").style.width = "250px";
+    //document.getElementById("main").style.marginLeft = "250px";
+    function toggleNav() {
+        var sidebarWidth = document.getElementById("mySidebar").style.width;
+    
+        if (sidebarWidth === "250px") {
+            // If sidebar is open, close it
+            document.getElementById("mySidebar").style.width = "0";
+            document.getElementById("main").style.marginLeft = "0";
+        } else {
+            // If sidebar is closed, open it
+            document.getElementById("mySidebar").style.width = "250px";
+           // document.getElementById("main").style.marginLeft = "250px";
+        }
+    }
+</script>
 
 </html>

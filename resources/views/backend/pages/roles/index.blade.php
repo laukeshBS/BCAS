@@ -50,7 +50,7 @@ Role Page - Admin Panel
                     <div class="clearfix"></div>
                     <div class="data-tables">
                         @include('backend.layouts.partials.messages')
-                        <table id="dataTable" class="text-center">
+                        <table id="dataTable1" class="text-center">
                             <thead class="bg-light text-capitalize">
                                 <tr>
                                     <th width="5%">Sl</th>
@@ -92,6 +92,7 @@ Role Page - Admin Panel
                                @endforeach
                             </tbody>
                         </table>
+                        {!! $roles->withQueryString()->links('pagination::bootstrap-5') !!}
                     </div>
                 </div>
             </div>

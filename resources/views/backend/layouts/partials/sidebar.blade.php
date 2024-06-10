@@ -2,12 +2,16 @@
  @php
      $usr = Auth::guard('admin')->user();
  @endphp
- <div class="sidebar-menu">
+
+ <div id="mySidebar" class="sidebar">
+ <button class="openbtn float-right" onclick="toggleNav()" style="margin-top: 23px;">X</button>
+
     <div class="sidebar-header">
         <div class="logo">
             <a href="{{ route('admin.dashboard') }}">
                 <h2 class="text-white">Admin</h2> 
-            </a>
+            </a> 
+            
         </div>
     </div>
     <div class="main-menu">
