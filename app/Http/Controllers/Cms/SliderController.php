@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\CMS;
+namespace App\Http\Controllers\Cms;
 
 use App\Models\Admin;
-use App\Models\CMS\Slider;
+use App\Models\Cms\Slider;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
@@ -47,12 +47,15 @@ class SliderController extends Controller
     public function slider_by_slug(Request $request){
         // Validate the request to ensure 'slug' is provided
         $request->validate([
-            'slug' => 'required|string'
+            'slug' => 'required|string',
+            'lang_code' => 'required|string'
         ]);
-        $slider = Slider::with('slides')->where('slug',$request->slug)->first();
-        if (!$slider) {
-            return response()->json(['error' => 'Slider not found.'], 404);
-        }
+        $langCode = $request->input('lang_code', 'en');
+        $slider = Slider::where('slug', $request->slug)
+                    ->with(['slides' => function($query) use ($langCode) {
+                        $query->where('lang_code', $langCode);
+                    }])
+                    ->first();
         // Base URL for the storage folder
         $baseUrl = url('storage');
         // Append base URL to media paths

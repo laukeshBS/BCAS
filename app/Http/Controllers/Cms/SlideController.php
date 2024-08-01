@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\CMS;
+namespace App\Http\Controllers\Cms;
 
 use App\Models\Admin;
 use App\Models\Language;
-use App\Models\CMS\Slide;
-use App\Models\CMS\Slider;
+use App\Models\Cms\Slide;
+use App\Models\Cms\Slider;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
