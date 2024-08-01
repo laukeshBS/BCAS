@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Admin\Admin;
+use App\Models\Admin\Menu;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
+
+class DashboardController extends Controller
+{
+    public $user;
+
+    public function __construct()
+    {
+        $this->middleware(function ($request, $next) {
+            $this->user = Auth::guard('admin')->user();
+            return $next($request);
+        });
+    }
+
+
+    public function index()
+    {
+        if (is_null($this->user) || !$this->user->can('dashboard.view')) {
+            abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
+        }
+
+        $total_roles = count(Role::select('id')->get());
+        $total_admins = count(Admin::select('id')->get());
+        $total_menus = count(Menu::select('id')->get());
+        $total_permissions = count(Permission::select('id')->get());
+        return view('admin.pages.dashboard.index', compact('total_admins', 'total_roles', 'total_menus','total_permissions'));
+    }
+}

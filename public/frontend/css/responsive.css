@@ -1,0 +1,147 @@
+@media only screen and (max-width:767px) {
+    section.logo-bar {
+        height: auto;
+        display: inline-block;
+        text-align: center;
+    }
+
+    .e-services-cardwrap {
+        width: 100%;
+        margin: 10px 0px;
+    }
+
+    .mission-txt {
+        width: 100%;
+        display: inline-block;
+    }
+
+    .M-SHAPE {
+        position: absolute;
+        display: none;
+    }
+
+    .ms-wrap {
+        position: static;
+        width: 100%;
+        top: 0;
+    }
+
+    .about-rgtimgs {
+        display: none;
+    }
+
+    .mission-txt p {
+        padding: 10px 0 0;
+        box-shadow: none;
+    }
+
+    .Quick-link-wrap span.hdbor-lft {
+        left: 85px;
+        top: -8px;
+    }
+
+    .blinks {
+        width: 90%;
+        margin: 0 auto;
+        margin-bottom: 65px;
+        margin-top: 60px;
+    }
+
+    .bfooter {
+        padding: 20px 0 4px;
+        background: #1e284d;
+    }
+
+    .b-contact {
+        padding: 12px;
+        position: static;
+        left: 0;
+        top: -65px;
+        width: 100%;
+    }
+
+    .inner-footer h2 {
+        font-size: 16px;
+        padding-bottom: 15px;
+        margin-bottom: 10px;
+    }
+
+    .p-0,
+    .pl-0 {
+        padding: 0 15px !important;
+    }
+
+    .social {
+        margin-top: 30px;
+        display: block;
+        margin-bottom: 113px;
+    }
+
+    .ab-heading {
+        font-size: 22px;
+    }
+
+    .menu-inner a.nav-link:before {
+        top: 17px;
+    }
+
+    .menu-inner a.nav-link {
+        padding: 8px 20px !important;
+    }
+
+    span.navbar-togglericons {
+        border: 1px solid #d3d3d3;
+        height: 2px;
+        width: 30px;
+        display: block;
+        margin: 8px;
+    }
+
+    .menu-inner nav.navbar {
+        background: #37517E;
+        color: #fff;
+        padding: 0px;
+    }
+
+    .logo-bar .col-xs-12.col-md-4.logo {
+        width: 50%;
+    }
+
+    .logo-bar .col-xs-12.col-md-4 {
+        width: 50%;
+    }
+
+    .col-xs-12.col-md-4.logo-barbtn {
+        width: 100%;
+    }
+        .abt-inner {
+            margin: 30px 10px 0;
+        }
+        .permitted-icon span {
+            width: 49%;
+            margin: 12px 0;
+        }
+        .permitted-icon {
+            width: 100%;
+        }
+        .Compressed ul {
+            margin: 0;
+            padding: 0 24px;
+            text-align: justify;
+        }
+        section.e-services {
+            margin: 270px 0 0;
+        }
+        .eservice-left {
+            float: left;
+            width: 100%;
+        }
+        .eservice-right {
+            width: 100%;
+            float: left;
+        }
+                .eservice-right p {
+                    margin: 30px 0 0;
+                    padding-left: 0;
+                }
+}
