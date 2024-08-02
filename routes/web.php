@@ -1,20 +1,21 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Cms\Division\Training\CourseController;
-use App\Http\Controllers\Cms\Division\Training\CourseCategoriesController;
-use App\Http\Controllers\Cms\Division\Training\AwardController;
-use App\Http\Controllers\Cms\Division\Training\AwardCategoriesController;
-use App\Http\Controllers\Cms\Division\Training\CertificatesController;
-use App\Http\Controllers\Cms\Division\Training\certificatesCategoriesController;
-use App\Http\Controllers\Cms\Division\Training\CenterController;
-use App\Http\Controllers\Cms\Division\DocumentCategoriesController;
-use App\Http\Controllers\Cms\Division\DocumentController;
-use App\Http\Controllers\Cms\Common\CommonTitleController as common_title;
-use App\Http\Controllers\Cms\Division\GalleryCategoriesController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Cms\Division\GalleryController;
+use App\Http\Controllers\Cms\Division\DocumentController;
 use App\Http\Controllers\Frontend\HomeController as frontend;
+use App\Http\Controllers\Cms\Division\Training\AwardController;
+use App\Http\Controllers\Cms\Division\Training\CenterController;
+use App\Http\Controllers\Cms\Division\Training\CourseController;
+use App\Http\Controllers\Cms\Division\GalleryCategoriesController;
+use App\Http\Controllers\Cms\Division\DocumentCategoriesController;
 use App\Http\Controllers\Frontend\InnerpagesController as innerpages;
+use App\Http\Controllers\Cms\Division\Training\CertificatesController;
+use App\Http\Controllers\Cms\Division\Training\AwardCategoriesController;
+use App\Http\Controllers\Cms\Common\CommonTitleController as common_title;
+use App\Http\Controllers\Cms\Division\Training\CourseCategoriesController;
+use App\Http\Controllers\Cms\Division\Training\certificatesCategoriesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,7 +48,8 @@ Route::get('/home', 'HomeController@index')->name('home');
  * Admin routes
  */
 Route::group(['prefix' => 'admin'], function () {
-    Route::get('/', 'Admin\DashboardController@index')->name('admin.dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
+    // Route::get('/', 'Admin\DashboardController@index')->name('admin.dashboard');
     Route::resource('roles', 'Admin\RolesController', ['names' => 'admin.roles']);
     Route::resource('users', 'Admin\UsersController', ['names' => 'admin.users']);
     Route::resource('admins', 'Admin\AdminsController', ['names' => 'admin.admins']);
