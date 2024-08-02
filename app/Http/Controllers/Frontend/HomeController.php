@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
-use App\Models\Admin\Menu;
+use App\Models\Cms\Menu;
 use Session;
 
 class HomeController extends Controller

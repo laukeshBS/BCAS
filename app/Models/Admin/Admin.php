@@ -12,6 +12,9 @@ class Admin extends Authenticatable
 {
     use Notifiable, HasRoles;
     use SoftDeletes;
+
+    protected $connection = 'mysql_admin';
+    
     /**
      * Set the default guard for this model.
      *
