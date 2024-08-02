@@ -1,12 +1,14 @@
 <?php
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Response;
-use App\Http\Controllers\Api\Frontend\MenuController as menus;
-use App\Http\Controllers\Api\Frontend\LanguageController as lang;
-use App\Http\Controllers\Api\Frontend\CommonController as Common;
-use App\Http\Controllers\Api\Frontend\VisitorController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Cms\EventController;
+use App\Http\Controllers\Cms\SliderController;
+use App\Http\Controllers\Cms\VisitorController;
+use App\Http\Controllers\Cms\MenuController as menus;
+use App\Http\Controllers\Cms\CommonController as Common;
+use App\Http\Controllers\Cms\LanguageController as lang;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -55,5 +57,14 @@ Route::middleware('cors')->group(function () {
         Route::post('/visitor/increment','incrementVisitorCount');
       
     });
-    Route::post('slider-by-slug', 'CMS\SliderController@slider_by_slug')->name('cms.slider.by.slug');
+    Route::controller(SliderController::class)->group(function(){
+        Route::post('slider-by-slug','slider_by_slug')->name('cms.slider.by.slug');
+      
+    });
+    Route::controller(EventController::class)->group(function(){
+        Route::post('event-list','event_list')->name('cms.event.list');
+        Route::post('event-list-for-homepage','event_list_for_homepage')->name('cms.event.list.for.homepage');
+        Route::post('event-store','event_store')->name('cms.event.store');
+      
+    });
 });

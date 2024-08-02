@@ -51,7 +51,7 @@ class Admin extends Authenticatable
 
     public static function getpermissionGroups()
     {
-        $permission_groups = DB::table('permissions')
+        $permission_groups = DB::connection('bcas_admin')->table('permissions')
             ->select('group_name as name')
             ->groupBy('group_name')
             ->get();
@@ -60,7 +60,7 @@ class Admin extends Authenticatable
 
     public static function getpermissionsByGroupName($group_name)
     {
-        $permissions = DB::table('permissions')
+        $permissions = DB::connection('bcas_admin')->table('permissions')
             ->select('name', 'id')
             ->where('group_name', $group_name)
             ->get();

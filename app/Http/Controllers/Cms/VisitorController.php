@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Frontend;
+namespace App\Http\Controllers\Cms;
 use App\Models\Visitor;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
