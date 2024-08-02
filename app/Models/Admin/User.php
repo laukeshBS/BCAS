@@ -1,6 +1,6 @@
 <?php
 
-namespace App;
+namespace App\Models\Admin;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -12,6 +12,8 @@ class User extends Authenticatable
 {
     use Notifiable, HasRoles;
 
+    protected $connection = 'mysql_admin';
+    
     /**
      * The attributes that are mass assignable.
      *

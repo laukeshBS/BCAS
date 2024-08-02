@@ -23,27 +23,8 @@ class SliderController extends Controller
             return $next($request);
         });
     }
+    // APIs
 
-    public function index()
-    {
-        // if (is_null($this->user) || !$this->user->can('slider-list.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
-
-        return view('backend.cms.slider.list');
-    }
-    public function data()
-    {
-        $slider = Slider::select('*')
-        ->get()
-            ->map(function ($item) {
-                // Format the created_at date field
-                $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                return $item;
-            });
-
-        return DataTables::of($slider)->make(true);
-    }
     public function slider_by_slug(Request $request){
         // Validate the request to ensure 'slug' is provided
         $request->validate([
@@ -66,6 +47,29 @@ class SliderController extends Controller
         });
         return response()->json($slider);
     }
+    
+    // WEB
+    public function index()
+    {
+        // if (is_null($this->user) || !$this->user->can('slider-list.view')) {
+        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
+        // }
+
+        return view('backend.cms.slider.list');
+    }
+    public function data()
+    {
+        $slider = Slider::select('*')
+        ->get()
+            ->map(function ($item) {
+                // Format the created_at date field
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                return $item;
+            });
+
+        return DataTables::of($slider)->make(true);
+    }
+    
     public function add_slider()
     {
         // if (is_null($this->user) || !$this->user->can('slider-add.view')) {
@@ -151,7 +155,7 @@ class SliderController extends Controller
         $slider->status = $request->input('status');
         $slider->save();
 
-    return redirect()->route('cms.slider')->with('success', 'Slider updated successfully.');
+        return redirect()->route('cms.slider')->with('success', 'Slider updated successfully.');
     }
     public function delete_slider($id)
     {
