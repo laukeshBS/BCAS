@@ -90,8 +90,6 @@ class EventController extends Controller
         return response()->json($event);
     }
 
-
-
     // Web
     public function index()
     {

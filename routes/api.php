@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cms\EventController;
 use App\Http\Controllers\Cms\SliderController;
 use App\Http\Controllers\Cms\VisitorController;
+use App\Http\Controllers\Cms\CircularController;
 use App\Http\Controllers\Cms\MenuController as menus;
 use App\Http\Controllers\Cms\CommonController as Common;
 use App\Http\Controllers\Cms\LanguageController as lang;
@@ -65,6 +66,12 @@ Route::middleware('cors')->group(function () {
         Route::post('event-list','event_list')->name('cms.event.list');
         Route::post('event-list-for-homepage','event_list_for_homepage')->name('cms.event.list.for.homepage');
         Route::post('event-store','event_store')->name('cms.event.store');
+      
+    });
+    Route::controller(CircularController::class)->group(function(){
+        Route::post('circular-list','circular_list')->name('cms.circular.list');
+        Route::post('circular-list-for-homepage','circular_list_for_homepage')->name('cms.circular.list.for.homepage');
+        Route::post('circular-store','circular_store')->name('cms.circular.store');
       
     });
 });
