@@ -3,10 +3,10 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Response;
-use App\Http\Controllers\Api\Frontend\MenuController as menus;
-use App\Http\Controllers\Api\Frontend\LanguageController as lang;
-use App\Http\Controllers\Api\Frontend\CommonController as Common;
-use App\Http\Controllers\Api\Frontend\VisitorController;
+use App\Http\Controllers\Cms\MenuController as menus;
+use App\Http\Controllers\Cms\LanguageController as lang;
+use App\Http\Controllers\Cms\CommonController as Common;
+use App\Http\Controllers\Cms\VisitorController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
