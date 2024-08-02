@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models\Admin;
+namespace App\Models\Cms;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -24,7 +24,7 @@ class Menu extends Model
     'end_date',
     'create_date',
     'update_date',
-    'approve_status',  
+    'approve_status',
     'created_by',
     'page_postion',
     'current_version',

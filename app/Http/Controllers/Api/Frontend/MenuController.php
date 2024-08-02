@@ -1,10 +1,10 @@
 <?php
 namespace App\Http\Controllers\Api\Frontend;
 
-use App\Http\Controllers\Controller;
+use App\Models\Cms\Menu;
 use Illuminate\Http\Request;
-use App\Models\Admin\Menu;
 use Illuminate\Http\JsonResponse;
+use App\Http\Controllers\Controller;
 use App\Http\Controllers\Api\BaseController as BaseController;
 
 class MenuController extends BaseController
