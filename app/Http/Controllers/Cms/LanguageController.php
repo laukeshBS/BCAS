@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Controllers\Api\Frontend;
+namespace App\Http\Controllers\Cms;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin\Language;
 use Illuminate\Http\JsonResponse;
-use App\Http\Controllers\Api\BaseController as BaseController;
+use App\Http\Controllers\Cms\BaseController as BaseController;
 
 class LanguageController extends BaseController
 {
