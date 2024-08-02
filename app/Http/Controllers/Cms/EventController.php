@@ -11,6 +11,7 @@ use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 
 class EventController extends Controller
@@ -25,7 +26,73 @@ class EventController extends Controller
         });
     }
 
+    // APIs
+    public function event_list_for_homepage(Request $request)
+    {
+        $limit = $request->input('limit', 5);
 
+        $events = Event::select('*')
+            ->orderBy('id', 'desc')
+            ->limit($limit)
+            ->get();
+
+        $events->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            $item->document = url(Storage::url('app/public/' . $item->document)) ;
+            return $item;
+        });
+
+        return response()->json($events);
+    }
+    public function event_list(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+
+        $events = Event::select('*')
+            ->orderBy('id', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $events->getCollection()->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            return $item;
+        });
+
+        return response()->json($events);
+    }
+    public function event_store(Request $request)
+    {
+        // Validate the request
+        $validated = $request->validate([
+            'title' => 'required|max:255',
+            'description' => 'max:500',
+            'status' => 'required',
+            'image' => 'required|file|mimes:png,jpg,jpeg',
+        ]);
+
+        $filePath = null;
+
+        // Handle file upload
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('public/events', $fileName);
+            $filePath = str_replace('public/', '', $filePath);
+        }
+
+        $event = new Event();
+        $event->title = $validated['title'];
+        $event->description = $validated['description'];
+        $event->status = $validated['status'];
+        $event->document = $filePath;
+        $event->save();
+
+        return response()->json($event);
+    }
+
+
+
+    // Web
     public function index()
     {
         // if (is_null($this->user) || !$this->user->can('slider-list.view')) {
@@ -71,16 +138,16 @@ class EventController extends Controller
             $fileName = time() . '_' . $file->getClientOriginalName();
 
             // Create a ZIP file
-            $zipFileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.zip';
-            $zip = new ZipArchive;
-            $zipFilePath = storage_path('app/public/events/') . $zipFileName;
+            // $zipFileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.zip';
+            // $zip = new ZipArchive;
+            // $zipFilePath = storage_path('app/public/events/') . $zipFileName;
 
-            if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
-                $zip->addFile($file->getPathname(), $file->getClientOriginalName());
-                $zip->close();
-            }
-
-            $filePath = 'events/' . $zipFileName;
+            // if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
+            //     $zip->addFile($file->getPathname(), $file->getClientOriginalName());
+            //     $zip->close();
+            // }
+            $filestore = storage_path('app/public/events/') . $fileName;
+            $filePath = 'events/' . $fileName;
         }
 
         // Create a new event instance
