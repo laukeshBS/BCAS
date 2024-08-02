@@ -29,7 +29,10 @@ class DashboardController extends Controller
             abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
         }
 
-        $total_roles = count(Role::select('id')->get());
+        $total_roles = count(Role::connection
+        (
+        'bcas_admin'
+        )->select('id')->get());
         $total_admins = count(Admin::select('id')->get());
         $total_menus = count(Menu::select('id')->get());
         $total_permissions = count(Permission::select('id')->get());
