@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Models\Admin;
-use App\Models\Language;
 use App\Models\Cms\Slide;
 use App\Models\Cms\Slider;
 use Illuminate\Http\Request;
+use App\Models\Admin\Language;
 use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
@@ -25,6 +25,47 @@ class SlideController extends Controller
         });
     }
 
+    // API
+
+    public function store_slide_api(Request $request)
+    {
+        $validated = $request->validate([
+            'slider_id' => 'required|exists:sliders,id',
+            'lang_code' => 'required|exists:languages,lang_code',
+            'title' => 'required|min:2|max:255',
+            'description' => 'nullable|max:500',
+            'url' => 'nullable|url',
+            'media_type' => 'required|in:image,video',
+            'media' => 'required|file|mimes:jpg,jpeg,png,mp4,mpeg,ogg|max:20480',
+            'order_index' => 'required|integer',
+            'status' => 'required|in:1,2',
+        ]);
+
+        $filePath = null;
+
+        // Handle file upload
+        if ($request->hasFile('media')) {
+            $file = $request->file('media');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $filePath = $file->storeAs('public/slides', $fileName); // Store the file in the 'public/forms' directory
+            $filePath = 'slides/' . $fileName; // Adjust the path if you need to store it in the database
+        }
+        // Create a new form instance
+        $slide = new Slide(); // Assuming you have a Form model
+        $slide->slider_id = $validated['slider_id'];
+        $slide->title = $validated['title'];
+        $slide->description = $validated['description'];
+        $slide->media_type = $validated['media_type'];
+        $slide->media = $filePath; // Store file path in the database
+        $slide->order_index = $validated['order_index'];
+        $slide->lang_code = $validated['lang_code'];
+        $slide->status = $validated['status'];
+        $slide->save();
+
+        return response()->json($slide);
+    }
+
+    // Web
 
     public function index()
     {

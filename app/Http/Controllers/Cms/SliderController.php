@@ -10,6 +10,7 @@ use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 
 class SliderController extends Controller
@@ -42,9 +43,39 @@ class SliderController extends Controller
         // Append base URL to media paths
         $slider->slides->each(function ($slide) use ($baseUrl) {
             if ($slide->media) {
-                $slide->media = $baseUrl . '/app/public/' . $slide->media;
+                $slide->media = url(Storage::url('app/public/' . $slide->media)) ;
+                // $slide->media = $baseUrl . '/app/public/' . $slide->media;
             }
         });
+        return response()->json($slider);
+    }
+    public function store_slider_api(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|max:255',
+            'description' => 'max:500',
+            'status' => 'required',
+        ]);
+
+        // Generate a slug from the title
+        $slug = Str::slug($validated['title']);
+        $originalSlug = $slug;
+        $count = 1;
+
+        // Ensure the slug is unique
+        while (Slider::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count;
+            $count++;
+        }
+
+        // Create a new slider instance
+        $slider = new Slider();
+        $slider->title = $validated['title'];
+        $slider->description = $validated['description'];
+        $slider->status = $validated['status'];
+        $slider->slug = $slug;
+        $slider->save();
+
         return response()->json($slider);
     }
     
