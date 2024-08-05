@@ -61,6 +61,7 @@ Route::middleware('cors')->group(function () {
     });
     Route::controller(SliderController::class)->group(function(){
         Route::post('slider-by-slug','slider_by_slug')->name('cms.slider.by.slug');
+        Route::post('slider-store','store_slider_api')->name('cms.store.slider.api');
       
     });
     Route::controller(EventController::class)->group(function(){
