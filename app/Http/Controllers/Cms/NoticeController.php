@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Cms;
 use ZipArchive;
 use App\Models\Admin;
 use App\Models\Cms\Slider;
-use App\Models\Cms\Circular;
+use App\Models\Cms\Notice;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 
-class CircularController extends Controller
+class NoticeController extends Controller
 {
     public $user;
 
@@ -27,42 +27,42 @@ class CircularController extends Controller
     }
 
     // APIs
-    public function circular_list_for_homepage(Request $request)
+    public function notice_list_for_homepage(Request $request)
     {
         $limit = $request->input('limit', 5);
         $lang_code = $request->input('lang_code');
 
-        $circulars = Circular::select('*')
+        $notices = Notice::select('*')
             ->where('lang_code',$lang_code)
             ->orderBy('id', 'desc')
             ->limit($limit)
             ->get();
 
-        $circulars->transform(function ($item) {
+        $notices->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             $item->document = url(Storage::url('app/public/' . $item->document)) ;
             return $item;
         });
 
-        return response()->json($circulars);
+        return response()->json($notices);
     }
-    public function circular_list(Request $request)
+    public function notice_list(Request $request)
     {
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
 
-        $circulars = Circular::select('*')
+        $notices = Notice::select('*')
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $circulars->getCollection()->transform(function ($item) {
+        $notices->getCollection()->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             return $item;
         });
 
-        return response()->json($circulars);
+        return response()->json($notices);
     }
-    public function circular_store(Request $request)
+    public function notice_store(Request $request)
     {
         // Validate the request
         $validated = $request->validate([
@@ -78,18 +78,18 @@ class CircularController extends Controller
         if ($request->hasFile('document')) {
             $file = $request->file('document');
             $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('public/circulars', $fileName);
+            $filePath = $file->storeAs('public/notices', $fileName);
             $filePath = str_replace('public/', '', $filePath);
         }
 
-        $circular = new Circular();
-        $circular->title = $validated['title'];
-        $circular->description = $validated['description'];
-        $circular->status = $validated['status'];
-        $circular->document = $filePath;
-        $circular->save();
+        $notice = new notice();
+        $notice->title = $validated['title'];
+        $notice->description = $validated['description'];
+        $notice->status = $validated['status'];
+        $notice->document = $filePath;
+        $notice->save();
 
-        return response()->json($circular);
+        return response()->json($notice);
     }
 
     // Web
@@ -100,11 +100,11 @@ class CircularController extends Controller
         //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
         // }
 
-        return view('backend.cms.circular.list');
+        return view('backend.cms.notice.list');
     }
     public function data()
     {
-        $circulars = Circular::select('*')
+        $notices = Notice::select('*')
         ->get()
             ->map(function ($item) {
                 // Format the created_at date field
@@ -112,17 +112,17 @@ class CircularController extends Controller
                 return $item;
             });
 
-        return DataTables::of($circulars)->make(true);
+        return DataTables::of($notices)->make(true);
     }
-    public function add_circular()
+    public function add_notice()
     {
-        // if (is_null($this->user) || !$this->user->can('circular-add.view')) {
+        // if (is_null($this->user) || !$this->user->can('notice-add.view')) {
         //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
         // }
 
-        return view('backend.cms.circular.add');
+        return view('backend.cms.notice.add');
     }
-    public function store_circular(Request $request)
+    public function store_notice(Request $request)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
@@ -141,42 +141,42 @@ class CircularController extends Controller
             // Create a ZIP file
             $zipFileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.zip';
             $zip = new ZipArchive;
-            $zipFilePath = storage_path('app/public/circulars/') . $zipFileName;
+            $zipFilePath = storage_path('app/public/notices/') . $zipFileName;
 
             if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
                 $zip->addFile($file->getPathname(), $file->getClientOriginalName());
                 $zip->close();
             }
 
-            $filePath = 'circulars/' . $zipFileName;
+            $filePath = 'notices/' . $zipFileName;
         }
 
-        // Create a new circular instance
-        $circular = new Circular();
-        $circular->title = $validated['title'];
-        $circular->description = $validated['description'];
-        $circular->status = $validated['status'];
-        $circular->document = $filePath; // Store file path in the database
-        $circular->save();
+        // Create a new notice instance
+        $notice = new notice();
+        $notice->title = $validated['title'];
+        $notice->description = $validated['description'];
+        $notice->status = $validated['status'];
+        $notice->document = $filePath; // Store file path in the database
+        $notice->save();
 
-        $request->session()->flash('success', 'Circular added successfully!');
+        $request->session()->flash('success', 'notice added successfully!');
 
-        return redirect()->route('cms.circular');
+        return redirect()->route('cms.notice');
     }
-    public function edit_circular($id)
+    public function edit_notice($id)
     {
-        // Find the circular by id
-        $circular = Circular::find($id);
+        // Find the notice by id
+        $notice = Notice::find($id);
 
-        if (!$circular) {
-            return redirect()->route('cms.circular')->with('error', 'circular not found.');
+        if (!$notice) {
+            return redirect()->route('cms.notice')->with('error', 'notice not found.');
         }
 
-        // Pass the circular data to the view
-        return view('backend.cms.circular.edit', compact('circular'));
+        // Pass the notice data to the view
+        return view('backend.cms.notice.edit', compact('notice'));
     }
 
-    public function update_circular(Request $request, $id)
+    public function update_notice(Request $request, $id)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
@@ -185,15 +185,15 @@ class CircularController extends Controller
             'document' => 'file|mimes:pdf|max:2048',
         ]);
 
-        $circular = Circular::find($id);
+        $notice = Notice::find($id);
 
-        if (!$circular) {
-            return redirect()->route('cms.circular.list')->with('error', 'Circular not found.');
+        if (!$notice) {
+            return redirect()->route('cms.notice.list')->with('error', 'notice not found.');
         }
 
-        $circular->title = $request->input('title');
-        $circular->description = $request->input('description');
-        $circular->status = $request->input('status');
+        $notice->title = $request->input('title');
+        $notice->description = $request->input('description');
+        $notice->status = $request->input('status');
 
         if ($request->hasFile('document')) {
             // Handle file upload
@@ -203,37 +203,37 @@ class CircularController extends Controller
             // Create a ZIP file
             $zipFileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.zip';
             $zip = new ZipArchive;
-            $zipFilePath = storage_path('app/public/circulars/') . $zipFileName;
+            $zipFilePath = storage_path('app/public/notices/') . $zipFileName;
 
             if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
                 $zip->addFile($file->getPathname(), $file->getClientOriginalName());
                 $zip->close();
             }
 
-            $filePath = 'circulars/' . $zipFileName;
+            $filePath = 'notices/' . $zipFileName;
 
             // Update the document path in the database
-            $circular->document = $filePath;
+            $notice->document = $filePath;
         }
 
-        $circular->save();
+        $notice->save();
 
-        return redirect()->route('cms.circular')->with('success', 'Circular updated successfully.');
+        return redirect()->route('cms.notice')->with('success', 'notice updated successfully.');
     }
 
-    public function delete_circular($id)
+    public function delete_notice($id)
     {
-        // Find the circular by id
-        $circular = Circular::find($id);
+        // Find the notice by id
+        $notice = Notice::find($id);
 
-        if (!$circular) {
-            return redirect()->route('cms.circular')->with('error', 'circular not found.');
+        if (!$notice) {
+            return redirect()->route('cms.notice')->with('error', 'notice not found.');
         }
 
-        // Delete the circular
-        $circular->delete();
+        // Delete the notice
+        $notice->delete();
 
         // Redirect back with success message
-        return redirect()->route('cms.circular')->with('success', 'circular deleted successfully.');
+        return redirect()->route('cms.notice')->with('success', 'notice deleted successfully.');
     }
 }
