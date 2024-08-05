@@ -30,8 +30,10 @@ class CircularController extends Controller
     public function circular_list_for_homepage(Request $request)
     {
         $limit = $request->input('limit', 5);
+        $lang_code = $request->input('lang_code');
 
         $circulars = Circular::select('*')
+            ->where('lang_code',$lang_code)
             ->orderBy('id', 'desc')
             ->limit($limit)
             ->get();
