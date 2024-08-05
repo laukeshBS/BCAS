@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cms\EventController;
+use App\Http\Controllers\Cms\NoticeController;
 use App\Http\Controllers\Cms\SliderController;
 use App\Http\Controllers\Cms\VisitorController;
 use App\Http\Controllers\Cms\CircularController;
@@ -72,6 +73,12 @@ Route::middleware('cors')->group(function () {
         Route::post('circular-list','circular_list')->name('cms.circular.list');
         Route::post('circular-list-for-homepage','circular_list_for_homepage')->name('cms.circular.list.for.homepage');
         Route::post('circular-store','circular_store')->name('cms.circular.store');
+      
+    });
+    Route::controller(NoticeController::class)->group(function(){
+        Route::post('notice-list','notice_list')->name('cms.notice.list');
+        Route::post('notice-list-for-homepage','notice_list_for_homepage')->name('cms.notice.list.for.homepage');
+        Route::post('notice-store','notice_store')->name('cms.notice.store');
       
     });
 });
