@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Cms\EventController;
+use App\Http\Controllers\Cms\SlideController;
 use App\Http\Controllers\Cms\NoticeController;
 use App\Http\Controllers\Cms\SliderController;
 use App\Http\Controllers\Cms\VisitorController;
@@ -62,6 +63,10 @@ Route::middleware('cors')->group(function () {
     Route::controller(SliderController::class)->group(function(){
         Route::post('slider-by-slug','slider_by_slug')->name('cms.slider.by.slug');
         Route::post('slider-store','store_slider_api')->name('cms.store.slider.api');
+      
+    });
+    Route::controller(SlideController::class)->group(function(){
+        Route::post('slide-store','store_slide_api')->name('cms.store.slide.api');
       
     });
     Route::controller(EventController::class)->group(function(){
