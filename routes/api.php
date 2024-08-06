@@ -10,6 +10,7 @@ use App\Http\Controllers\Cms\SliderController;
 use App\Http\Controllers\Cms\VisitorController;
 use App\Http\Controllers\Cms\CircularController;
 use App\Http\Controllers\Cms\MenuController as menus;
+use App\Http\Controllers\Cms\ActandpoliciesController;
 use App\Http\Controllers\Cms\CommonController as Common;
 use App\Http\Controllers\Cms\LanguageController as lang;
 /*
@@ -67,6 +68,12 @@ Route::middleware('cors')->group(function () {
     });
     Route::controller(SlideController::class)->group(function(){
         Route::post('slide-store','store_slide_api')->name('cms.store.slide.api');
+      
+    });
+    Route::controller(ActandpoliciesController::class)->group(function(){
+        Route::post('acts-and-policies-list','data_api')->name('cms.acts.and.policies.list');
+        Route::get('acts-and-policies-list-by-id/{id}','get_data_by_id_api')->name('cms.acts.and.policies.list.by.id');
+        // Route::post('acts-and-policies-store','store_api')->name('cms.acts.and.policies.store');
       
     });
     Route::controller(EventController::class)->group(function(){
