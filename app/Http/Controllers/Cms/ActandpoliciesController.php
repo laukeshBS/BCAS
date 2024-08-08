@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Cms;
 
 use App\Models\Admin;
 use App\Models\Cms\Slider;
-use App\Models\Cms\ActAndPolicies;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use App\Models\Cms\ActAndPolicies;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 
 class ActandpoliciesController extends Controller
@@ -23,7 +24,53 @@ class ActandpoliciesController extends Controller
             return $next($request);
         });
     }
+    // API
 
+    public function data_api(Request $request)
+    {
+        $limit = $request->input('limit', 5);
+        $lang_code = $request->input('lang_code');
+
+        $data = ActAndPolicies::select('*')
+            ->where('lang_code',$lang_code)
+            ->orderBy('id', 'desc')
+            ->limit($limit)
+            ->get();
+
+        $data->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            $item->document = url(Storage::url('app/public/' . $item->document)) ;
+            return $item;
+        });
+
+        return response()->json($data);
+    }
+    public function get_data_by_id_api($id)
+    {
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
+        }
+
+        // Retrieve the data by ID
+        $data = ActAndPolicies::find($validatedId);
+
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
+        }
+
+        // Return the data as JSON
+        return response()->json($data);
+    }
+
+
+    // Web
 
     public function index()
     {

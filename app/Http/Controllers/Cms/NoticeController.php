@@ -31,12 +31,24 @@ class NoticeController extends Controller
     {
         $limit = $request->input('limit', 5);
         $lang_code = $request->input('lang_code');
+        $important = $request->input('important');
 
-        $notices = Notice::select('*')
+        if (!empty($important)) {
+            $notices = Notice::select('*')
+            ->where('important',$important)
             ->where('lang_code',$lang_code)
             ->orderBy('id', 'desc')
             ->limit($limit)
             ->get();
+        }else{
+            $notices = Notice::select('*')
+            ->where('lang_code',$lang_code)
+            ->orderBy('id', 'desc')
+            ->limit($limit)
+            ->get();
+        }
+
+        
 
         $notices->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));

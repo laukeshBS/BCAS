@@ -11,6 +11,6 @@ class Notice extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name', 'title', 'description','lang_code','status',
+        'name', 'title', 'description','lang_code','status','important',
     ];
 }
