@@ -11,12 +11,65 @@ use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 
 class TenderController extends Controller
 {
     public $user;
 
+    // API
+
+    public function data(Request $request)
+    {
+        $limit = $request->input('limit', 5);
+        $lang_code = $request->input('lang_code');
+
+        $data = Tender::select('*')
+            ->where('lang_code',$lang_code)
+            ->orderBy('id', 'desc')
+            ->limit($limit)
+            ->get();
+
+        $data->transform(function ($item) {
+            $item->start_date = date('d-m-Y', strtotime($item->start_date));
+            $item->end_date = date('d-m-Y', strtotime($item->end_date));
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            $item->document = url(Storage::url('app/public/' . $item->document)) ;
+            return $item;
+        });
+
+        return response()->json($data);
+    }
+    public function data_by_id($id)
+    {
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
+        }
+
+        // Retrieve the data by ID
+        $data = Tender::find($validatedId);
+
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found '
+            ], 404);
+        }
+        $data->start_date = date('d-m-Y', strtotime($data->start_date));
+        $data->end_date = date('d-m-Y', strtotime($data->end_date));
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
+        $data->document = url(Storage::url('app/public/' . $data->document)) ;
+
+        // Return the data as JSON
+        return response()->json($data);
+    }
+
+    // Web
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
@@ -34,18 +87,7 @@ class TenderController extends Controller
 
         return view('backend.cms.tender.list');
     }
-    public function data()
-    {
-        $tenders = Tender::select('*')
-        ->get()
-            ->map(function ($item) {
-                // Format the created_at date field
-                $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                return $item;
-            });
-
-        return DataTables::of($tenders)->make(true);
-    }
+    
     public function add_tender()
     {
         // if (is_null($this->user) || !$this->user->can('tender-add.view')) {
