@@ -38,6 +38,8 @@ class ActandpoliciesController extends Controller
             ->get();
 
         $data->transform(function ($item) {
+            $item->start_date = date('d-m-Y', strtotime($item->start_date));
+            $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             $item->document = url(Storage::url('app/public/' . $item->document)) ;
             return $item;
@@ -64,6 +66,10 @@ class ActandpoliciesController extends Controller
                 'error' => 'Data not found'
             ], 404);
         }
+        $data->start_date = date('d-m-Y', strtotime($data->start_date));
+        $data->end_date = date('d-m-Y', strtotime($data->end_date));
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
+        $data->document = url(Storage::url('app/public/' . $data->document)) ;
 
         // Return the data as JSON
         return response()->json($data);
