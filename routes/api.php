@@ -3,10 +3,12 @@
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Cms\EventController;
 use App\Http\Controllers\Cms\SlideController;
 use App\Http\Controllers\Cms\NoticeController;
 use App\Http\Controllers\Cms\SliderController;
+use App\Http\Controllers\Cms\TenderController;
 use App\Http\Controllers\Cms\VisitorController;
 use App\Http\Controllers\Cms\CircularController;
 use App\Http\Controllers\Cms\MenuController as menus;
@@ -62,36 +64,42 @@ Route::middleware('cors')->group(function () {
       
     });
     Route::controller(SliderController::class)->group(function(){
-        Route::post('slider-by-slug','slider_by_slug')->name('cms.slider.by.slug');
-        Route::post('slider-store','store_slider_api')->name('cms.store.slider.api');
+        Route::post('slider-by-slug','slider_by_slug');
+        Route::post('slider-store','store_slider_api');
       
     });
     Route::controller(SlideController::class)->group(function(){
-        Route::post('slide-store','store_slide_api')->name('cms.store.slide.api');
+        Route::post('slide-store','store_slide_api');
       
     });
     Route::controller(ActandpoliciesController::class)->group(function(){
-        Route::post('acts-and-policies-list','data_api')->name('cms.acts.and.policies.list');
-        Route::get('acts-and-policies-list-by-id/{id}','get_data_by_id_api')->name('cms.acts.and.policies.list.by.id');
+        Route::post('acts-and-policies-list','data_api');
+        Route::get('acts-and-policies-list-by-id/{id}','get_data_by_id_api');
         // Route::post('acts-and-policies-store','store_api')->name('cms.acts.and.policies.store');
       
     });
     Route::controller(EventController::class)->group(function(){
-        Route::post('event-list','event_list')->name('cms.event.list');
-        Route::post('event-list-for-homepage','event_list_for_homepage')->name('cms.event.list.for.homepage');
-        Route::post('event-store','event_store')->name('cms.event.store');
+        Route::post('event-list','event_list');
+        Route::post('event-list-for-homepage','event_list_for_homepage');
+        Route::post('event-store','event_store');
       
     });
     Route::controller(CircularController::class)->group(function(){
-        Route::post('circular-list','circular_list')->name('cms.circular.list');
-        Route::post('circular-list-for-homepage','circular_list_for_homepage')->name('cms.circular.list.for.homepage');
-        Route::post('circular-store','circular_store')->name('cms.circular.store');
+        Route::post('circular-list','circular_list');
+        Route::post('circular-list-for-homepage','circular_list_for_homepage');
+        Route::post('circular-store','circular_store');
       
     });
     Route::controller(NoticeController::class)->group(function(){
-        Route::post('notice-list','notice_list')->name('cms.notice.list');
-        Route::post('notice-list-for-homepage','notice_list_for_homepage')->name('cms.notice.list.for.homepage');
-        Route::post('notice-store','notice_store')->name('cms.notice.store');
+        Route::post('notice-list','notice_list');
+        Route::post('notice-list-for-homepage','notice_list_for_homepage');
+        Route::post('notice-store','notice_store');
+      
+    });
+    Route::controller(TenderController::class)->group(function(){
+        Route::post('tender-list','data');
+        Route::get('tender-details/{id}','data_by_id');
+        Route::post('tender-store','tender_store');
       
     });
 });

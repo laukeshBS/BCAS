@@ -11,6 +11,6 @@ class Tender extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'title', 'description','document','lang_code','status',
+        'title', 'description','document','lang_code','status','start_date','end_date',
     ];
 }
