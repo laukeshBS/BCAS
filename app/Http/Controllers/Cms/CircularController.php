@@ -26,7 +26,6 @@ class CircularController extends Controller
         });
     }
 
-    // APIs
     public function circular_list_for_homepage(Request $request)
     {
         $limit = $request->input('limit', 5);
@@ -62,121 +61,89 @@ class CircularController extends Controller
 
         return response()->json($circulars);
     }
-    public function circular_store(Request $request)
+    
+    public function data(Request $request)
     {
-        // Validate the request
-        $validated = $request->validate([
-            'title' => 'required|max:255',
-            'description' => 'max:500',
-            'status' => 'required',
-            'document' => 'required|file|mimes:pdf',
-        ]);
+        $limit = $request->input('limit', 5);
+        $lang_code = $request->input('lang_code');
 
-        $filePath = null;
+        $data = Circular::select('*')
+            ->where('lang_code',$lang_code)
+            ->orderBy('id', 'desc')
+            ->limit($limit)
+            ->get();
 
-        // Handle file upload
-        if ($request->hasFile('document')) {
-            $file = $request->file('document');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('public/circulars', $fileName);
-            $filePath = str_replace('public/', '', $filePath);
+        $data->transform(function ($item) {
+            $item->start_date = date('d-m-Y', strtotime($item->start_date));
+            $item->end_date = date('d-m-Y', strtotime($item->end_date));
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            $item->document = url(Storage::url('app/public/' . $item->document)) ;
+            return $item;
+        });
+
+        return response()->json($data);
+    }
+    public function data_by_id($id)
+    {
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
         }
 
-        $circular = new Circular();
-        $circular->title = $validated['title'];
-        $circular->description = $validated['description'];
-        $circular->status = $validated['status'];
-        $circular->document = $filePath;
-        $circular->save();
+        // Retrieve the data by ID
+        $data = Circular::find($validatedId);
 
-        return response()->json($circular);
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
+        }
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
+        $data->document = url(Storage::url('app/public/' . $data->document)) ;
+
+        // Return the data as JSON
+        return response()->json($data);
     }
-
-    // Web
-
-    public function index()
-    {
-        // if (is_null($this->user) || !$this->user->can('slider-list.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
-
-        return view('backend.cms.circular.list');
-    }
-    public function data()
-    {
-        $circulars = Circular::select('*')
-        ->get()
-            ->map(function ($item) {
-                // Format the created_at date field
-                $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                return $item;
-            });
-
-        return DataTables::of($circulars)->make(true);
-    }
-    public function add_circular()
-    {
-        // if (is_null($this->user) || !$this->user->can('circular-add.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
-
-        return view('backend.cms.circular.add');
-    }
-    public function store_circular(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
             'description' => 'max:500',
             'status' => 'required',
+            'lang_code' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
             'document' => 'required|file|mimes:pdf|max:2048',
         ]);
 
-        $filePath = null;
-
         // Handle file upload
         if ($request->hasFile('document')) {
             $file = $request->file('document');
             $fileName = time() . '_' . $file->getClientOriginalName();
-
-            // Create a ZIP file
-            $zipFileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.zip';
-            $zip = new ZipArchive;
-            $zipFilePath = storage_path('app/public/circulars/') . $zipFileName;
-
-            if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
-                $zip->addFile($file->getPathname(), $file->getClientOriginalName());
-                $zip->close();
-            }
-
-            $filePath = 'circulars/' . $zipFileName;
+            $filePath = $file->storeAs('public/actsAndPolicies', $fileName);
+            $filePath = str_replace('public/', '', $filePath);
         }
 
-        // Create a new circular instance
-        $circular = new Circular();
-        $circular->title = $validated['title'];
-        $circular->description = $validated['description'];
-        $circular->status = $validated['status'];
-        $circular->document = $filePath; // Store file path in the database
-        $circular->save();
-
-        $request->session()->flash('success', 'Circular added successfully!');
-
-        return redirect()->route('cms.circular');
-    }
-    public function edit_circular($id)
-    {
-        // Find the circular by id
-        $circular = Circular::find($id);
-
-        if (!$circular) {
-            return redirect()->route('cms.circular')->with('error', 'circular not found.');
-        }
-
-        // Pass the circular data to the view
-        return view('backend.cms.circular.edit', compact('circular'));
+        // Create a new Act and Policy instance
+        $actandpolicy = new Circular();
+        $actandpolicy->title = $validated['title'];
+        $actandpolicy->description = $validated['description'];
+        $actandpolicy->status = $validated['status'];
+        $actandpolicy->lang_code = $validated['lang_code'];
+        $actandpolicy->start_date = $validated['start_date'];
+        $actandpolicy->end_date = $validated['end_date'];
+        $actandpolicy->document = $filePath; // Store file path in the database
+        $actandpolicy->save();
+        
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
 
-    public function update_circular(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
@@ -185,55 +152,47 @@ class CircularController extends Controller
             'document' => 'file|mimes:pdf|max:2048',
         ]);
 
-        $circular = Circular::find($id);
+        $actandpolicy = Circular::find($id);
 
-        if (!$circular) {
-            return redirect()->route('cms.circular.list')->with('error', 'Circular not found.');
+        if (!$actandpolicy) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
         }
 
-        $circular->title = $request->input('title');
-        $circular->description = $request->input('description');
-        $circular->status = $request->input('status');
+        $actandpolicy->title = $request->input('title');
+        $actandpolicy->description = $request->input('description');
+        $actandpolicy->status = $request->input('status');
 
         if ($request->hasFile('document')) {
-            // Handle file upload
             $file = $request->file('document');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-
-            // Create a ZIP file
-            $zipFileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.zip';
-            $zip = new ZipArchive;
-            $zipFilePath = storage_path('app/public/circulars/') . $zipFileName;
-
-            if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
-                $zip->addFile($file->getPathname(), $file->getClientOriginalName());
-                $zip->close();
-            }
-
-            $filePath = 'circulars/' . $zipFileName;
-
-            // Update the document path in the database
-            $circular->document = $filePath;
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('documents'), $filename);
+            $actandpolicy->document = $filename;
         }
 
-        $circular->save();
+        $actandpolicy->save();
 
-        return redirect()->route('cms.circular')->with('success', 'Circular updated successfully.');
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
 
-    public function delete_circular($id)
+    public function delete($id)
     {
-        // Find the circular by id
-        $circular = Circular::find($id);
+        // Find the actandpolicy by id
+        $actandpolicy = Circular::find($id);
 
-        if (!$circular) {
-            return redirect()->route('cms.circular')->with('error', 'circular not found.');
+        if (!$actandpolicy) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
         }
 
-        // Delete the circular
-        $circular->delete();
+        // Delete the actandpolicy
+        $actandpolicy->delete();
 
-        // Redirect back with success message
-        return redirect()->route('cms.circular')->with('success', 'circular deleted successfully.');
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
+
 }

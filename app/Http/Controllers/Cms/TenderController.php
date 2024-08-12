@@ -18,8 +18,6 @@ class TenderController extends Controller
 {
     public $user;
 
-    // API
-
     public function data(Request $request)
     {
         $limit = $request->input('limit', 5);
@@ -69,88 +67,42 @@ class TenderController extends Controller
         return response()->json($data);
     }
 
-    // Web
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('admin')->user();
-            return $next($request);
-        });
-    }
-
-
-    public function index()
-    {
-        // if (is_null($this->user) || !$this->user->can('slider-list.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
-
-        return view('backend.cms.tender.list');
-    }
-    
-    public function add_tender()
-    {
-        // if (is_null($this->user) || !$this->user->can('tender-add.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
-
-        return view('backend.cms.tender.add');
-    }
-    public function store_tender(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
             'description' => 'max:500',
             'status' => 'required',
+            'lang_code' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
             'document' => 'required|file|mimes:pdf|max:2048',
         ]);
-
-        $filePath = null;
 
         // Handle file upload
         if ($request->hasFile('document')) {
             $file = $request->file('document');
             $fileName = time() . '_' . $file->getClientOriginalName();
-
-            // Create a ZIP file
-            $zipFileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.zip';
-            $zip = new ZipArchive;
-            $zipFilePath = storage_path('app/public/tenders/') . $zipFileName;
-
-            if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
-                $zip->addFile($file->getPathname(), $file->getClientOriginalName());
-                $zip->close();
-            }
-
-            $filePath = 'tenders/' . $zipFileName;
+            $filePath = $file->storeAs('public/actsAndPolicies', $fileName);
+            $filePath = str_replace('public/', '', $filePath);
         }
 
-        // Create a new Tender instance
-        $tender = new Tender();
-        $tender->title = $validated['title'];
-        $tender->description = $validated['description'];
-        $tender->status = $validated['status'];
-        $tender->document = $filePath; // Store file path in the database
-        $tender->save();
-
-        $request->session()->flash('success', 'Tender added successfully!');
-
-        return redirect()->route('cms.tender');
-    }
-    public function edit_tender($id)
-    {
-        // Find the tender by id
-        $tender = Tender::find($id);
-
-        if (!$tender) {
-            return redirect()->route('cms.tender')->with('error', 'Tender not found.');
-        }
-
-        // Pass the tender data to the view
-        return view('backend.cms.tender.edit', compact('tender'));
+        // Create a new Act and Policy instance
+        $actandpolicy = new Tender();
+        $actandpolicy->title = $validated['title'];
+        $actandpolicy->description = $validated['description'];
+        $actandpolicy->status = $validated['status'];
+        $actandpolicy->lang_code = $validated['lang_code'];
+        $actandpolicy->start_date = $validated['start_date'];
+        $actandpolicy->end_date = $validated['end_date'];
+        $actandpolicy->document = $filePath; // Store file path in the database
+        $actandpolicy->save();
+        
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
 
-    public function update_tender(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
@@ -159,55 +111,46 @@ class TenderController extends Controller
             'document' => 'file|mimes:pdf|max:2048',
         ]);
 
-        $tender = Tender::find($id);
+        $actandpolicy = Tender::find($id);
 
-        if (!$tender) {
-            return redirect()->route('cms.tender.list')->with('error', 'Tender not found.');
+        if (!$actandpolicy) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
         }
 
-        $tender->title = $request->input('title');
-        $tender->description = $request->input('description');
-        $tender->status = $request->input('status');
+        $actandpolicy->title = $request->input('title');
+        $actandpolicy->description = $request->input('description');
+        $actandpolicy->status = $request->input('status');
 
         if ($request->hasFile('document')) {
-            // Handle file upload
             $file = $request->file('document');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-
-            // Create a ZIP file
-            $zipFileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.zip';
-            $zip = new ZipArchive;
-            $zipFilePath = storage_path('app/public/tenders/') . $zipFileName;
-
-            if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
-                $zip->addFile($file->getPathname(), $file->getClientOriginalName());
-                $zip->close();
-            }
-
-            $filePath = 'tenders/' . $zipFileName;
-
-            // Update the document path in the database
-            $tender->document = $filePath;
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('documents'), $filename);
+            $actandpolicy->document = $filename;
         }
 
-        $tender->save();
+        $actandpolicy->save();
 
-        return redirect()->route('cms.tender')->with('success', 'Tender updated successfully.');
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
 
-    public function delete_tender($id)
+    public function delete($id)
     {
-        // Find the tender by id
-        $tender = Tender::find($id);
+        // Find the actandpolicy by id
+        $actandpolicy = Tender::find($id);
 
-        if (!$tender) {
-            return redirect()->route('cms.tender')->with('error', 'Tender not found.');
+        if (!$actandpolicy) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
         }
 
-        // Delete the tender
-        $tender->delete();
+        // Delete the actandpolicy
+        $actandpolicy->delete();
 
-        // Redirect back with success message
-        return redirect()->route('cms.tender')->with('success', 'Tender deleted successfully.');
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
 }

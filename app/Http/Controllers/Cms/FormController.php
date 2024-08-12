@@ -11,6 +11,7 @@ use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 
 class FormController extends Controller
@@ -25,90 +26,90 @@ class FormController extends Controller
         });
     }
 
-
-    public function index()
+    public function data(Request $request)
     {
-        // if (is_null($this->user) || !$this->user->can('slider-list.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
+        $limit = $request->input('limit', 5);
+        $lang_code = $request->input('lang_code');
 
-        return view('backend.cms.form.list');
+        $data = Form::select('*')
+            ->where('lang_code',$lang_code)
+            ->orderBy('id', 'desc')
+            ->limit($limit)
+            ->get();
+
+        $data->transform(function ($item) {
+            $item->start_date = date('d-m-Y', strtotime($item->start_date));
+            $item->end_date = date('d-m-Y', strtotime($item->end_date));
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            $item->document = url(Storage::url('app/public/' . $item->document)) ;
+            return $item;
+        });
+
+        return response()->json($data);
     }
-    public function data()
+    public function data_by_id($id)
     {
-        $forms = Form::select('*')
-        ->get()
-            ->map(function ($item) {
-                // Format the created_at date field
-                $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                return $item;
-            });
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
+        }
 
-        return DataTables::of($forms)->make(true);
-    }
-    public function add_form()
-    {
-        // if (is_null($this->user) || !$this->user->can('form-add.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
+        // Retrieve the data by ID
+        $data = Form::find($validatedId);
 
-        return view('backend.cms.form.add');
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
+        }
+        // $data->start_date = date('d-m-Y', strtotime($data->start_date));
+        // $data->end_date = date('d-m-Y', strtotime($data->end_date));
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
+        $data->document = url(Storage::url('app/public/' . $data->document)) ;
+
+        // Return the data as JSON
+        return response()->json($data);
     }
-    public function store_form(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
             'description' => 'max:500',
             'status' => 'required',
+            'lang_code' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
             'document' => 'required|file|mimes:pdf|max:2048',
         ]);
-
-        $filePath = null;
 
         // Handle file upload
         if ($request->hasFile('document')) {
             $file = $request->file('document');
             $fileName = time() . '_' . $file->getClientOriginalName();
-
-            // Create a ZIP file
-            $zipFileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.zip';
-            $zip = new ZipArchive;
-            $zipFilePath = storage_path('app/public/forms/') . $zipFileName;
-
-            if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
-                $zip->addFile($file->getPathname(), $file->getClientOriginalName());
-                $zip->close();
-            }
-
-            $filePath = 'forms/' . $zipFileName;
+            $filePath = $file->storeAs('public/actsAndPolicies', $fileName);
+            $filePath = str_replace('public/', '', $filePath);
         }
 
-        // Create a new form instance
-        $form = new Form(); // Assuming you have a Form model
-        $form->title = $validated['title'];
-        $form->description = $validated['description'];
-        $form->status = $validated['status'];
-        $form->document = $filePath; // Store file path in the database
-        $form->save();
-
-        $request->session()->flash('success', 'Form added successfully!');
-
-        return redirect()->route('cms.form');
-    }
-    public function edit_form($id)
-    {
-        // Find the form by id
-        $form = Form::find($id);
-
-        if (!$form) {
-            return redirect()->route('cms.form')->with('error', 'form not found.');
-        }
-
-        // Pass the form data to the view
-        return view('backend.cms.form.edit', compact('form'));
+        // Create a new Act and Policy instance
+        $actandpolicy = new Form();
+        $actandpolicy->title = $validated['title'];
+        $actandpolicy->description = $validated['description'];
+        $actandpolicy->status = $validated['status'];
+        $actandpolicy->lang_code = $validated['lang_code'];
+        $actandpolicy->start_date = $validated['start_date'];
+        $actandpolicy->end_date = $validated['end_date'];
+        $actandpolicy->document = $filePath; // Store file path in the database
+        $actandpolicy->save();
+        
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
 
-    public function update_form(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
@@ -117,55 +118,46 @@ class FormController extends Controller
             'document' => 'file|mimes:pdf|max:2048',
         ]);
 
-        $form = Form::find($id);
+        $actandpolicy = Form::find($id);
 
-        if (!$form) {
-            return redirect()->route('cms.form.list')->with('error', 'Form not found.');
+        if (!$actandpolicy) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
         }
 
-        $form->title = $request->input('title');
-        $form->description = $request->input('description');
-        $form->status = $request->input('status');
+        $actandpolicy->title = $request->input('title');
+        $actandpolicy->description = $request->input('description');
+        $actandpolicy->status = $request->input('status');
 
         if ($request->hasFile('document')) {
-            // Handle file upload
             $file = $request->file('document');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-
-            // Create a ZIP file
-            $zipFileName = time() . '_' . pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME) . '.zip';
-            $zip = new ZipArchive;
-            $zipFilePath = storage_path('app/public/forms/') . $zipFileName;
-
-            if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
-                $zip->addFile($file->getPathname(), $file->getClientOriginalName());
-                $zip->close();
-            }
-
-            $filePath = 'forms/' . $zipFileName;
-
-            // Update the document path in the database
-            $form->document = $filePath;
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('documents'), $filename);
+            $actandpolicy->document = $filename;
         }
 
-        $form->save();
+        $actandpolicy->save();
 
-        return redirect()->route('cms.form')->with('success', 'Form updated successfully.');
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
 
-    public function delete_form($id)
+    public function delete($id)
     {
-        // Find the form by id
-        $form = Form::find($id);
+        // Find the actandpolicy by id
+        $actandpolicy = Form::find($id);
 
-        if (!$form) {
-            return redirect()->route('cms.form')->with('error', 'form not found.');
+        if (!$actandpolicy) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
         }
 
-        // Delete the form
-        $form->delete();
+        // Delete the actandpolicy
+        $actandpolicy->delete();
 
-        // Redirect back with success message
-        return redirect()->route('cms.form')->with('success', 'form deleted successfully.');
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
 }
