@@ -9,11 +9,11 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
-use App\Models\Cms\Contact;
+use App\Models\Cms\Division;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 
-class ContactController extends Controller
+class DivisionController extends Controller
 {
     public $user;
 
@@ -25,16 +25,10 @@ class ContactController extends Controller
         });
     }
 
-    // contact
+    // Division
     public function data(Request $request)
     {
-        $limit = $request->input('limit', 5);
-        $lang_code = $request->input('lang_code');
-        
-        $data = Contact::select('*')
-            ->where('lang_code',$lang_code)
-            ->limit($limit)
-            ->get();
+        $data = Division::get();
 
         $data->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
@@ -52,7 +46,7 @@ class ContactController extends Controller
             ], 400);
         }
 
-        $data = Contact::find($validatedId);
+        $data = Division::find($validatedId);
 
         if (!$data) {
             return response()->json([
@@ -76,18 +70,18 @@ class ContactController extends Controller
             'status' => 'required',
         ]);
 
-        $contact = new Contact();
-        $contact->name = $validated['name'];
-        $contact->rank = $validated['rank'];
-        $contact->phone = $validated['phone'];
-        $contact->email = $validated['email'];
-        $contact->division_id = $validated['division_id'];
-        $contact->region_id = $validated['region_id'];
-        $contact->lang_code = $validated['lang_code'];
-        $contact->status = $validated['status'];
-        $contact->save();
+        $division = new Division();
+        $division->name = $validated['name'];
+        $division->rank = $validated['rank'];
+        $division->phone = $validated['phone'];
+        $division->email = $validated['email'];
+        $division->division_id = $validated['division_id'];
+        $division->region_id = $validated['region_id'];
+        $division->lang_code = $validated['lang_code'];
+        $division->status = $validated['status'];
+        $division->save();
         
-        return response()->json($contact);
+        return response()->json($division);
     }
     public function update(Request $request, $id)
     {
@@ -102,37 +96,37 @@ class ContactController extends Controller
             'status' => 'required',
         ]);
 
-        $contact = Contact::find($id);
+        $division = Division::find($id);
 
-        if (!$contact) {
+        if (!$division) {
             return response()->json([
                 'error' => 'Data Not Found.'
             ], 400);
         }
 
-        $contact->name = $validated['name'];
-        $contact->rank = $validated['rank'];
-        $contact->phone = $validated['phone'];
-        $contact->email = $validated['email'];
-        $contact->division_id = $validated['division_id'];
-        $contact->region_id = $validated['region_id'];
-        $contact->lang_code = $validated['lang_code'];
-        $contact->status = $validated['status'];
-        $contact->save();
+        $division->name = $validated['name'];
+        $division->rank = $validated['rank'];
+        $division->phone = $validated['phone'];
+        $division->email = $validated['email'];
+        $division->division_id = $validated['division_id'];
+        $division->region_id = $validated['region_id'];
+        $division->lang_code = $validated['lang_code'];
+        $division->status = $validated['status'];
+        $division->save();
 
-        return response()->json($contact);
+        return response()->json($division);
     }
     public function delete($id)
     {
-        $contact = Contact::find($id);
+        $division = Division::find($id);
 
-        if (!$contact) {
+        if (!$division) {
             return response()->json([
                 'error' => 'Data Not Found.'
             ], 400);
         }
-        $contact->delete();
+        $division->delete();
 
-        return response()->json($contact);
+        return response()->json($division);
     }
 }

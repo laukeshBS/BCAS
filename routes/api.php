@@ -10,6 +10,7 @@ use App\Http\Controllers\Cms\SlideController;
 use App\Http\Controllers\Cms\NoticeController;
 use App\Http\Controllers\Cms\SliderController;
 use App\Http\Controllers\Cms\TenderController;
+use App\Http\Controllers\Cms\ContactController;
 use App\Http\Controllers\Cms\VacancyController;
 use App\Http\Controllers\Cms\VisitorController;
 use App\Http\Controllers\Cms\CircularController;
@@ -138,5 +139,12 @@ Route::middleware('cors')->group(function () {
         Route::delete('vacancy-delete/{id}','delete');
       
     });
-    
+    Route::controller(ContactController::class)->group(function(){
+        Route::post('contact-list','data');
+        Route::get('contact-list-by-id/{id}','data_by_id');
+        Route::post('contact-store','store');
+        Route::post('contact-update/{id}','update');
+        Route::delete('contact-delete/{id}','delete');
+      
+    });
 });
