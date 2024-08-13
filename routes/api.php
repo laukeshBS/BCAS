@@ -55,6 +55,7 @@ Route::middleware('cors')->group(function () {
     Route::controller(menus::class)->group(function(){
         Route::post('menulist','index');
         Route::post('menu/lang_slgus_wise','lang_slgus_wise');
+        Route::post('menu/lang_pid_wise','lang_pid_wise');
       
     });
     Route::controller(Common::class)->group(function(){
