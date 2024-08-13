@@ -11,6 +11,14 @@ class Contact extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name', 'title', 'description','lang_code','status',
+        'name', 'rank', 'phone','email','division_id','region_id','lang_code','status',
     ];
+    public function division()
+    {
+        return $this->belongsTo(Division::class, 'slider_id');
+    }
+    public function region()
+    {
+        return $this->belongsTo(Region::class, 'slider_id');
+    }
 }

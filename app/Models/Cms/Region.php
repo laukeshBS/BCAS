@@ -6,11 +6,15 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Notice extends Model
+class Region extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'name', 'title', 'description','lang_code','status','important','start_date','end_date',
+        'name','status',
     ];
+    public function contact()
+    {
+        return $this->hasMany(Contact::class, 'region_id');
+    }
 }
