@@ -8,12 +8,14 @@ use App\Http\Controllers\Cms\FormController;
 use App\Http\Controllers\Cms\EventController;
 use App\Http\Controllers\Cms\SlideController;
 use App\Http\Controllers\Cms\NoticeController;
+use App\Http\Controllers\Cms\RegionController;
 use App\Http\Controllers\Cms\SliderController;
 use App\Http\Controllers\Cms\TenderController;
 use App\Http\Controllers\Cms\ContactController;
 use App\Http\Controllers\Cms\VacancyController;
 use App\Http\Controllers\Cms\VisitorController;
 use App\Http\Controllers\Cms\CircularController;
+use App\Http\Controllers\Cms\DivisionController;
 use App\Http\Controllers\Cms\MenuController as menus;
 use App\Http\Controllers\Cms\ActandpoliciesController;
 use App\Http\Controllers\Cms\CommonController as Common;
@@ -145,6 +147,22 @@ Route::middleware('cors')->group(function () {
         Route::post('contact-store','store');
         Route::post('contact-update/{id}','update');
         Route::delete('contact-delete/{id}','delete');
+      
+    });
+    Route::controller(DivisionController::class)->group(function(){
+        Route::post('division-list','data');
+        Route::get('division-list-by-id/{id}','data_by_id');
+        Route::post('division-store','store');
+        Route::post('division-update/{id}','update');
+        Route::delete('division-delete/{id}','delete');
+      
+    });
+    Route::controller(RegionController::class)->group(function(){
+        Route::post('region-list','data');
+        Route::get('region-list-by-id/{id}','data_by_id');
+        Route::post('region-store','store');
+        Route::post('region-update/{id}','update');
+        Route::delete('region-delete/{id}','delete');
       
     });
 });
