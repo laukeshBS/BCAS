@@ -10,6 +10,8 @@ use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use App\Models\Cms\Contact;
+use App\Models\Cms\Division;
+use App\Models\Cms\Region;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 
@@ -27,41 +29,44 @@ class ContactController extends Controller
 
     // contact
     public function data(Request $request)
-    {
-        $limit = $request->input('limit', 5);
-        $lang_code = $request->input('lang_code');
-        $division_id = $request->input('division_id');
-        $region_id = $request->input('region_id');
+{
+    $lang_code = $request->input('lang_code');
+    $division_id = $request->input('division_id');
+    $region_id = $request->input('region_id');
+    $type = $request->input('type');
 
-        // Start building the query
-        $query = Contact::select('*');
-
-        // Apply the 'lang_code' filter
-        if ($lang_code) {
+    if ($type == 1) {
+        // Query for Division model
+        $query = Division::whereHas('contacts', function ($query) use ($lang_code) {
             $query->where('lang_code', $lang_code);
-        }
-
-        // Apply the 'division_id' filter if provided
+        })->with('contacts');
+        
+        // Apply division_id filter if provided
         if ($division_id) {
-            $query->where('division_id', $division_id);
+            $query->where('id', $division_id);
         }
-
-        // Apply the 'region_id' filter if provided
+        
+        $data = $query->get();
+    } else if ($type == 2) {
+        // Query for Region model
+        $query = Region::whereHas('contacts', function ($query) use ($lang_code) {
+            $query->where('lang_code', $lang_code);
+        })->with('contacts');
+        
+        // Apply region_id filter if provided
         if ($region_id) {
-            $query->where('region_id', $region_id);
+            $query->where('id', $region_id);
         }
-
-        // Limit the results
-        $data = $query->limit($limit)->get();
-
-        // Transform the 'created_at' attribute
-        $data->transform(function ($item) {
-            $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            return $item;
-        });
-
-        return response()->json($data);
+        
+        $data = $query->get();
+    } else {
+        // Return an empty array if type is not 1 or 2
+        $data = [];
     }
+
+    return response()->json($data);
+}
+
 
     public function data_by_id($id)
     {
@@ -90,10 +95,9 @@ class ContactController extends Controller
             'rank' => 'required',
             'phone' => 'required',
             'email' => 'required',
-            'division_id' => 'required',
-            'region_id' => 'required',
             'lang_code' => 'required',
             'status' => 'required',
+            'type' => 'required',
         ]);
 
         $contact = new Contact();
@@ -101,10 +105,11 @@ class ContactController extends Controller
         $contact->rank = $validated['rank'];
         $contact->phone = $validated['phone'];
         $contact->email = $validated['email'];
-        $contact->division_id = $validated['division_id'];
-        $contact->region_id = $validated['region_id'];
+        $contact->division_id = $request->division_id;
+        $contact->region_id = $request->region_id;
         $contact->lang_code = $validated['lang_code'];
         $contact->status = $validated['status'];
+        $contact->type = $validated['type'];
         $contact->save();
         
         return response()->json($contact);

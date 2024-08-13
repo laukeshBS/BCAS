@@ -13,7 +13,7 @@ class Region extends Model
     protected $fillable = [
         'name','status',
     ];
-    public function contact()
+    public function contacts()
     {
         return $this->hasMany(Contact::class, 'region_id');
     }
