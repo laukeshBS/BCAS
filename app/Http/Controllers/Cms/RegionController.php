@@ -6,11 +6,11 @@ use App\Models\Admin;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
-use App\Models\Cms\Division;
+use App\Models\Cms\Region;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 
-class DivisionController extends Controller
+class RegionController extends Controller
 {
     public $user;
 
@@ -22,10 +22,10 @@ class DivisionController extends Controller
         });
     }
 
-    // Division
+    // Region
     public function data(Request $request)
     {
-        $data = Division::get();
+        $data = Region::get();
 
         $data->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
@@ -43,7 +43,7 @@ class DivisionController extends Controller
             ], 400);
         }
 
-        $data = Division::find($validatedId);
+        $data = Region::find($validatedId);
 
         if (!$data) {
             return response()->json([
@@ -61,12 +61,12 @@ class DivisionController extends Controller
             'status' => 'required',
         ]);
 
-        $division = new Division();
-        $division->name = $validated['name'];
-        $division->status = $validated['status'];
-        $division->save();
+        $region = new Region();
+        $region->name = $validated['name'];
+        $region->status = $validated['status'];
+        $region->save();
         
-        return response()->json($division);
+        return response()->json($region);
     }
     public function update(Request $request, $id)
     {
@@ -75,31 +75,31 @@ class DivisionController extends Controller
             'status' => 'required',
         ]);
 
-        $division = Division::find($id);
+        $region = Region::find($id);
 
-        if (!$division) {
+        if (!$region) {
             return response()->json([
                 'error' => 'Data Not Found.'
             ], 400);
         }
 
-        $division->name = $validated['name'];
-        $division->status = $validated['status'];
-        $division->save();
+        $region->name = $validated['name'];
+        $region->status = $validated['status'];
+        $region->save();
 
-        return response()->json($division);
+        return response()->json($region);
     }
     public function delete($id)
     {
-        $division = Division::find($id);
+        $region = Region::find($id);
 
-        if (!$division) {
+        if (!$region) {
             return response()->json([
                 'error' => 'Data Not Found.'
             ], 400);
         }
-        $division->delete();
+        $region->delete();
 
-        return response()->json($division);
+        return response()->json($region);
     }
 }

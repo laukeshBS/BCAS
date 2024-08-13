@@ -13,7 +13,7 @@ class Division extends Model
     protected $fillable = [
         'name','status',
     ];
-    public function contact()
+    public function contacts()
     {
         return $this->hasMany(Contact::class, 'division_id');
     }
