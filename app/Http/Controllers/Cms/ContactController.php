@@ -30,12 +30,31 @@ class ContactController extends Controller
     {
         $limit = $request->input('limit', 5);
         $lang_code = $request->input('lang_code');
-        
-        $data = Contact::select('*')
-            ->where('lang_code',$lang_code)
-            ->limit($limit)
-            ->get();
+        $division_id = $request->input('division_id');
+        $region_id = $request->input('region_id');
 
+        // Start building the query
+        $query = Contact::select('*');
+
+        // Apply the 'lang_code' filter
+        if ($lang_code) {
+            $query->where('lang_code', $lang_code);
+        }
+
+        // Apply the 'division_id' filter if provided
+        if ($division_id) {
+            $query->where('division_id', $division_id);
+        }
+
+        // Apply the 'region_id' filter if provided
+        if ($region_id) {
+            $query->where('region_id', $region_id);
+        }
+
+        // Limit the results
+        $data = $query->limit($limit)->get();
+
+        // Transform the 'created_at' attribute
         $data->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             return $item;
@@ -43,6 +62,7 @@ class ContactController extends Controller
 
         return response()->json($data);
     }
+
     public function data_by_id($id)
     {
         $validatedId = filter_var($id, FILTER_VALIDATE_INT);
