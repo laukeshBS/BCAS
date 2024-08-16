@@ -37,33 +37,22 @@ class ContactController extends Controller
 
     if ($type == 1) {
         // Query for Division model
-        $query = Division::whereHas('contacts', function ($query) use ($lang_code) {
-            $query->where('lang_code', $lang_code);
-        })->with('contacts');
-        
-        // Apply division_id filter if provided
+        $query = Division::with('contacts')->where('lang_code', $lang_code);
         if ($division_id) {
             $query->where('id', $division_id);
         }
-        
         $data = $query->get();
     } else if ($type == 2) {
         // Query for Region model
-        $query = Region::whereHas('contacts', function ($query) use ($lang_code) {
-            $query->where('lang_code', $lang_code);
-        })->with('contacts');
-        
-        // Apply region_id filter if provided
+        $query = Region::with('contacts')->where('lang_code', $lang_code);
         if ($region_id) {
             $query->where('id', $region_id);
         }
-        
         $data = $query->get();
     } else {
         // Return an empty array if type is not 1 or 2
         $data = [];
     }
-
     return response()->json($data);
 }
 
