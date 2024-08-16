@@ -26,14 +26,20 @@ class VacancyController extends Controller
 
     public function data(Request $request)
     {
-        $limit = $request->input('limit', 5);
+        $limit = $request->input('limit');
         $lang_code = $request->input('lang_code');
 
-        $data = Vacancy::select('*')
-            ->where('lang_code',$lang_code)
-            ->orderBy('id', 'desc')
-            ->limit($limit)
-            ->get();
+        if (!$lang_code) {
+            return response()->json(['error' => 'Language code is required'], 400);
+        }
+
+        $query = Vacancy::select('*')
+            ->where('lang_code', $lang_code)
+            ->orderBy('id', 'desc');
+        if (!empty($limit)) {
+            $query->limit($limit);
+        }
+        $data = $query->get();
 
         $data->transform(function ($item) {
             $item->start_date = date('d-m-Y', strtotime($item->start_date));
