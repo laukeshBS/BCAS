@@ -9,10 +9,13 @@ use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
+use App\Models\Cms\Contact;
+use App\Models\Cms\Division;
+use App\Models\Cms\Region;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 
-class TenderController extends Controller
+class ContactController extends Controller
 {
     public $user;
 
@@ -24,133 +27,126 @@ class TenderController extends Controller
         });
     }
 
+    // contact
+    public function data(Request $request)
+{
+    $lang_code = $request->input('lang_code');
+    $division_id = $request->input('division_id');
+    $region_id = $request->input('region_id');
+    $type = $request->input('type');
 
-    public function index()
-    {
-        // if (is_null($this->user) || !$this->user->can('slider-list.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
-
-        return view('backend.cms.tender.list');
+    if ($type == 1) {
+        // Query for Division model
+        $query = Division::with('contacts')->where('lang_code', $lang_code);
+        if ($division_id) {
+            $query->where('id', $division_id);
+        }
+        $data = $query->get();
+    } else if ($type == 2) {
+        // Query for Region model
+        $query = Region::with('contacts')->where('lang_code', $lang_code);
+        if ($region_id) {
+            $query->where('id', $region_id);
+        }
+        $data = $query->get();
+    } else {
+        // Return an empty array if type is not 1 or 2
+        $data = [];
     }
-    public function data()
-    {
-        $tenders = Tender::select('*')
-        ->get()
-            ->map(function ($item) {
-                // Format the created_at date field
-                $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                return $item;
-            });
+    return response()->json($data);
+}
 
-        return DataTables::of($tenders)->make(true);
-    }
-    public function add_tender()
-    {
-        // if (is_null($this->user) || !$this->user->can('tender-add.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
 
-        return view('backend.cms.tender.add');
-    }
-    public function store_tender(Request $request)
+    public function data_by_id($id)
     {
-        $validated = $request->validate([
-            'title' => 'required|max:255',
-            'description' => 'max:500',
-            'status' => 'required',
-            'document' => 'required|file|mimes:pdf|max:2048',
-        ]);
-
-        // Handle file upload
-        if ($request->hasFile('document')) {
-            $file = $request->file('document');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('uploads', $fileName, 'public');
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
         }
 
-        // Create a new Tender instance
-        $tender = new Tender();
-        $tender->title = $validated['title'];
-        $tender->description = $validated['description'];
-        $tender->status = $validated['status'];
-        $tender->document = $filePath; // Store file path in the database
-        $tender->save();
+        $data = Contact::find($validatedId);
+
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
+        }
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
+
+        return response()->json($data);
+    }
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required',
+            'rank' => 'required',
+            'phone' => 'required',
+            'email' => 'required',
+            'lang_code' => 'required',
+            'status' => 'required',
+            'type' => 'required',
+        ]);
+
+        $contact = new Contact();
+        $contact->name = $validated['name'];
+        $contact->rank = $validated['rank'];
+        $contact->phone = $validated['phone'];
+        $contact->email = $validated['email'];
+        $contact->division_id = $request->division_id;
+        $contact->region_id = $request->region_id;
+        $contact->lang_code = $validated['lang_code'];
+        $contact->status = $validated['status'];
+        $contact->type = $validated['type'];
+        $contact->save();
         
-        $request->session()->flash('success', 'Tender added successfully!');
-
-        return redirect()->route('cms.tender');
+        return response()->json($contact);
     }
-    public function edit_slider()
-    {
-        if (is_null($this->user) || !$this->user->can('slider-add.view')) {
-            abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        }
-
-        return view('Cms.slider.add');
-    }
-    public function update_slider()
-    {
-        $sliders = Slider::get();
-        return view('Cms.slider.list', compact('sliders'));
-    }
-    public function edit_tender($id)
-    {
-        // Find the tender by id
-        $tender = Tender::find($id);
-
-        if (!$tender) {
-            return redirect()->route('cms.tender')->with('error', 'Tender not found.');
-        }
-
-        // Pass the tender data to the view
-        return view('backend.cms.tender.edit', compact('tender'));
-    }
-
-    public function update_tender(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'title' => 'required|max:255',
-            'description' => 'max:500',
+            'name' => 'required',
+            'rank' => 'required|max:255',
+            'phone' => 'required',
+            'email' => 'required',
+            'division_id' => 'required',
+            'region_id' => 'required',
+            'lang_code' => 'required',
             'status' => 'required',
-            'document' => 'file|mimes:pdf|max:2048',
         ]);
 
-        $tender = Tender::find($id);
+        $contact = Contact::find($id);
 
-        if (!$tender) {
-            return redirect()->route('cms.tender.list')->with('error', 'Tender not found.');
+        if (!$contact) {
+            return response()->json([
+                'error' => 'Data Not Found.'
+            ], 400);
         }
 
-        $tender->title = $request->input('title');
-        $tender->description = $request->input('description');
-        $tender->status = $request->input('status');
+        $contact->name = $validated['name'];
+        $contact->rank = $validated['rank'];
+        $contact->phone = $validated['phone'];
+        $contact->email = $validated['email'];
+        $contact->division_id = $validated['division_id'];
+        $contact->region_id = $validated['region_id'];
+        $contact->lang_code = $validated['lang_code'];
+        $contact->status = $validated['status'];
+        $contact->save();
 
-        if ($request->hasFile('document')) {
-            $file = $request->file('document');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('documents'), $filename);
-            $tender->document = $filename;
-        }
-
-        $tender->save();
-
-        return redirect()->route('cms.tender')->with('success', 'Tender updated successfully.');
+        return response()->json($contact);
     }
-
-    public function delete_tender($id)
+    public function delete($id)
     {
-        // Find the tender by id
-        $tender = Tender::find($id);
+        $contact = Contact::find($id);
 
-        if (!$tender) {
-            return redirect()->route('cms.tender')->with('error', 'Tender not found.');
+        if (!$contact) {
+            return response()->json([
+                'error' => 'Data Not Found.'
+            ], 400);
         }
+        $contact->delete();
 
-        // Delete the tender
-        $tender->delete();
-
-        // Redirect back with success message
-        return redirect()->route('cms.tender')->with('success', 'Tender deleted successfully.');
+        return response()->json($contact);
     }
 }

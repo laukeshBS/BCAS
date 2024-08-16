@@ -4,12 +4,13 @@ namespace App\Http\Controllers\Cms;
 
 use App\Models\Admin;
 use App\Models\Cms\Slider;
-use App\Models\Cms\ActAndPolicies;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
+use App\Models\Cms\ActAndPolicies;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 
 class ActandpoliciesController extends Controller
@@ -24,60 +25,65 @@ class ActandpoliciesController extends Controller
         });
     }
 
-
-    public function index()
+    public function data(Request $request)
     {
-        // if (is_null($this->user) || !$this->user->can('slider-list.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
+        $limit = $request->input('limit', 5);
+        $lang_code = $request->input('lang_code');
 
-        return view('backend.cms.act-and-policies.list');
+        $data = ActAndPolicies::select('*')
+            ->where('lang_code',$lang_code)
+            ->orderBy('id', 'desc')
+            ->limit($limit)
+            ->get();
+
+        $data->transform(function ($item) {
+            $item->start_date = date('d-m-Y', strtotime($item->start_date));
+            $item->end_date = date('d-m-Y', strtotime($item->end_date));
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            $item->document = url(Storage::url('app/public/' . $item->document)) ;
+            return $item;
+        });
+
+        return response()->json($data);
     }
-    public function data()
+    
+    public function data_by_id($id)
     {
-        $actsandpolicies = ActAndPolicies::select('*')
-        ->get()
-            ->map(function ($item) {
-                // Format the created_at date field
-                $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                return $item;
-            });
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
+        }
 
-        return DataTables::of($actsandpolicies)->make(true);
-    }
-    public function list(){
-        $actsandpolicies = ActAndPolicies::select('*')
-            ->get()
-            ->map(function ($item) {
-                // Format the created_at date field
-                $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                return $item;
-            });
+        // Retrieve the data by ID
+        $data = ActAndPolicies::find($validatedId);
 
-        return response()->json($actsandpolicies);
-    }
-    // public function data()
-    // {
-    //     $tenders = ActAndPolicies::select('*')
-    //         ->get()
-    //         ->map(function ($item) {
-    //             // Format the created_at date field
-    //             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-    //             return $item;
-    //         });
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
+        }
+        // $data->start_date = date('d-m-Y', strtotime($data->start_date));
+        // $data->end_date = date('d-m-Y', strtotime($data->end_date));
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
+        $data->document = url(Storage::url('app/public/' . $data->document)) ;
 
-    //     return response()->json($tenders);
-    // }
-    public function add_actandpolicy()
-    {
-        return view('backend.cms.act-and-policies.add');
+        // Return the data as JSON
+        return response()->json($data);
     }
-    public function store_actandpolicy(Request $request)
+
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
             'description' => 'max:500',
             'status' => 'required',
+            'lang_code' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
             'document' => 'required|file|mimes:pdf|max:2048',
         ]);
 
@@ -85,7 +91,8 @@ class ActandpoliciesController extends Controller
         if ($request->hasFile('document')) {
             $file = $request->file('document');
             $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('uploads', $fileName, 'public');
+            $filePath = $file->storeAs('public/actsAndPolicies', $fileName);
+            $filePath = str_replace('public/', '', $filePath);
         }
 
         // Create a new Act and Policy instance
@@ -93,27 +100,17 @@ class ActandpoliciesController extends Controller
         $actandpolicy->title = $validated['title'];
         $actandpolicy->description = $validated['description'];
         $actandpolicy->status = $validated['status'];
+        $actandpolicy->lang_code = $validated['lang_code'];
+        $actandpolicy->start_date = $validated['start_date'];
+        $actandpolicy->end_date = $validated['end_date'];
         $actandpolicy->document = $filePath; // Store file path in the database
         $actandpolicy->save();
         
-        $request->session()->flash('success', 'Act and Policy added successfully!');
-
-        return redirect()->route('cms.actandpolicies');
-    }
-    public function edit_actandpolicy($id)
-    {
-        // Find the actandpolicy by id
-        $actandpolicy = ActAndPolicies::find($id);
-
-        if (!$actandpolicy) {
-            return redirect()->route('cms.actandpolicies')->with('error', 'Act and Policy not found.');
-        }
-
-        // Pass the actandpolicy data to the view
-        return view('backend.cms.act-and-policies.edit', compact('actandpolicy'));
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
 
-    public function update_actandpolicy(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
@@ -125,7 +122,9 @@ class ActandpoliciesController extends Controller
         $actandpolicy = ActAndPolicies::find($id);
 
         if (!$actandpolicy) {
-            return redirect()->route('cms.actandpolicies.list')->with('error', 'Act and Policy not found.');
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
         }
 
         $actandpolicy->title = $request->input('title');
@@ -141,22 +140,25 @@ class ActandpoliciesController extends Controller
 
         $actandpolicy->save();
 
-        return redirect()->route('cms.actandpolicies')->with('success', 'Act and Policy updated successfully.');
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
 
-    public function delete_actandpolicy($id)
+    public function delete($id)
     {
         // Find the actandpolicy by id
         $actandpolicy = ActAndPolicies::find($id);
 
         if (!$actandpolicy) {
-            return redirect()->route('cms.actandpolicies')->with('error', 'Act and Policy not found.');
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
         }
 
         // Delete the actandpolicy
         $actandpolicy->delete();
 
-        // Redirect back with success message
-        return redirect()->route('cms.actandpolicies')->with('success', 'Act and Policy deleted successfully.');
+        // Return the data as JSON
+        return response()->json($actandpolicy);
     }
 }

@@ -6,11 +6,11 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Training extends Model
+class Notice extends Model
 {
     use SoftDeletes;
 
     protected $fillable = [
-        'name', 'title', 'description','lang_code','status',
+        'name', 'title', 'description','lang_code','status','important','start_date','end_date',
     ];
 }

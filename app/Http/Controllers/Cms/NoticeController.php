@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Cms;
 
 use ZipArchive;
 use App\Models\Admin;
-use App\Models\Cms\Event;
 use App\Models\Cms\Slider;
+use App\Models\Cms\Notice;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Models\Permission;
 
-class EventController extends Controller
+class NoticeController extends Controller
 {
     public $user;
 
@@ -26,47 +26,59 @@ class EventController extends Controller
         });
     }
 
-    public function event_list_for_homepage(Request $request)
+    public function notice_list_for_homepage(Request $request)
     {
         $limit = $request->input('limit', 5);
         $lang_code = $request->input('lang_code');
+        $important = $request->input('important');
 
-        $events = Event::select('*')
+        if (!empty($important)) {
+            $notices = Notice::select('*')
+            ->where('important',$important)
             ->where('lang_code',$lang_code)
             ->orderBy('id', 'desc')
             ->limit($limit)
             ->get();
+        }else{
+            $notices = Notice::select('*')
+            ->where('lang_code',$lang_code)
+            ->orderBy('id', 'desc')
+            ->limit($limit)
+            ->get();
+        }
 
-        $events->transform(function ($item) {
+        
+
+        $notices->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             $item->document = url(Storage::url('app/public/' . $item->document)) ;
             return $item;
         });
 
-        return response()->json($events);
+        return response()->json($notices);
     }
-    public function event_list(Request $request)
+    public function notice_list(Request $request)
     {
         $perPage = $request->input('per_page', 10);
-        $page = $request->input('page', 1);
+        $page = $request->input('page');
 
-        $events = Event::select('*')
+        $notices = Notice::select('*')
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $events->getCollection()->transform(function ($item) {
+        $notices->getCollection()->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             return $item;
         });
 
-        return response()->json($events);
+        return response()->json($notices);
     }
     public function data(Request $request)
     {
-        $limit = $request->input('limit', 5);
+        $limit = $request->input('limit');
         $lang_code = $request->input('lang_code');
 
-        $data = Event::select('*')
+        $data = Notice::select('*')
             ->where('lang_code',$lang_code)
             ->orderBy('id', 'desc')
             ->limit($limit)
@@ -93,7 +105,7 @@ class EventController extends Controller
         }
 
         // Retrieve the data by ID
-        $data = Event::find($validatedId);
+        $data = Notice::find($validatedId);
 
         // Return a 404 response if data is not found
         if (!$data) {
@@ -130,7 +142,7 @@ class EventController extends Controller
         }
 
         // Create a new Act and Policy instance
-        $actandpolicy = new Event();
+        $actandpolicy = new Notice();
         $actandpolicy->title = $validated['title'];
         $actandpolicy->description = $validated['description'];
         $actandpolicy->status = $validated['status'];
@@ -153,7 +165,7 @@ class EventController extends Controller
             'document' => 'file|mimes:pdf|max:2048',
         ]);
 
-        $actandpolicy = Event::find($id);
+        $actandpolicy = Notice::find($id);
 
         if (!$actandpolicy) {
             return response()->json([
@@ -181,7 +193,7 @@ class EventController extends Controller
     public function delete($id)
     {
         // Find the actandpolicy by id
-        $actandpolicy = Event::find($id);
+        $actandpolicy = Notice::find($id);
 
         if (!$actandpolicy) {
             return response()->json([
