@@ -26,7 +26,17 @@ class SlideController extends Controller
     }
 
     // API
+    public function data()
+    {
+        $slide = Slide::select('*')
+        ->get()
+            ->map(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                return $item;
+            });
 
+        return response()->json($slide);
+    }
     public function store_slide_api(Request $request)
     {
         $validated = $request->validate([
@@ -65,91 +75,6 @@ class SlideController extends Controller
         return response()->json($slide);
     }
 
-    // Web
-
-    public function index()
-    {
-        // if (is_null($this->user) || !$this->user->can('slide-list.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
-
-        return view('backend.cms.slide.list');
-    }
-    public function data()
-    {
-        $slide = Slide::select('*')
-        ->get()
-            ->map(function ($item) {
-                // Format the created_at date field
-                $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                return $item;
-            });
-
-        return DataTables::of($slide)->make(true);
-    }
-    public function add_slide()
-    {
-        // if (is_null($this->user) || !$this->user->can('slide-add.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
-        $sliders = Slider::pluck('title','id');
-        $language = Language::pluck('name','lang_code');
-        return view('backend.cms.slide.add',compact('sliders','language'));
-    }
-    public function store_slide(Request $request)
-    {
-        $validated = $request->validate([
-            'slider_id' => 'required|exists:sliders,id',
-            'lang_code' => 'required|exists:languages,lang_code',
-            'title' => 'required|min:2|max:255',
-            'description' => 'nullable|max:500',
-            'url' => 'nullable|url',
-            'media_type' => 'required|in:image,video',
-            'media' => 'required|file|mimes:jpg,jpeg,png,mp4,mpeg,ogg|max:20480',
-            'order_index' => 'required|integer',
-            'status' => 'required|in:1,2',
-        ]);
-
-        $filePath = null;
-
-        // Handle file upload
-        if ($request->hasFile('media')) {
-            $file = $request->file('media');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('public/slides', $fileName); // Store the file in the 'public/forms' directory
-            $filePath = 'slides/' . $fileName; // Adjust the path if you need to store it in the database
-        }
-        // Create a new form instance
-        $form = new Slide(); // Assuming you have a Form model
-        $form->slider_id = $validated['slider_id'];
-        $form->title = $validated['title'];
-        $form->description = $validated['description'];
-        $form->media_type = $validated['media_type'];
-        $form->media = $filePath; // Store file path in the database
-        $form->order_index = $validated['order_index'];
-        $form->lang_code = $validated['lang_code'];
-        $form->status = $validated['status'];
-        $form->save();
-
-        $request->session()->flash('success', 'Form added successfully!');
-
-        return redirect()->route('cms.slide');
-    }
-    public function edit_slide($id)
-    {
-        // if (is_null($this->user) || !$this->user->can('slide-add.view')) {
-        //     abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
-        // }
-        $slide = Slide::find($id);
-
-        if (!$slide) {
-            return redirect()->route('cms.slide')->with('error', 'Slide not found.');
-        }
-
-        $sliders = Slider::pluck('title','id');
-        $language = Language::pluck('name','lang_code');
-        return view('backend.cms.slide.edit',compact('sliders','language','slide'));
-    }
     public function update_slide(Request $request, $id)
     {
         $validated = $request->validate([
@@ -188,21 +113,17 @@ class SlideController extends Controller
 
         $slide->update($inputs);
 
-        return redirect()->route('cms.slide')->with('success', 'Slide updated successfully.');
+        return response()->json($slide);
     }
     public function delete_slide($id)
     {
-        // Find the slider by id
         $slide = Slide::find($id);
 
         if (!$slide) {
             return redirect()->route('cms.slide')->with('error', 'Slide '.$id.' not found.');
         }
-
-        // Delete the slider
         $slide->delete();
 
-        // Redirect back with success message
-        return redirect()->route('cms.slide')->with('success', 'Slide deleted successfully.');
+        return response()->json($slide);
     }
 }

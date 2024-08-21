@@ -11,7 +11,7 @@ class Division extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name','status',
+        'name','status','lang_code','phone','email','address','fax','epabx',
     ];
     public function contacts()
     {
