@@ -1,0 +1,236 @@
+<div *ngIf="events.length > 0" style="overflow-x: auto">
+    <button (click)="addEvent()" class="btn btn-outline-primary btn-sm">Add</button>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Document</th>
+            <th>Status</th>
+            <th>Language</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Published Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events">
+            <td>{{ event.title }}</td>
+            <td>{{ event.description }}</td>
+            <td [innerHTML]="event.document"></td>
+            <td>{{ event.status }}</td>
+            <td>{{ event.lang_code }}</td>
+            <td>{{ event.start_date }}</td>
+            <td>{{ event.end_date }}</td>
+            <td>{{ event.created_at }}</td>
+            <td>
+              <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
+              <button (click)="deleteEvent(event.id)" class="btn btn-outline-danger btn-sm">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div *ngIf="events.length === 0">
+      <p>No Acts and Policies Available.</p>
+    </div>
+    
+    <!-- Bootstrap modal -->
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editEventModalLabel">Edit Tender</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="modifyEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+              <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input 
+                  type="text" 
+                  id="title" 
+                  class="form-control" 
+                  [(ngModel)]="selectedEvent.title" 
+                  name="title" 
+                  required 
+                  #title="ngModel"
+                />
+                <div *ngIf="title.invalid && (title.dirty || title.touched)" class="text-danger">
+                  <div *ngIf="title.errors?.['required']">Title is required.</div>
+                </div>
+              </div>
+            
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea 
+                  id="description" 
+                  class="form-control" 
+                  [(ngModel)]="selectedEvent.description" 
+                  name="description"
+                ></textarea>
+              </div>
+            
+              <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select 
+                  id="status" 
+                  class="form-select" 
+                  [(ngModel)]="selectedEvent.status" 
+                  name="status" 
+                  required
+                  #status="ngModel"
+                >
+                  <option value="" disabled>Select Status</option>
+                  <option value="1">Active</option>
+                  <option value="2">Inactive</option>
+                </select>
+                <div *ngIf="status.invalid && (status.dirty || status.touched)" class="text-danger">
+                  <div *ngIf="status.errors?.['required']">Status is required.</div>
+                </div>
+              </div>
+            
+              <div class="mb-3">
+                <label for="lang_code" class="form-label">Language</label>
+                <select 
+                  id="lang_code" 
+                  class="form-select" 
+                  [(ngModel)]="selectedEvent.lang_code" 
+                  name="lang_code" 
+                  required
+                  #langCode="ngModel"
+                >
+                  <option value="" disabled>Select Language</option>
+                  <option value="en">English</option>
+                  <option value="hi">Hindi</option>
+                </select>
+                <div *ngIf="langCode.invalid && (langCode.dirty || langCode.touched)" class="text-danger">
+                  <div *ngIf="langCode.errors?.['required']">Language is required.</div>
+                </div>
+              </div>
+            
+              <div class="mb-3">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input 
+                  type="date" 
+                  id="start_date" 
+                  class="form-control" 
+                  [(ngModel)]="selectedEvent.start_date" 
+                  name="start_date" 
+                  required
+                  #startDate="ngModel"
+                />
+                <div *ngIf="startDate.invalid && (startDate.dirty || startDate.touched)" class="text-danger">
+                  <div *ngIf="startDate.errors?.['required']">Start Date is required.</div>
+                </div>
+              </div>
+            
+              <div class="mb-3">
+                <label for="end_date" class="form-label">End Date</label>
+                <input 
+                  type="date" 
+                  id="end_date" 
+                  class="form-control" 
+                  [(ngModel)]="selectedEvent.end_date" 
+                  name="end_date" 
+                  required
+                  #endDate="ngModel"
+                />
+                <div *ngIf="endDate.invalid && (endDate.dirty || endDate.touched)" class="text-danger">
+                  <div *ngIf="endDate.errors?.['required']">End Date is required.</div>
+                </div>
+              </div>
+            
+              <div class="mb-3">
+                <label for="document" class="form-label">Upload Document</label>
+                <input 
+                  type="file" 
+                  id="document" 
+                  class="form-control" 
+                  (change)="oneditFileChange($event)"
+                />
+                <div *ngIf="selectedFileError" class="text-danger">
+                  <div>{{ selectedFileError }}</div>
+                </div>
+              </div>
+            
+              <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Save Changes</button>
+            </form>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addEventModalLabel">add Tender</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="saveEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+              <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" id="title" class="form-control" name="title" [(ngModel)]="selectedEvent.title" required #title="ngModel">
+                <div *ngIf="title.invalid && (title.dirty || title.touched)" class="text-danger">
+                  <div *ngIf="title.errors?.['required']">Title is required.</div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea id="description" class="form-control" name="description" [(ngModel)]="selectedEvent.description"></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select id="status" class="form-select" name="status" [(ngModel)]="selectedEvent.status" required #status="ngModel">
+                  <option value="">Select Status</option>
+                  <option value="1">Active</option>
+                  <option value="2">Inactive</option>
+                </select>
+                <div *ngIf="status.invalid && (status.dirty || status.touched)" class="text-danger">
+                  <div *ngIf="status.errors?.['required']">Status is required.</div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="lang_code" class="form-label">Language</label>
+                <select id="lang_code" class="form-select" name="lang_code" [(ngModel)]="selectedEvent.lang_code" required #lang_code="ngModel">
+                  <option value="">Select Language</option>
+                  <option value="en">English</option>
+                  <option value="hi">Hindi</option>
+                </select>
+                <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
+                  <div *ngIf="lang_code.errors?.['required']">Language is required.</div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="start_date" class="form-label">Start Date</label>
+                <input type="date" id="start_date" class="form-control" name="start_date" [(ngModel)]="selectedEvent.start_date" required #start_date="ngModel">
+                <div *ngIf="start_date.invalid && (start_date.dirty || start_date.touched)" class="text-danger">
+                  <div *ngIf="start_date.errors?.['required']">Start date is required.</div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="end_date" class="form-label">End Date</label>
+                <input type="date" id="end_date" class="form-control" name="end_date" [(ngModel)]="selectedEvent.end_date" required #end_date="ngModel">
+                <div *ngIf="end_date.invalid && (end_date.dirty || end_date.touched)" class="text-danger">
+                  <div *ngIf="end_date.errors?.['required']">End date is required.</div>
+                </div>
+              </div>
+              <div class="mb-3">
+                <label for="document" class="form-label">Upload Document</label>
+                <input type="file" id="document" class="form-control" (change)="onFileChange($event)">
+                <div *ngIf="!fileToUpload" class="text-danger">
+                  Document is required.
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Save Changes</button>
+            </form>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
