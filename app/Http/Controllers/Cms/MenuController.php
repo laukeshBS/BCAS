@@ -94,7 +94,7 @@ class MenuController extends BaseController
             return $this->sendError('No menus found for the given language code.', 404);
         }
     }
-    public function lang_slgus_wise(Request $request): JsonResponse
+    public function lang_slugs_wise(Request $request): JsonResponse
     {
         $data = $request->all();
         $menu_url = $data['menu_url'] ?? null;
