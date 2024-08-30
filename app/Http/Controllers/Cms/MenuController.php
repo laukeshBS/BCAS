@@ -3,6 +3,8 @@ namespace App\Http\Controllers\Cms;
 
 use App\Models\Cms\Menu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Cms\BaseController as BaseController;
@@ -234,4 +236,121 @@ class MenuController extends BaseController
                 return $this->sendError('No menus found for the given language code.', 404);
             }
     }
+    
+    
+public function importCSV(Request $request)
+{
+    // Validate the uploaded file
+    $validator = Validator::make($request->all(), [
+        'csv_file' => 'required|file|mimes:csv,txt',
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 400);
+    }
+
+    // Open the file
+    $file = fopen($request->file('csv_file')->getRealPath(), 'r');
+
+    if (!$file) {
+        return response()->json(['error' => 'Failed to open the file.'], 500);
+    }
+
+    // Read the header row
+    $header = fgetcsv($file, 1000, ',');
+
+    // Check if header is valid
+    if (!$header || count($header) < 13) { // Ensure at least 13 columns for the header
+        fclose($file);
+        return response()->json(['error' => 'Invalid CSV file format.'], 400);
+    }
+
+    // Debug: Print the header
+    echo "<pre>";
+    echo "<hr>Header:";
+    print_r($header);
+    echo "</pre>";
+
+    // Loop through the rest of the file and insert data
+    $rowNumber = 1;
+    while (($row = fgetcsv($file, 1000, ';')) !== false) {
+        // Debug: Print raw row data
+        echo "<pre>";
+        echo "<hr>Raw Row ($rowNumber):";
+        print_r($row);
+        echo "</pre>";
+
+        // Check if the row length matches the header length
+        if (count($row) != count($header)) {
+            echo "<pre>";
+            echo "<hr>Error: Row $rowNumber does not match header length.";
+            echo "Header Length: " . count($header) . " | Row Length: " . count($row);
+            echo "</pre>";
+            continue; // Skip this row and proceed to the next one
+        }
+
+        // Create an associative array using header names
+        $data = array_combine($header, $row);
+
+        // Check if data is created successfully
+        if (!$data) {
+            echo "<pre>";
+            echo "<hr>Error: Failed to combine header and row data.";
+            echo "</pre>";
+            continue;
+        }
+
+        // Debug: Print the combined data
+        echo "<pre>";
+        echo "<hr>Row Data ($rowNumber):";
+        print_r($data);
+        echo "</pre>";
+
+        // Prepare data for insertion
+        $insertData = [
+            'airport_orders' => isset($data['airport_orders']) && is_numeric($data['airport_orders']) ? (int)$data['airport_orders'] : null,
+            'region_name' => $data['region_name'] ?? null,
+            'sr_no' => isset($data['sr_no']) && is_numeric($data['sr_no']) ? (int)$data['sr_no'] : null,
+            'airport_name' => $data['airport_name'] ?? null,
+            'entity_name' => $data['entity_name'] ?? null,
+            // 'address' => $data['address'] ?? null,
+            'mobile_no' => $data['mobile_no'] ?? null,
+            'phone_no' => $data['phone_no'] ?? null,
+            'unique_reference_number' => $data['unique_reference_number'] ?? null,
+            'approved_status_clearance' => $data['approved_status_clearance'] ?? null,
+            'date_of_approval_clearance' => $data['date_of_approval_clearance'] ?? null,
+            'approved_status_programme' => $data['approved_status_programme'] ?? null,
+            'date_of_approval_programme' => $data['date_of_approval_programme'] ?? null,
+            'valid_till' => $data['valid_till'] ?? null,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+
+        // Debug: Print the prepared data for insertion
+        echo "<pre>";
+        echo "<hr>Insert Data ($rowNumber):";
+        print_r($insertData);
+        echo "</pre>";
+
+        // Insert data into the database
+        try {
+           // DB::table('working_airports')->insert($insertData);
+        } catch (\Exception $e) {
+            echo "<pre>";
+            echo "<hr>Error ($rowNumber):";
+            print_r([
+                'row' => $row,
+                'error' => $e->getMessage()
+            ]);
+            echo "</pre>";
+        }
+
+        $rowNumber++;
+    }
+
+    fclose($file);
+
+    return response()->json(['message' => 'CSV data imported successfully.'], 200);
+}
+    
 }
