@@ -238,119 +238,533 @@ class MenuController extends BaseController
     }
     
     
-public function importCSV(Request $request)
-{
-    // Validate the uploaded file
-    $validator = Validator::make($request->all(), [
-        'csv_file' => 'required|file|mimes:csv,txt',
-    ]);
+    public function importCSVairports(Request $request)
+    {
+        // Validate the uploaded file
+        $validator = Validator::make($request->all(), [
+            'csv_file' => 'required|file|mimes:csv,txt',
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json(['error' => $validator->errors()], 400);
-    }
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
 
-    // Open the file
-    $file = fopen($request->file('csv_file')->getRealPath(), 'r');
+        // Open the file
+        $file = fopen($request->file('csv_file')->getRealPath(), 'r');
 
-    if (!$file) {
-        return response()->json(['error' => 'Failed to open the file.'], 500);
-    }
+        if (!$file) {
+            return response()->json(['error' => 'Failed to open the file.'], 500);
+        }
 
-    // Read the header row
-    $header = fgetcsv($file, 1000, ',');
+        // Read the header row
+        $header = fgetcsv($file, 1000, ',');
 
-    // Check if header is valid
-    if (!$header || count($header) < 13) { // Ensure at least 13 columns for the header
+        // Check if header is valid
+        if (!$header || count($header) < 13) { // Ensure at least 13 columns for the header
+            fclose($file);
+            return response()->json(['error' => 'Invalid CSV file format.'], 400);
+        }
+
+        $rowNumber = 1;
+        while (($row = fgetcsv($file, 1000, ',')) !== false) {
+            // Check if the row length matches the header length
+            if (count($row) != count($header)) {
+                echo "count error";
+                // Skip this row and proceed to the next one
+                continue;
+            }
+
+            // Create an associative array using header names
+            $data = array_combine($header, $row);
+
+            if (!$data) {
+                echo "count combinations";
+                continue; // Skip if array_combine fails
+            }
+
+            // Prepare data for insertion
+            $insertData = [
+                'region_name' => $data['region_name'] ?? null,
+                'sr_no' => isset($data['sr_no']) && is_numeric($data['sr_no']) ? (int)$data['sr_no'] : null,
+                'airport_name' => $data['airport_name'] ?? null,
+                'entity_name' => $data['entity_name'] ?? null,
+                'address' => $data['address'] ?? null,
+                'mobile_no' => $data['mobile_no'] ?? null,
+                'phone_no' => $data['phone_no'] ?? null,
+                'unique_reference_number' => $data['unique_reference_number'] ?? null,
+                'approved_status_clearance' => $data['approved_status_clearance'] ?? null,
+                'date_of_approval_clearance' => $data['date_of_approval_clearance'] ?? null,
+                'approved_status_programme' => $data['approved_status_programme'] ?? null,
+                'date_of_approval_programme' => $data['date_of_approval_programme'] ?? null,
+                'valid_till' => $data['valid_till'] ?? null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+
+            // Insert data into the database
+            try {
+                DB::table('working_airports')->insert($insertData);
+            } catch (\Exception $e) {
+                // Log or handle the error
+                // Example: Log::error('Import Error', ['row' => $row, 'error' => $e->getMessage()]);
+                continue; // Skip the row with error and continue
+            }
+
+            $rowNumber++;
+        }
+
         fclose($file);
-        return response()->json(['error' => 'Invalid CSV file format.'], 400);
+
+        return response()->json(['message' => 'CSV data imported successfully.'], 200);
+    }
+    public function importCSVAirlines(Request $request)
+    {
+        // Validate the uploaded file
+        $validator = Validator::make($request->all(), [
+            'csv_file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        // Open the file
+        $file = fopen($request->file('csv_file')->getRealPath(), 'r');
+
+        if (!$file) {
+            return response()->json(['error' => 'Failed to open the file.'], 500);
+        }
+
+        // Read the header row
+        $header = fgetcsv($file, 1000, ',');
+
+        // Check if header is valid
+        if (!$header || count($header) < 10) { // Ensure at least 13 columns for the header
+            fclose($file);
+            return response()->json(['error' => 'Invalid CSV file format.'], 400);
+        }
+
+        $rowNumber = 1;
+        while (($row = fgetcsv($file, 1000, ',')) !== false) {
+            // Check if the row length matches the header length
+            if (count($row) != count($header)) {
+                echo "count error";
+                // Skip this row and proceed to the next one
+                continue;
+            }
+
+            // Create an associative array using header names
+            $data = array_combine($header, $row);
+
+            if (!$data) {
+                echo "count combinations";
+                continue; // Skip if array_combine fails
+            }
+
+            // Prepare data for insertion
+            $insertData = [
+                'application_id' => $data['application_id'] ?? null,
+                'entity_name' => $data['entity_name'] ?? null,
+                'cso_acso_name' => $data['cso_acso_name'] ?? null,
+                'cso_acso_email' => $data['cso_acso_email'] ?? null,
+                'station_name' => $data['station_name'] ?? null,
+                'air_type' => $data['air_type'] ?? null,
+                'date_of_approval' => isset($data['date_of_approval']) ? date('Y-m-d', strtotime($data['date_of_approval'])) : null,
+                'status' => $data['status'] ?? null,
+                'date_of_validity' => isset($data['date_of_validity']) ? date('Y-m-d', strtotime($data['date_of_validity'])) : null,
+                'lang_code' => $data['lang_code'] ?? null,
+                'created_by' => isset($data['created_by']) && is_numeric($data['created_by']) ? (int)$data['created_by'] : null,
+                'created_at' => now(),
+                'updated_at' => now(),
+               
+            ];
+            
+
+            // Insert data into the database
+            try {
+            //     echo"<pre>";
+              
+            //    print_r($insertData );
+            //   echo"</pre>";
+
+                DB::table('airlines')->insert($insertData);
+            } catch (\Exception $e) {
+                // Log or handle the error
+              echo"<pre>";
+              echo $e->getMessage();
+               print_r($row );
+              echo"</pre>";
+               //  Example: Log::error('Import Error', ['row' => $row, 'error' => $e->getMessage()]);
+                continue; // Skip the row with error and continue
+            }
+
+            $rowNumber++;
+        }
+
+        fclose($file);
+
+        return response()->json(['message' => 'CSV data imported successfully.'], 200);
+    }
+    public function importCSVcatring(Request $request)
+    {
+        // Validate the uploaded file
+        $validator = Validator::make($request->all(), [
+            'csv_file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        // Open the file
+        $file = fopen($request->file('csv_file')->getRealPath(), 'r');
+
+        if (!$file) {
+            return response()->json(['error' => 'Failed to open the file.'], 500);
+        }
+
+        // Read the header row
+        $header = fgetcsv($file, 1000, ',');
+
+        // Check if header is valid
+        if (!$header || count($header) < 9) { // Ensure at least 13 columns for the header
+            fclose($file);
+            return response()->json(['error' => 'Invalid CSV file format.'], 400);
+        }
+
+        $rowNumber = 1;
+        while (($row = fgetcsv($file, 1000, ',')) !== false) {
+            // Check if the row length matches the header length
+            if (count($row) != count($header)) {
+                echo "count error";
+                // Skip this row and proceed to the next one
+                continue;
+            }
+
+            // Create an associative array using header names
+            $data = array_combine($header, $row);
+
+            if (!$data) {
+                echo "count combinations";
+                continue; // Skip if array_combine fails
+            }
+
+            // Prepare data for insertion
+            $insertData = [
+                'regional_office' => $data['regional_office'] ?? null,
+                'airport_name' => $data['airport_name'] ?? null,
+                'entity_name' => $data['entity_name'] ?? null,
+                'date_of_security_clearance' => isset($data['date_of_security_clearance']) ? date('Y-m-d', strtotime($data['date_of_security_clearance'])) : null,
+                'date_of_security_programme_approval' => isset($data['date_of_security_programme_approval']) ? date('Y-m-d', strtotime($data['date_of_security_programme_approval'])) : null,
+                'status' => $data['status'] ?? null,
+                'division' => $data['division'] ?? null,
+                'date_of_validity' => isset($data['date_of_validity']) ? date('Y-m-d', strtotime($data['date_of_validity'])) : null,
+                'lang_code' => $data['lang_code'] ?? null,
+                'created_by' => isset($data['created_by']) && is_numeric($data['created_by']) ? (int)$data['created_by'] : null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            
+            // Insert data into the database
+            try {
+            //     echo"<pre>";
+              
+            //    print_r($insertData );
+            //   echo"</pre>";
+
+                DB::table('catering_companies')->insert($insertData);
+            } catch (\Exception $e) {
+                // Log or handle the error
+              echo"<pre>";
+              echo $e->getMessage();
+               print_r($row );
+              echo"</pre>";
+               //  Example: Log::error('Import Error', ['row' => $row, 'error' => $e->getMessage()]);
+                continue; // Skip the row with error and continue
+            }
+
+            $rowNumber++;
+        }
+
+        fclose($file);
+
+        return response()->json(['message' => 'CSV data imported successfully.'], 200);
+    }
+    public function importCSVOps(Request $request)
+    {
+        // Validate the uploaded file
+        $validator = Validator::make($request->all(), [
+            'csv_file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        // Open the file
+        $file = fopen($request->file('csv_file')->getRealPath(), 'r');
+
+        if (!$file) {
+            return response()->json(['error' => 'Failed to open the file.'], 500);
+        }
+
+        // Read the header row
+        $header = fgetcsv($file, 1000, ',');
+
+        // Check if header is valid
+        if (!$header || count($header) < 13) { // Ensure at least 13 columns for the header
+            fclose($file);
+            return response()->json(['error' => 'Invalid CSV file format.'], 400);
+        }
+
+        $rowNumber = 1;
+        while (($row = fgetcsv($file, 1000, ',')) !== false) {
+            // Check if the row length matches the header length
+            if (count($row) != count($header)) {
+                echo "count error";
+                // Skip this row and proceed to the next one
+                continue;
+            }
+
+            // Create an associative array using header names
+            $data = array_combine($header, $row);
+
+            if (!$data) {
+                echo "count combinations";
+                continue; // Skip if array_combine fails
+            }
+
+            // Prepare data for insertion
+            $insertData = [
+                'application_id' => $data['application_id'] ?? null,
+                'airport_name' => $data['airport_name'] ?? null,
+                'entity_name' => $data['entity_name'] ?? null,
+                'resion_name' => $data['resion_name'] ?? null,
+                'cso_acso_name' => $data['cso_acso_name'] ?? null,
+                'cso_acso_email' => $data['cso_acso_email'] ?? null,
+                'cso_acso_mobile' => $data['cso_acso_mobile'] ?? null,
+                'station_name' => $data['station_name'] ?? null,
+                'date_of_approval' => isset($data['date_of_approval']) ? date('Y-m-d', strtotime($data['date_of_approval'])) : null,
+                'status' => $data['status'] ?? null,
+                'division' => $data['division'] ?? null,
+                'sec_type' => $data['sec_type'] ?? null,
+                'date_of_validity' => isset($data['date_of_validity']) ? date('Y-m-d', strtotime($data['date_of_validity'])) : null,
+                'lang_code' => $data['lang_code'] ?? null,
+                'created_by' => isset($data['created_by']) && is_numeric($data['created_by']) ? (int)$data['created_by'] : null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            
+            
+            // Insert data into the database
+            try {
+            //     echo"<pre>";
+              
+            //    print_r($insertData );
+            //   echo"</pre>";
+
+                DB::table('ops_securities')->insert($insertData);
+            } catch (\Exception $e) {
+                // Log or handle the error
+              echo"<pre>";
+              echo $e->getMessage();
+               print_r($row );
+              echo"</pre>";
+               //  Example: Log::error('Import Error', ['row' => $row, 'error' => $e->getMessage()]);
+                continue; // Skip the row with error and continue
+            }
+
+            $rowNumber++;
+        }
+
+        fclose($file);
+
+        return response()->json(['message' => 'CSV data imported successfully.'], 200);
+    }
+    public function importCalendarCSV(Request $request)
+    {
+        // Validate the uploaded file
+        $validator = Validator::make($request->all(), [
+            'csv_file' => 'required|file|mimes:csv,txt',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
+        }
+
+        // Open the file
+        $file = fopen($request->file('csv_file')->getRealPath(), 'r');
+
+        if (!$file) {
+            return response()->json(['error' => 'Failed to open the file.'], 500);
+        }
+
+        // Read the header row
+        $header = fgetcsv($file, 1000, ',');
+
+        // Check if header is valid
+        if (!$header || count($header) < 18) { // Ensure at least 13 columns for the header
+            fclose($file);
+            return response()->json(['error' => 'Invalid CSV file format.'], 400);
+        }
+
+        $rowNumber = 1;
+        while (($row = fgetcsv($file, 1000, ',')) !== false) {
+            // Check if the row length matches the header length
+            if (count($row) != count($header)) {
+                echo "count error";
+                // Skip this row and proceed to the next one
+                continue;
+            }
+
+            // Create an associative array using header names
+            $data = array_combine($header, $row);
+
+            if (!$data) {
+                echo "count combinations";
+                continue; // Skip if array_combine fails
+            }
+
+            // Prepare data for insertion
+            $insertData = [
+                'avSec_training' => $data['avSec_training'] ?? null,
+                'January' => $data['January'] ?? null,
+                'February' => $data['February'] ?? null,
+                'March' => $data['March'] ?? null,
+                'April' => $data['April'] ?? null,
+                'May' => $data['May'] ?? null,
+                'June' => $data['June'] ?? null,
+                'July' => $data['July'] ?? null,
+                'August' => $data['August'] ?? null,
+                'September' => $data['September'] ?? null,
+                'October' => $data['October'] ?? null,
+                'November' => $data['November'] ?? null,
+                'December' => $data['December'] ?? null,
+                'remarks' => $data['remarks'] ?? null,
+                'status' => $data['status'] ?? null,
+                'positions' => $data['positions'] ?? null, // Corrected spelling from 'postions' to 'positions'
+                'lang_code' => $data['lang_code'] ?? null,
+                'created_by' => !empty($data['created_by']) && is_numeric($data['created_by']) ? (int)$data['created_by'] : null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            
+            
+            
+            // Insert data into the database
+            try {
+            //     echo"<pre>";
+              
+            //    print_r($insertData );
+            //   echo"</pre>";
+
+                DB::table('avsec_training_calendar')->insert($insertData);
+            } catch (\Exception $e) {
+                // Log or handle the error
+              echo"<pre>";
+              echo $e->getMessage();
+               print_r($row );
+              echo"</pre>";
+               //  Example: Log::error('Import Error', ['row' => $row, 'error' => $e->getMessage()]);
+                continue; // Skip the row with error and continue
+            }
+
+            $rowNumber++;
+        }
+
+        fclose($file);
+
+        return response()->json(['message' => 'CSV data imported successfully.'], 200);
     }
 
-    // Debug: Print the header
-    echo "<pre>";
-    echo "<hr>Header:";
-    print_r($header);
-    echo "</pre>";
+    public function importCSV(Request $request)
+    {
+        // Validate the uploaded file
+        $validator = Validator::make($request->all(), [
+            'csv_file' => 'required|file|mimes:csv,txt',
+        ]);
 
-    // Loop through the rest of the file and insert data
-    $rowNumber = 1;
-    while (($row = fgetcsv($file, 1000, ';')) !== false) {
-        // Debug: Print raw row data
-        echo "<pre>";
-        echo "<hr>Raw Row ($rowNumber):";
-        print_r($row);
-        echo "</pre>";
-
-        // Check if the row length matches the header length
-        if (count($row) != count($header)) {
-            echo "<pre>";
-            echo "<hr>Error: Row $rowNumber does not match header length.";
-            echo "Header Length: " . count($header) . " | Row Length: " . count($row);
-            echo "</pre>";
-            continue; // Skip this row and proceed to the next one
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], 400);
         }
 
-        // Create an associative array using header names
-        $data = array_combine($header, $row);
+        // Open the file
+        $file = fopen($request->file('csv_file')->getRealPath(), 'r');
 
-        // Check if data is created successfully
-        if (!$data) {
-            echo "<pre>";
-            echo "<hr>Error: Failed to combine header and row data.";
-            echo "</pre>";
-            continue;
+        if (!$file) {
+            return response()->json(['error' => 'Failed to open the file.'], 500);
         }
 
-        // Debug: Print the combined data
-        echo "<pre>";
-        echo "<hr>Row Data ($rowNumber):";
-        print_r($data);
-        echo "</pre>";
+        // Read the header row
+        $header = fgetcsv($file, 1000, ',');
 
-        // Prepare data for insertion
-        $insertData = [
-            'airport_orders' => isset($data['airport_orders']) && is_numeric($data['airport_orders']) ? (int)$data['airport_orders'] : null,
-            'region_name' => $data['region_name'] ?? null,
-            'sr_no' => isset($data['sr_no']) && is_numeric($data['sr_no']) ? (int)$data['sr_no'] : null,
-            'airport_name' => $data['airport_name'] ?? null,
-            'entity_name' => $data['entity_name'] ?? null,
-            // 'address' => $data['address'] ?? null,
-            'mobile_no' => $data['mobile_no'] ?? null,
-            'phone_no' => $data['phone_no'] ?? null,
-            'unique_reference_number' => $data['unique_reference_number'] ?? null,
-            'approved_status_clearance' => $data['approved_status_clearance'] ?? null,
-            'date_of_approval_clearance' => $data['date_of_approval_clearance'] ?? null,
-            'approved_status_programme' => $data['approved_status_programme'] ?? null,
-            'date_of_approval_programme' => $data['date_of_approval_programme'] ?? null,
-            'valid_till' => $data['valid_till'] ?? null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ];
-
-        // Debug: Print the prepared data for insertion
-        echo "<pre>";
-        echo "<hr>Insert Data ($rowNumber):";
-        print_r($insertData);
-        echo "</pre>";
-
-        // Insert data into the database
-        try {
-           // DB::table('working_airports')->insert($insertData);
-        } catch (\Exception $e) {
-            echo "<pre>";
-            echo "<hr>Error ($rowNumber):";
-            print_r([
-                'row' => $row,
-                'error' => $e->getMessage()
-            ]);
-            echo "</pre>";
+        // Check if header is valid
+        if (!$header || count($header) < 9) { // Ensure at least 13 columns for the header
+            fclose($file);
+            return response()->json(['error' => 'Invalid CSV file format.'], 400);
         }
 
-        $rowNumber++;
+        $rowNumber = 1;
+        while (($row = fgetcsv($file, 1000, ',')) !== false) {
+            // Check if the row length matches the header length
+            if (count($row) != count($header)) {
+                echo "count error";
+                // Skip this row and proceed to the next one
+                continue;
+            }
+
+            // Create an associative array using header names
+            $data = array_combine($header, $row);
+
+            if (!$data) {
+                echo "count combinations";
+                continue; // Skip if array_combine fails
+            }
+
+            // Prepare data for insertion
+            $insertData = [
+                'application_id' => isset($data['application_id']) ? preg_replace('/[^\x20-\x7E]/', '', $data['application_id']) : null,
+                'company_name' => isset($data['company_name']) ? preg_replace('/[^\x20-\x7E]/', '', $data['company_name']) : null,
+                'date_of_application_submitted' => isset($data['date_of_application_submitted']) ? date('Y-m-d', strtotime($data['date_of_application_submitted'])) : null,
+                'date_of_approval' => isset($data['date_of_approval']) ? date('Y-m-d', strtotime($data['date_of_approval'])) : null,
+                'status' => $data['status'] ?? null,
+                'division' => $data['division'] ?? null,
+                'sec_type' => $data['sec_type'] ?? null,
+                'date_of_validity' => isset($data['date_of_validity']) ? date('Y-m-d', strtotime($data['date_of_validity'])) : null,
+                'positions' => $data['positions'] ?? null,
+                'lang_code' => $data['lang_code'] ?? null,
+                'created_by' => !empty($data['created_by']) && is_numeric($data['created_by']) ? (int)$data['created_by'] : 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+            
+            
+            
+            
+            // Insert data into the database
+            try {
+            //     echo"<pre>";
+              
+            //    print_r($insertData );
+            //   echo"</pre>";
+
+                DB::table('opsi_securities')->insert($insertData);
+            } catch (\Exception $e) {
+                // Log or handle the error
+              echo"<pre>";
+              echo $e->getMessage();
+               print_r($row );
+              echo"</pre>";
+               //  Example: Log::error('Import Error', ['row' => $row, 'error' => $e->getMessage()]);
+                continue; // Skip the row with error and continue
+            }
+
+            $rowNumber++;
+        }
+
+        fclose($file);
+
+        return response()->json(['message' => 'CSV data imported successfully.'], 200);
     }
-
-    fclose($file);
-
-    return response()->json(['message' => 'CSV data imported successfully.'], 200);
-}
     
 }

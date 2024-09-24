@@ -86,7 +86,7 @@ class CommonTitleController extends Controller
         if(isset($request->cmdsubmit)){  
          $txtupload1 ='';
          $rules = array(
-            'title' => 'required|max:64',
+            'title' => 'required',
             'slugs' => 'required',
             'status' => 'required',
             'lang_code' => 'required',
@@ -185,7 +185,7 @@ class CommonTitleController extends Controller
     {
         $id= clean_single_input($id);
         $rules = array(
-            'title' => 'required|max:64',
+            'title' => 'required',
             'slugs' => 'required',
             'status' => 'required',
             'lang_code' => 'required',

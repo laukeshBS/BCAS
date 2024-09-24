@@ -93,7 +93,7 @@ class MenuController extends Controller
             'menutype' => 'required',
             'txtposition' => 'required',
             'txtstatus' => 'required',
-            'welcomedescription' => 'required|max:120'
+           // 'welcomedescription' => 'required|max:120'
         );
         $valid
         =array(
@@ -108,13 +108,13 @@ class MenuController extends Controller
         $img_upload1="";
         if($request->menutype == 1){
             $rules = array(
-                'description' => 'required',
+                //'description' => 'required',
                 // 'metakeyword' => 'required|max:64',
                 // 'metadescription' => 'required|max:250'
             );
             $valid
             =array(
-                 'description.required'=>'Description field  is required',
+                // 'description.required'=>'Description field  is required',
                 //  'metakeyword.required'=>'Meta keyword  field  is required',
                 //  'metadescription.required'=>'Meta description  field  is required',
                  
@@ -315,13 +315,13 @@ class MenuController extends Controller
             'menutype' => 'required',
             'txtposition' => 'required',
             'txtstatus' => 'required',
-            'welcomedescription' => 'required|max:120'
+           // 'welcomedescription' => 'required|max:120'
         );
         $valid
         =array(
              'menutype.required'=>'Menu type field  is required',
              'txtposition.required'=>'Content position  field  is required',
-             'welcomedescription.required'=>'Short description  field  is required',
+             //'welcomedescription.required'=>'Short description  field  is required',
              'txtstatus.required' =>'Pages Status field is required',
              'url.required' =>'Slug field is required',
              'menu_title.required' =>'Menu title field is required',
@@ -330,7 +330,7 @@ class MenuController extends Controller
         $validator = '';
         if($request->menutype == 1){
             $rules = array(
-                'description' => 'required',
+               // 'description' => 'required',
                 // 'metakeyword' => 'required|max:155',
                 // 'metadescription' => 'required|max:250'
             );

@@ -34,6 +34,18 @@ class RegionController extends Controller
 
         return response()->json($data);
     }
+    public function region_list(Request $request)
+    {
+        $lang_code = $request->input('lang_code');
+        $data = Region::where('lang_code', $lang_code)->get();
+
+        $data->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            return $item;
+        });
+
+        return response()->json($data);
+    }
     public function data_by_id($id)
     {
         $validatedId = filter_var($id, FILTER_VALIDATE_INT);
