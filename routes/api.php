@@ -20,6 +20,7 @@ use App\Http\Controllers\Cms\AirlinesController;
 use App\Http\Controllers\Cms\CateringCompanyController;
 use App\Http\Controllers\Cms\OpsSecurityController;
 use App\Http\Controllers\Cms\DivisionController;
+use App\Http\Controllers\Cms\AvsecTrainingCalendarController;
 use App\Http\Controllers\Cms\MenuController as menus;
 use App\Http\Controllers\Cms\ActandpoliciesController;
 use App\Http\Controllers\Cms\OpsiSecurityController;
@@ -181,6 +182,9 @@ Route::middleware('cors')->group(function () {
         Route::post('opssecurity-update/{id}','update');
         Route::delete('opssecurity-delete/{id}','delete');
       
+    });
+    Route::controller(AvsecTrainingCalendarController::class)->group(function(){
+       Route::post('avsecTraining-list-aprpoved','avsecTrainingCalendar_list_approved');
     });
     Route::controller(NoticeController::class)->group(function(){
         Route::post('notice-list','notice_list');

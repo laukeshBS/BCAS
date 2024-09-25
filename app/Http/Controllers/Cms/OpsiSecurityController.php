@@ -44,7 +44,7 @@ public function opsisecurity_list_approved(Request $request)
     // Default pagination parameters
     $perPage = $request->input('per_page', 10);
     $page = $request->input('page', 1);
-
+ 
     // Filter parameters
     $division = $request->input('division');
     $sec_type = $request->input('sec_type');
@@ -66,7 +66,7 @@ public function opsisecurity_list_approved(Request $request)
         $item->created_at = date('d-m-Y', strtotime($item->created_at));
         return $item;
     });
-
+    //dd($opssecuritys);
     // Returning the paginated list of opssecuritys as a JSON response
     return response()->json($opssecuritys);
 }

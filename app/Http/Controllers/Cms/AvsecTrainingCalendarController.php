@@ -216,4 +216,30 @@ class AvsecTrainingCalendarController  extends Controller
 
         return redirect()->route('admin.training-calendars.index')->with('success', 'Training Calendar has been successfully deleted');
     }
+    public function avsecTrainingCalendar_list_approved(Request $request)
+    {
+        // Default pagination parameters
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+        $lang_code = $request->input('lang_code');
+        // Filter parameters
+        $division = $request->input('division');
+        $sec_type = $request->input('sec_type');
+    
+        // Query to fetch approved AvsecTrainingCalendar based on the provided filters
+        $AvsecTrainingCalendar = AvsecTrainingCalendar::select('*')
+        ->where('status', '3')
+        ->where('lang_code', $lang_code) // Using like for partial match
+         ->orderBy('positions', 'ASC')
+        ->paginate($perPage, ['*'], 'page', $page);
+
+        // Transforming the collection to format the created_at date
+        $AvsecTrainingCalendar->getCollection()->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            return $item;
+        });
+        //dd($AvsecTrainingCalendar);
+        // Returning the paginated list of AvsecTrainingCalendar as a JSON response
+        return response()->json($AvsecTrainingCalendar);
+    }
 }
