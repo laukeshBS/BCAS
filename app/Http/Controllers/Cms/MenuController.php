@@ -130,6 +130,7 @@ class MenuController extends BaseController
                 'page_order',
                 'current_version',
                 'welcomedescription',
+                'banner_img',
                 'img_upload'
             )->orderBy('page_order','ASC')
             ->get(); // Use get() to retrieve all matching records
