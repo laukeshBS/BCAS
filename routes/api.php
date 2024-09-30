@@ -15,11 +15,21 @@ use App\Http\Controllers\Cms\ContactController;
 use App\Http\Controllers\Cms\VacancyController;
 use App\Http\Controllers\Cms\VisitorController;
 use App\Http\Controllers\Cms\CircularController;
+use App\Http\Controllers\Cms\WorkingAirportsController;
+use App\Http\Controllers\Cms\AirlinesController;
+use App\Http\Controllers\Cms\CateringCompanyController;
+use App\Http\Controllers\Cms\OpsSecurityController;
 use App\Http\Controllers\Cms\DivisionController;
+use App\Http\Controllers\Cms\AvsecTrainingCalendarController;
 use App\Http\Controllers\Cms\MenuController as menus;
 use App\Http\Controllers\Cms\ActandpoliciesController;
+use App\Http\Controllers\Cms\QuarterlyReportOnlineFormsController;
+use App\Http\Controllers\Cms\OpsiSecurityController;
 use App\Http\Controllers\Cms\CommonController as Common;
+use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 use App\Http\Controllers\Cms\LanguageController as lang;
+use Illuminate\Support\Facades\Hash;
+use App\Models\Admin\Admin;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -50,6 +60,21 @@ Route::get('/clear-cache', function () {
 });
 
 Route::middleware('cors')->group(function () {
+
+    Route::get('/csrf-token', function () {
+        return response()->json(['csrfToken' => csrf_token()]);
+    });
+    Route::post('/login', function (Request $request) {
+        $user = Admin::where('email', $request->email)->first();
+    
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+    
+        $token = $user->createToken('authToken')->plainTextToken;
+    
+        return response()->json(['token' => $token, 'user' => $user]);
+    });
     Route::controller(lang::class)->group(function(){
         Route::post('langlist','index');
        
@@ -59,11 +84,17 @@ Route::middleware('cors')->group(function () {
 
         Route::post('menu/lang_slugs_wise','lang_slugs_wise');
         Route::post('menu/lang_pid_wise','lang_pid_wise');
+        Route::post('menu/importCSV','importCSV');
 
       
     });
     Route::controller(Common::class)->group(function(){
         Route::post('common_title','index');
+      
+    });
+    Route::controller(FeedbackController::class)->group(function(){
+        Route::post('list_feedback','index');
+        Route::any('submit_feedback','store');
       
     });
     Route::controller(VisitorController::class)->group(function(){
@@ -107,6 +138,58 @@ Route::middleware('cors')->group(function () {
         Route::post('circular-update/{id}','update');
         Route::delete('circular-delete/{id}','delete');
       
+    });
+    Route::controller(WorkingAirportsController::class)->group(function(){
+        Route::post('airport-list','airport_list');
+        Route::post('airport-list-aprpoved','airport_list_approved');
+        Route::get('airport-list-by-id/{id}','data_by_id');
+        Route::any('airport-add','store');
+        Route::post('airport-update/{id}','update');
+        Route::delete('airport-delete/{id}','delete');
+      
+    });
+    Route::controller(AirlinesController::class)->group(function(){
+        Route::post('airline-list','airline_list');
+        Route::post('airline-list-aprpoved','airline_list_approved');
+        Route::get('airport-list-by-id/{id}','data_by_id');
+        Route::any('airport-add','store');
+        Route::post('airport-update/{id}','update');
+        Route::delete('airport-delete/{id}','delete');
+      
+    });
+    Route::controller(CateringCompanyController::class)->group(function(){
+        Route::post('catering-list','catering_list');
+        Route::post('catering-list-aprpoved','catering_list_approved');
+        Route::get('catering-list-by-id/{id}','data_by_id');
+        Route::any('catering-add','store');
+        Route::post('catering-update/{id}','update');
+        Route::delete('catering-delete/{id}','delete');
+      
+    });
+    Route::controller(OpsSecurityController::class)->group(function(){
+        Route::post('opssecurity-list','opssecurity_list');
+        Route::post('opssecurity-list-aprpoved','opssecurity_list_approved');
+        Route::get('opssecurity-list-by-id/{id}','data_by_id');
+        Route::any('opssecurity-add','store');
+        Route::post('opssecurity-update/{id}','update');
+        Route::delete('opssecurity-delete/{id}','delete');
+      
+    });
+    Route::controller(OpsiSecurityController::class)->group(function(){
+        Route::post('opsisecurity-list','opssecurity_list');
+        Route::post('opsisecurity-list-aprpoved','opsisecurity_list_approved');
+        Route::get('opssecurity-list-by-id/{id}','data_by_id');
+        Route::any('opssecurity-add','store');
+        Route::post('opssecurity-update/{id}','update');
+        Route::delete('opssecurity-delete/{id}','delete');
+      
+    });
+    
+    Route::controller(AvsecTrainingCalendarController::class)->group(function(){
+       Route::post('avsecTraining-list-aprpoved','avsecTrainingCalendar_list_approved');
+    });
+    Route::controller(QuarterlyReportOnlineFormsController::class)->group(function(){
+        Route::post('quarterly-report-online','store');
     });
     Route::controller(NoticeController::class)->group(function(){
         Route::post('notice-list','notice_list');
@@ -162,6 +245,7 @@ Route::middleware('cors')->group(function () {
     });
     Route::controller(RegionController::class)->group(function(){
         Route::post('region-list','data');
+        Route::post('region','region_list');
         Route::get('region-list-by-id/{id}','data_by_id');
         Route::post('region-store','store');
         Route::post('region-update/{id}','update');

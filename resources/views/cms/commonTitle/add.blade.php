@@ -86,7 +86,7 @@ CommonTitle Create - Admin Panel
                             </div>
                             <div class="col-12 col-md-6 col-lg-6">
                                 <div class="form-group">
-                                    <input name="title"  maxlength="36"
+                                    <input name="title"  
                                     minlength="2"  autocomplete="off" type="text"  
                                     class="input_class form-control  @error('title') is-invalid @enderror" id="txtename"   value="{{old('Course_title')}}"  />
                                     @error('title')

@@ -67,8 +67,8 @@ class AdminsController extends Controller
         // Validation Data
         $request->validate([
             'name' => 'required|max:50',
-            'email' => 'required|max:100|email|unique:admins',
-            'username' => 'required|max:100|unique:admins',
+            'email' => 'required|max:100|email|unique:mysql_admin.admins',
+            'username' => 'required|max:100|unique:mysql_admin.admins',
             'password' => 'required|min:6|confirmed',
         ]);
 
@@ -161,7 +161,7 @@ class AdminsController extends Controller
         // Validation Data
         $request->validate([
             'name' => 'required|max:50',
-            'email' => 'required|max:100|email|unique:admins,email,' . $id,
+            'email' => 'required|max:100|email|unique:mysql_admin.admins,email,' . $id,
             'password' => 'nullable|min:6|confirmed',
         ]);
 

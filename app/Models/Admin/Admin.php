@@ -8,11 +8,12 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Laravel\Sanctum\HasApiTokens;
 class Admin extends Authenticatable
 {
     use Notifiable, HasRoles;
     use SoftDeletes;
-
+    use HasApiTokens;
     protected $connection = 'mysql_admin';
     
     /**

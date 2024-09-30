@@ -15,6 +15,7 @@ use App\Http\Controllers\Cms\Division\Training\CertificatesController;
 use App\Http\Controllers\Cms\Division\Training\AwardCategoriesController;
 use App\Http\Controllers\Cms\Common\CommonTitleController as common_title;
 use App\Http\Controllers\Cms\Division\Training\CourseCategoriesController;
+use App\Http\Controllers\Cms\AvsecTrainingCalendarController;
 use App\Http\Controllers\Cms\Division\Training\certificatesCategoriesController;
 
 /*
@@ -48,8 +49,8 @@ Route::get('/home', 'HomeController@index')->name('home');
  * Admin routes
  */
 Route::group(['prefix' => 'admin'], function () {
-    Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
-    // Route::get('/', 'Admin\DashboardController@index')->name('admin.dashboard');
+   // Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
+
     Route::resource('roles', 'Admin\RolesController', ['names' => 'admin.roles']);
     Route::resource('users', 'Admin\UsersController', ['names' => 'admin.users']);
     Route::resource('admins', 'Admin\AdminsController', ['names' => 'admin.admins']);
@@ -71,7 +72,7 @@ Route::group(['prefix' => 'admin'], function () {
     Route::resource('division/gallery_categories', GalleryCategoriesController::class, ['names' => 'admin.division.gallery_categories']);
     Route::resource('division/gallery', GalleryController::class, ['names' => 'admin.division.gallery']);
     Route::resource('common_title', common_title::class, ['names' => 'admin.common_title']);
-    
+    Route::resource('training-calendars', AvsecTrainingCalendarController::class, ['names' => 'admin.training-calendars']);
     // Login Routes
     Route::get('/login', 'Admin\Auth\LoginController@showLoginForm')->name('admin.login');
     Route::post('/login/submit', 'Admin\Auth\LoginController@login')->name('admin.login.submit');
