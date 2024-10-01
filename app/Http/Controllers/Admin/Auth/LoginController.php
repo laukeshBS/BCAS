@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Admin\Auth;
 use App\Models\Admin\Admin;
-use App\Http\Controllers\Controller;
-use App\Providers\RouteServiceProvider;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Session;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Session;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
 {
@@ -53,38 +54,43 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        // Validate Login Data
+        // Validate the incoming request
         $request->validate([
-            'email' => 'required|max:50',
+            'email' => 'required|email|max:50',
             'password' => 'required',
-            'captcha' => 'required|captcha',
-             ['captcha.captcha'=>'Invalid captcha code.']
-            
         ]);
-       // dd("You are here :) .");
-        // Attempt to login
-        $password= $request->password;
-        //dd($password);
-        $key=$request->session()->get('bsrandom');
-        $haskey = $key;
-        $plainText = $this->cryptoJsAesDecrypt($haskey, $password);
-       // dd($plainText);
-        //echo $hashedValue = hash('sha256', $plainText);
-        if (Auth::guard('admin')->attempt(['email' => $request->email, 'password' =>  $plainText], $request->remember)) {
-            // Redirect to dashboard
-            session()->flash('success', 'Successully Logged in !');
-            return redirect()->route('admin.dashboard');
-        } else {
-            // Search using username
-            if (Auth::guard('admin')->attempt(['username' => $request->email, 'password' =>  $plainText], $request->remember)) {
-                session()->flash('success', 'Successully Logged in !');
-                return redirect()->route('admin.dashboard');
-            }
-            // error
-            session()->flash('error', 'Invalid email and password');
-            return back();
+
+        // Attempt to find the user by email
+        $user = Admin::where('email', $request->email)->first();
+
+        // Check if the user exists and verify the password
+        if ($user && Hash::check($request->password, $user->password)) {
+            // Generate a token for the user
+            $token = $user->createToken('bcas_cms')->plainTextToken;
+
+            $user->api_token = $token; // If using api_token column
+            $user->save();
+
+            // Return a successful response with user data and token
+            return response()->json([
+                'success' => true,
+                'message' => 'Successfully logged in!',
+                'data' => [
+                    'user' => $user,
+                    'token_type' => 'Bearer',
+                    'access_token' => $token,
+                ],
+            ], 200);
         }
+
+        // Return an error response for invalid credentials
+        return response()->json([
+            'success' => false,
+            'message' => 'Invalid email or password',
+        ], 401);
     }
+
+
 
     /**
      * logout admin guard

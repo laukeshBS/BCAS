@@ -21,6 +21,7 @@
     "@angular/platform-server": "^18.1.0",
     "@angular/router": "^18.1.0",
     "@angular/ssr": "^18.1.1",
+    "@auth0/angular-jwt": "^5.2.0",
     "@fortawesome/fontawesome-free": "^6.6.0",
     "admin-lte": "^4.0.0-beta2",
     "bootstrap": "^5.3.3",

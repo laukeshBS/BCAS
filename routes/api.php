@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Admin\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Cms\FormController;
@@ -14,22 +16,21 @@ use App\Http\Controllers\Cms\TenderController;
 use App\Http\Controllers\Cms\ContactController;
 use App\Http\Controllers\Cms\VacancyController;
 use App\Http\Controllers\Cms\VisitorController;
-use App\Http\Controllers\Cms\CircularController;
-use App\Http\Controllers\Cms\WorkingAirportsController;
 use App\Http\Controllers\Cms\AirlinesController;
-use App\Http\Controllers\Cms\CateringCompanyController;
-use App\Http\Controllers\Cms\OpsSecurityController;
+use App\Http\Controllers\Cms\CircularController;
 use App\Http\Controllers\Cms\DivisionController;
-use App\Http\Controllers\Cms\AvsecTrainingCalendarController;
+use App\Http\Controllers\Cms\OpsSecurityController;
+use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Cms\OpsiSecurityController;
 use App\Http\Controllers\Cms\MenuController as menus;
 use App\Http\Controllers\Cms\ActandpoliciesController;
-use App\Http\Controllers\Cms\QuarterlyReportOnlineFormsController;
-use App\Http\Controllers\Cms\OpsiSecurityController;
+use App\Http\Controllers\Cms\CateringCompanyController;
+use App\Http\Controllers\Cms\WorkingAirportsController;
 use App\Http\Controllers\Cms\CommonController as Common;
-use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 use App\Http\Controllers\Cms\LanguageController as lang;
-use Illuminate\Support\Facades\Hash;
-use App\Models\Admin\Admin;
+use App\Http\Controllers\Cms\AvsecTrainingCalendarController;
+use App\Http\Controllers\Cms\QuarterlyReportOnlineFormsController;
+use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -59,25 +60,15 @@ Route::get('/clear-cache', function () {
     return 'Cache cleared successfully.';
 });
 
-Route::middleware('cors')->group(function () {
+Route::post('login', [LoginController::class, 'login']);
+Route::middleware(['auth:admin_api', 'cors'])->group(function () {
 
     Route::get('/csrf-token', function () {
         return response()->json(['csrfToken' => csrf_token()]);
     });
-    Route::post('/login', function (Request $request) {
-        $user = Admin::where('email', $request->email)->first();
     
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-    
-        $token = $user->createToken('authToken')->plainTextToken;
-    
-        return response()->json(['token' => $token, 'user' => $user]);
-    });
     Route::controller(lang::class)->group(function(){
-        Route::post('langlist','index');
-       
+        Route::post('langlist','index'); 
     });
     Route::controller(menus::class)->group(function(){
         Route::post('menulist','index');
