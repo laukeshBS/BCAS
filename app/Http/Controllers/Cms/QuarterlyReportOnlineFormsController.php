@@ -103,6 +103,7 @@ class QuarterlyReportOnlineFormsController extends BaseController {
                 'messages' => $validator->errors()
             ], 422); // 422 Unprocessable Entity
         }
+        $data['ruleActs'] = clean_single_input(strip_tags($request->ruleActs));
         $data['quartyMonth'] = clean_single_input(strip_tags($request->quartyMonth));
         $data['officeName'] = clean_single_input(strip_tags($request->officeName));
         $data['address'] = clean_single_input(strip_tags($request->address));
@@ -160,13 +161,14 @@ class QuarterlyReportOnlineFormsController extends BaseController {
         $data['placeName'] = clean_single_input(strip_tags($request->placeName));
         $data['officerEmail'] = clean_single_input(strip_tags($request->officerEmail));
         $data['user_ip'] = clean_single_input(strip_tags($request->user_ip));
-        $data['status'] = clean_single_input(strip_tags($request->status));
-        $data['formType'] = clean_single_input(strip_tags($request->formType));
+        $data['status'] =  (int)clean_single_input(strip_tags($request->status));
+        //$data['formType'] = clean_single_input(strip_tags($request->formType));
 
         $QuarterlyReportOnlineFormdata = QuarterlyReportOnlineForm::create($data);
-        $messages='';
+        $messages=[];
         if($QuarterlyReportOnlineFormdata){
-          $messages='Thank you';
+          $messages['messages']='Thank you';
+          $messages['id']=$QuarterlyReportOnlineFormdata->id;
         }
         return response()->json($messages, 201); // 201 Created
     }

@@ -25,6 +25,7 @@ use App\Http\Controllers\Cms\MenuController as menus;
 use App\Http\Controllers\Cms\ActandpoliciesController;
 use App\Http\Controllers\Cms\QuarterlyReportOnlineFormsController;
 use App\Http\Controllers\Cms\OpsiSecurityController;
+use App\Http\Controllers\Cms\QuarterlyReportOnlineiiFormsController;
 use App\Http\Controllers\Cms\CommonController as Common;
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 use App\Http\Controllers\Cms\LanguageController as lang;
@@ -59,7 +60,7 @@ Route::get('/clear-cache', function () {
     return 'Cache cleared successfully.';
 });
 
-Route::middleware('cors')->group(function () {
+Route::middleware(['cors', 'throttle:60,1'])->group(function () {
 
     Route::get('/csrf-token', function () {
         return response()->json(['csrfToken' => csrf_token()]);
@@ -190,6 +191,9 @@ Route::middleware('cors')->group(function () {
     });
     Route::controller(QuarterlyReportOnlineFormsController::class)->group(function(){
         Route::post('quarterly-report-online','store');
+    });
+    Route::controller(QuarterlyReportOnlineiiFormsController::class)->group(function(){
+        Route::post('quarterly-report2-online','store');
     });
     Route::controller(NoticeController::class)->group(function(){
         Route::post('notice-list','notice_list');
