@@ -33,8 +33,7 @@ class TenderController extends Controller
             $item->start_date = date('d-m-Y', strtotime($item->start_date));
             $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            $item->document = url(Storage::url('app/public/' . $item->document)) ;
-            return $item;
+            $item->document = asset('public/documents/' . $item->document) ;
         });
 
         return response()->json($data);
@@ -61,7 +60,7 @@ class TenderController extends Controller
         $data->start_date = date('d-m-Y', strtotime($data->start_date));
         $data->end_date = date('d-m-Y', strtotime($data->end_date));
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
-        $data->document = url(Storage::url('app/public/' . $data->document)) ;
+        $data->document = asset('public/documents/' . $data->document) ;
 
         // Return the data as JSON
         return response()->json($data);
@@ -81,10 +80,10 @@ class TenderController extends Controller
 
         // Handle file upload
         if ($request->hasFile('document')) {
-            $file = $request->file('document');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('public/actsAndPolicies', $fileName);
-            $filePath = str_replace('public/', '', $filePath);
+            $docUpload = $request->file('document');
+            $docPath = time() . '_' . $docUpload->getClientOriginalName();
+            $docUpload->move(public_path('documents/tenders/'), $docPath);
+            $filePath = 'tenders/'.$docPath;
         }
 
         // Create a new Act and Policy instance
@@ -124,10 +123,10 @@ class TenderController extends Controller
         $actandpolicy->status = $request->input('status');
 
         if ($request->hasFile('document')) {
-            $file = $request->file('document');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('documents'), $filename);
-            $actandpolicy->document = $filename;
+            $docUpload = $request->file('document');
+            $docPath = time() . '_' . $docUpload->getClientOriginalName();
+            $docUpload->move(public_path('documents/tenders/'), $docPath);
+            $actandpolicy->document = 'tenders/'.$docPath;
         }
 
         $actandpolicy->save();

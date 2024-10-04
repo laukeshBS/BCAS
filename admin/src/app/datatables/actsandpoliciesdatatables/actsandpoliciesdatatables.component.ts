@@ -28,10 +28,17 @@ export class ActsandpoliciesdatatablesComponent {
     this.loadList();
   }
 
+  loading: boolean = false;
+
   loadList(): void {
+    this.loading = true; // Start loading
     this.actsAndPoliciesService.allList(this.limit, this.lang_code).subscribe(data => {
       this.events = data;
-      this.formatEventDates(); // Optional: Format dates if needed
+      this.formatEventDates();
+      this.loading = false; // Stop loading
+    }, error => {
+      console.error('Error loading events:', error);
+      this.loading = false; // Stop loading on error
     });
   }
 
@@ -179,6 +186,7 @@ export class ActsandpoliciesdatatablesComponent {
       } else {
         this.selectedFile = file;
         this.selectedFileError = '';
+        this.fileToUpload = event.target.files[0];
       }
     }
   }

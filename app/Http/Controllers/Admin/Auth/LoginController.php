@@ -54,24 +54,19 @@ class LoginController extends Controller
      */
     public function login(Request $request)
     {
-        // Validate the incoming request
         $request->validate([
             'email' => 'required|email|max:50',
             'password' => 'required',
         ]);
 
-        // Attempt to find the user by email
         $user = Admin::where('email', $request->email)->first();
 
-        // Check if the user exists and verify the password
         if ($user && Hash::check($request->password, $user->password)) {
-            // Generate a token for the user
             $token = $user->createToken('bcas_cms')->plainTextToken;
 
             $user->api_token = $token; // If using api_token column
             $user->save();
 
-            // Return a successful response with user data and token
             return response()->json([
                 'success' => true,
                 'message' => 'Successfully logged in!',
@@ -83,7 +78,6 @@ class LoginController extends Controller
             ], 200);
         }
 
-        // Return an error response for invalid credentials
         return response()->json([
             'success' => false,
             'message' => 'Invalid email or password',

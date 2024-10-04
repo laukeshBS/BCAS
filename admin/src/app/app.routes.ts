@@ -8,8 +8,10 @@ import { NoticesComponent } from './pages/notices/notices.component';
 import { VacanciesComponent } from './pages/vacancies/vacancies.component';
 import { DivisionComponent } from './pages/division/division.component';
 import { RegionComponent } from './pages/region/region.component';
+import { CommonTitleComponent } from './pages/common-title/common-title.component';
 import { LoginComponent } from './pages/auth/login/login.component';
 import { AuthGuard } from './guards/auth.guard';
+import { MenuComponent } from './pages/menu/menu.component';
 
 export const routes: Routes = [
     { path: 'acts-and-policies', component: ActsAndPoliciesComponent, canActivate: [AuthGuard]  },
@@ -21,6 +23,8 @@ export const routes: Routes = [
     { path: 'vacancies', component: VacanciesComponent, canActivate: [AuthGuard]  },
     { path: 'division', component: DivisionComponent, canActivate: [AuthGuard]  },
     { path: 'region', component: RegionComponent, canActivate: [AuthGuard]  },
+    { path: 'common-title', component: CommonTitleComponent, canActivate: [AuthGuard]  },
+    { path: 'menu', component: MenuComponent, canActivate: [AuthGuard]  },
     { path: 'login', component: LoginComponent  },
     { path: '**', redirectTo: '/login' }
 ];

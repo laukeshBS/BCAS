@@ -1,37 +1,43 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './layout/header/header.component';
 import { FooterComponent } from './layout/footer/footer.component';
 import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [RouterOutlet, HeaderComponent, FooterComponent, SidebarComponent, CommonModule],
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'] // Make sure this is correct
+  styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
+  title = 'admin';
+  loggedIn$: boolean = false;
+  loading: boolean = true;
+  private subscription: Subscription = new Subscription();
 
   constructor(private authService: AuthService) {}
 
-  title = 'admin';
-  private loggedIn: boolean = false;
-
-  isLoggedIn(): boolean {
-    const loggedIn = this.authService.isLoggedIn();
-    // console.log('Is logged in:', loggedIn); // Debug log
-    return loggedIn;
-    // return this.loggedIn;
-  }
-
-  login() {
-    this.loggedIn = true;
+  ngOnInit(): void {
+    this.subscription.add(
+      this.authService.loggedIn$.subscribe(isLoggedIn => {
+        this.loggedIn$ = isLoggedIn; // Update logged-in state based on the BehaviorSubject
+        this.loading = false; // Set loading to false once we have the login state
+        console.log(this.loggedIn$);
+      })
+    );
   }
 
   logout() {
-    this.loggedIn = false;
+    this.authService.logout();
+    // Reflect the logged-out state is handled via the BehaviorSubject in AuthService
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe(); // Clean up subscriptions on destroy
   }
 }

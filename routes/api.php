@@ -28,6 +28,7 @@ use App\Http\Controllers\Cms\CateringCompanyController;
 use App\Http\Controllers\Cms\WorkingAirportsController;
 use App\Http\Controllers\Cms\CommonController as Common;
 use App\Http\Controllers\Cms\LanguageController as lang;
+use App\Http\Controllers\Cms\Common\CommonTitleController;
 use App\Http\Controllers\Cms\AvsecTrainingCalendarController;
 use App\Http\Controllers\Cms\QuarterlyReportOnlineFormsController;
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
@@ -60,18 +61,22 @@ Route::get('/clear-cache', function () {
     return 'Cache cleared successfully.';
 });
 
-Route::post('login', [LoginController::class, 'login']);
-Route::middleware(['auth:admin_api', 'cors'])->group(function () {
+Route::POST('login', [LoginController::class, 'login']);
+Route::middleware('auth:admin_api')->group(function () {
 
     Route::get('/csrf-token', function () {
         return response()->json(['csrfToken' => csrf_token()]);
     });
     
     Route::controller(lang::class)->group(function(){
-        Route::post('langlist','index'); 
+        Route::post('langlist','index');
     });
     Route::controller(menus::class)->group(function(){
         Route::post('menulist','index');
+        Route::get('menu-by-id/{id}','data_by_id');
+        Route::post('menu-store','store');
+        Route::post('menu-update/{id}','update');
+        Route::delete('menu-delete/{id}','delete');
 
         Route::post('menu/lang_slugs_wise','lang_slugs_wise');
         Route::post('menu/lang_pid_wise','lang_pid_wise');
@@ -241,6 +246,14 @@ Route::middleware(['auth:admin_api', 'cors'])->group(function () {
         Route::post('region-store','store');
         Route::post('region-update/{id}','update');
         Route::delete('region-delete/{id}','delete');
+      
+    });
+    Route::controller(CommonTitleController::class)->group(function(){
+        Route::post('title-list','index');
+        Route::get('title-list-by-id/{id}','data_by_id');
+        Route::post('title-store','store');
+        Route::post('title-update/{id}','update');
+        Route::delete('title-delete/{id}','delete');
       
     });
 });

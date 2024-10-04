@@ -11,7 +11,7 @@ use App\Http\Controllers\Cms\BaseController as BaseController;
 
 class MenuController extends BaseController
 {
-    public function index(Request $request): JsonResponse
+    public function index(Request $request)
     {
         $data = $request->all();
         $menu_position = $data['menu_position'] ?? null;
@@ -96,6 +96,87 @@ class MenuController extends BaseController
             return $this->sendError('No menus found for the given language code.', 404);
         }
     }
+    public function data_by_id($id)
+    {
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
+        }
+
+        // Retrieve the data by ID
+        $data = Menu::find($validatedId);
+
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
+        }
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
+
+        // Return the data as JSON
+        return response()->json($data);
+    }
+    public function store(Request $request)
+    {
+        // Validate incoming data
+        $validator = Validator::make($request->all(), [
+            'menu_type' => 'required|string|max:255',
+            'menu_child_id' => 'nullable|integer',
+            'menu_position' => 'required|string|max:255',
+            'language_id' => 'required|string|max:10',
+            'menu_name' => 'required|string|max:255',
+            'menu_url' => 'required|url|max:255',
+            'menu_title' => 'nullable|string|max:255',
+            'menu_keyword' => 'nullable|string|max:255',
+            'menu_description' => 'nullable|string',
+            'content' => 'nullable|string',
+            'doc_upload' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+            'banner_img' => 'nullable|file|image|max:2048',
+            'img_upload' => 'nullable|file|image|max:2048',
+            'page_order' => 'required|integer',
+            'current_version' => 'nullable|string|max:10',
+            'welcomedescription' => 'nullable|string',
+            'approve_status' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        // Handle file uploads
+        $data = $request->all();
+
+        if ($request->hasFile('doc_upload')) {
+            $docUpload = $request->file('doc_upload');
+            $docPath = 'uploads/admin/cmsfiles/menus/' . time() . '_' . $docUpload->getClientOriginalName();
+            $docUpload->move(public_path('uploads/admin/cmsfiles/menus/'), $docPath);
+            $data['doc_upload'] = $docPath;
+        }
+
+        if ($request->hasFile('banner_img')) {
+            $bannerImg = $request->file('banner_img');
+            $bannerPath = 'uploads/admin/cmsfiles/menus/' . time() . '_' . $bannerImg->getClientOriginalName();
+            $bannerImg->move(public_path('uploads/admin/cmsfiles/menus/'), $bannerPath);
+            $data['banner_img'] = $bannerPath;
+        }
+
+        if ($request->hasFile('img_upload')) {
+            $imgUpload = $request->file('img_upload');
+            $imgPath = 'uploads/admin/cmsfiles/menus/' . time() . '_' . $imgUpload->getClientOriginalName();
+            $imgUpload->move(public_path('uploads/admin/cmsfiles/menus/'), $imgPath);
+            $data['img_upload'] = $imgPath;
+        }
+
+        // Create a new menu entry
+        $menu = Menu::create($data);
+
+        return response()->json(['data' => $menu, 'message' => 'Menu created successfully.'], 201);
+    }
+
     public function lang_slugs_wise(Request $request): JsonResponse
     {
         $data = $request->all();
