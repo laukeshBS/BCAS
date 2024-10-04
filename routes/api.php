@@ -1,7 +1,9 @@
 <?php
 
+use App\Models\Admin\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Cms\FormController;
@@ -14,23 +16,27 @@ use App\Http\Controllers\Cms\TenderController;
 use App\Http\Controllers\Cms\ContactController;
 use App\Http\Controllers\Cms\VacancyController;
 use App\Http\Controllers\Cms\VisitorController;
-use App\Http\Controllers\Cms\CircularController;
-use App\Http\Controllers\Cms\WorkingAirportsController;
 use App\Http\Controllers\Cms\AirlinesController;
-use App\Http\Controllers\Cms\CateringCompanyController;
-use App\Http\Controllers\Cms\OpsSecurityController;
+use App\Http\Controllers\Cms\CircularController;
 use App\Http\Controllers\Cms\DivisionController;
-use App\Http\Controllers\Cms\AvsecTrainingCalendarController;
+use App\Http\Controllers\Cms\OpsSecurityController;
+use App\Http\Controllers\Admin\Auth\LoginController;
+use App\Http\Controllers\Cms\OpsiSecurityController;
 use App\Http\Controllers\Cms\MenuController as menus;
 use App\Http\Controllers\Cms\ActandpoliciesController;
+
+use App\Http\Controllers\Cms\CateringCompanyController;
+use App\Http\Controllers\Cms\WorkingAirportsController;
 use App\Http\Controllers\Cms\QuarterlyReportOnlineFormsController;
 use App\Http\Controllers\Cms\OpsiSecurityController;
 use App\Http\Controllers\Cms\QuarterlyReportOnlineiiFormsController;
+
 use App\Http\Controllers\Cms\CommonController as Common;
-use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 use App\Http\Controllers\Cms\LanguageController as lang;
-use Illuminate\Support\Facades\Hash;
-use App\Models\Admin\Admin;
+use App\Http\Controllers\Cms\Common\CommonTitleController;
+use App\Http\Controllers\Cms\AvsecTrainingCalendarController;
+use App\Http\Controllers\Cms\QuarterlyReportOnlineFormsController;
+use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -60,28 +66,26 @@ Route::get('/clear-cache', function () {
     return 'Cache cleared successfully.';
 });
 
-Route::middleware(['cors', 'throttle:60,1'])->group(function () {
+
+Route::POST('login', [LoginController::class, 'login']);
+
+
+Route::middleware(['cors', 'throttle:60,1','auth:admin_api'])->group(function () {
+
 
     Route::get('/csrf-token', function () {
         return response()->json(['csrfToken' => csrf_token()]);
     });
-    Route::post('/login', function (Request $request) {
-        $user = Admin::where('email', $request->email)->first();
     
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-    
-        $token = $user->createToken('authToken')->plainTextToken;
-    
-        return response()->json(['token' => $token, 'user' => $user]);
-    });
     Route::controller(lang::class)->group(function(){
         Route::post('langlist','index');
-       
     });
     Route::controller(menus::class)->group(function(){
         Route::post('menulist','index');
+        Route::get('menu-by-id/{id}','data_by_id');
+        Route::post('menu-store','store');
+        Route::post('menu-update/{id}','update');
+        Route::delete('menu-delete/{id}','delete');
 
         Route::post('menu/lang_slugs_wise','lang_slugs_wise');
         Route::post('menu/lang_pid_wise','lang_pid_wise');
@@ -254,6 +258,14 @@ Route::middleware(['cors', 'throttle:60,1'])->group(function () {
         Route::post('region-store','store');
         Route::post('region-update/{id}','update');
         Route::delete('region-delete/{id}','delete');
+      
+    });
+    Route::controller(CommonTitleController::class)->group(function(){
+        Route::post('title-list','index');
+        Route::get('title-list-by-id/{id}','data_by_id');
+        Route::post('title-store','store');
+        Route::post('title-update/{id}','update');
+        Route::delete('title-delete/{id}','delete');
       
     });
 });

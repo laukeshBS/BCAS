@@ -1,8 +1,19 @@
-<div class="wrapper">
-  <app-header></app-header>
-  <app-sidebar></app-sidebar>
-  <div class="content-wrapper">
-    <router-outlet></router-outlet>
+<div *ngIf="!loading; else loadingTemplate">
+  <div class="wrapper">
+    <app-header *ngIf="loggedIn$"></app-header>
+    <app-sidebar *ngIf="loggedIn$"></app-sidebar>
+    
+    <div class="content-wrapper" *ngIf="loggedIn$">
+      <router-outlet></router-outlet>
+    </div>
+    <div class="" *ngIf="!loggedIn$">
+      <router-outlet></router-outlet>
+    </div>
+    
+    <app-footer *ngIf="loggedIn$"></app-footer>
   </div>
-  <app-footer></app-footer>
 </div>
+
+<ng-template #loadingTemplate>
+  <div>Loading...</div>
+</ng-template>
