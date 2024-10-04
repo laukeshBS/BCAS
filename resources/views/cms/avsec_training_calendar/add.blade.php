@@ -139,13 +139,36 @@ Add Training Calendar - Admin Panel
                                 </div>
                             </div>
                             <div class="col-12 col-md-6 col-lg-6">
+                               
+                                <div class="input_class form-group">
+                                <?php
+                                    $language = get_language();
+                                    foreach($language as $value) {
+                                    ?>
+                                    <input type="radio" name="lang_code" autocomplete="off" id="txtlang_code" onclick="getMenu(this.value);" value="{{$value->lang_code}}"  @if(old('lang_code') == $value->lang_code) checked @endif class="@error('lang_code') is-invalid @enderror" />{{$value->name}} &nbsp;
+                                    <?php } ?>
+
+                                     @if($errors->has('language'))
+                                    <p class="text-danger">{{ $errors->first('language') }}</p>
+                                    @endif
+                                </div>
+                        
+                            </div>
+                             <div class="col-6 col-md-6 col-lg-6">
                                 <div class="form-group">
-                                    <input name="lang_code" type="text" class="input_class form-control @error('lang_code') is-invalid @enderror" value="{{ old('lang_code') }}" />
-                                    @error('lang_code')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                    @enderror
+                                <select name="status" class="input_class form-control" id="status" autocomplete="off">
+                                    <option value=""> Select </option>
+                                        <?php
+                                        $statusArray = get_status();
+                                        foreach($statusArray as $key=>$value) {
+                                            ?>
+                                            <option value="<?php echo $key; ?>" <?php if(old('status')==$key) echo "selected"; ?>><?php echo $value; ?></option>
+                                        <?php  }?>
+                                </select>
+                                @if($errors->has('status'))
+                                <span class="text-danger">{{ $errors->first('status') }}</span>
+                                @endif
+                                
                                 </div>
                             </div>
                         </div>

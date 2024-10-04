@@ -24,8 +24,13 @@ use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Cms\OpsiSecurityController;
 use App\Http\Controllers\Cms\MenuController as menus;
 use App\Http\Controllers\Cms\ActandpoliciesController;
+
 use App\Http\Controllers\Cms\CateringCompanyController;
 use App\Http\Controllers\Cms\WorkingAirportsController;
+use App\Http\Controllers\Cms\QuarterlyReportOnlineFormsController;
+use App\Http\Controllers\Cms\OpsiSecurityController;
+use App\Http\Controllers\Cms\QuarterlyReportOnlineiiFormsController;
+
 use App\Http\Controllers\Cms\CommonController as Common;
 use App\Http\Controllers\Cms\LanguageController as lang;
 use App\Http\Controllers\Cms\Common\CommonTitleController;
@@ -61,8 +66,12 @@ Route::get('/clear-cache', function () {
     return 'Cache cleared successfully.';
 });
 
+
 Route::POST('login', [LoginController::class, 'login']);
-Route::middleware('auth:admin_api')->group(function () {
+
+
+Route::middleware(['cors', 'throttle:60,1','auth:admin_api'])->group(function () {
+
 
     Route::get('/csrf-token', function () {
         return response()->json(['csrfToken' => csrf_token()]);
@@ -186,6 +195,9 @@ Route::middleware('auth:admin_api')->group(function () {
     });
     Route::controller(QuarterlyReportOnlineFormsController::class)->group(function(){
         Route::post('quarterly-report-online','store');
+    });
+    Route::controller(QuarterlyReportOnlineiiFormsController::class)->group(function(){
+        Route::post('quarterly-report2-online','store');
     });
     Route::controller(NoticeController::class)->group(function(){
         Route::post('notice-list','notice_list');
