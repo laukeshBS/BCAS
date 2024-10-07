@@ -10,12 +10,12 @@ class VisitorController extends Controller
     public function getVisitorCount(Request $request)
     {
         $pageUrl = $request->input('url');
-       // $lang_code = $request->input('lang_code');
-        $lang_code = 'en'; // Example lang_code; set this as needed
-        $visitor = Visitor::where('lang_code', $lang_code)->first();
+        $lang_code = $request->input('lang_code');
+        //$lang_code = 'en'; // Example lang_code; set this as needed
+        $visitor = Visitor::where('lang_code', $lang_code)->count();
         //dd($visitor);
         if ($visitor) {
-            return response()->json(['count' => $visitor->count]);
+            return response()->json(['count' =>  $visitor]);
         } else {
             return response()->json(['count' => 0]);
         }
