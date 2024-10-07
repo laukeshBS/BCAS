@@ -1,12 +1,11 @@
 <?php
 
 namespace App\Http\Controllers\Cms\Division;
-
+use App\Models\Cms\Division\Training\DivisionCourse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Cms\Division\DivisionDocument;
 
-class DocumentController extends Controller
+class CourseCategoryController extends Controller
 {
     public $user;
 
@@ -16,7 +15,7 @@ class DocumentController extends Controller
         $perPage = $request->input('limit');
         $page = $request->input('currentPage');
 
-        $slide = DivisionDocument::select('*') ->paginate($perPage, ['*'], 'page', $page);
+        $slide = DivisionCourse::select('*') ->paginate($perPage, ['*'], 'page', $page);
         if ($slide->isNotEmpty()) {
             $slide->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
@@ -46,7 +45,7 @@ class DocumentController extends Controller
         }
 
         // Retrieve the data by ID
-        $data = DivisionDocument::find($validatedId);
+        $data = DivisionCourse::find($validatedId);
 
         // Return a 404 response if data is not found
         if (!$data) {
@@ -65,42 +64,22 @@ class DocumentController extends Controller
             'title' => 'required|min:2|max:255',
             'slug' => 'required|min:2|max:255',
             'description' => 'nullable|max:500',
-            'image' => 'required|file|mimes:jpg,jpeg,png|max:20480',
-            'parent_id' => 'required',
             'division' => 'required',
             'position' => 'required',
             'status' => 'required',
             'lang_code' => 'required|exists:languages,lang_code',
-            'start_date' => 'required',
-            'end_date' => 'required',
-            'is_news' => 'required',
-            'created_by' => 'required',
             
         ]);
 
-        // Handle file upload
-        if ($request->hasFile('image')) {
-            $docUpload = $request->file('doc_upload');
-            $docPath = time() . '_' . $docUpload->getClientOriginalName();
-            $docUpload->move(public_path('uploads/admin/cmsfiles/division/gallery'), $docPath);
-            $filePath = $docPath;
-        }
-
         // Create a new form instance
-        $data = new DivisionDocument(); // Assuming you have a Form model
+        $data = new DivisionCourse(); // Assuming you have a Form model
         $data->title = $validated['title'];
         $data->slug = $validated['slug'];
         $data->description = $validated['description'];
-        $data->parent_id = $validated['parent_id'];
         $data->division = $validated['division'];
         $data->position = $validated['position'];
         $data->status = $validated['status'];
         $data->lang_code = $validated['lang_code'];
-        $data->start_date = $validated['start_date'];
-        $data->end_date = $validated['end_date'];
-        $data->is_news = $validated['is_news'];
-        $data->created_by = $validated['created_by'];
-        $data->image = $filePath;
         
         $data->save();
 
@@ -112,29 +91,15 @@ class DocumentController extends Controller
             'title' => 'required|min:2|max:255',
             'slug' => 'required|min:2|max:255',
             'description' => 'nullable|max:500',
-            'image' => 'required|file|mimes:jpg,jpeg,png|max:20480',
-            'parent_id' => 'required',
             'division' => 'required',
             'position' => 'required',
             'status' => 'required',
             'lang_code' => 'required|exists:languages,lang_code',
-            'start_date' => 'required',
-            'end_date' => 'required',
-            'is_news' => 'required',
-            'created_by' => 'required',
         ]);
-        $data = DivisionDocument::find($id);
+        $data = DivisionCourse::find($id);
 
         if (!$data) {
             return $this->sendError('No data found.', 404);
-        }
-
-        // Handle file upload
-        if ($request->hasFile('image')) {
-            $docUpload = $request->file('doc_upload');
-            $docPath = time() . '_' . $docUpload->getClientOriginalName();
-            $docUpload->move(public_path('uploads/admin/cmsfiles/division/gallery'), $docPath);
-            $validated['image'] = $docPath;
         }
 
         $data->update($validated);
@@ -143,7 +108,7 @@ class DocumentController extends Controller
     }
     public function delete($id)
     {
-        $data = DivisionDocument::find($id);
+        $data = DivisionCourse::find($id);
 
         if (!$data) {
             return $this->sendError('No data found.', 404);
@@ -152,5 +117,5 @@ class DocumentController extends Controller
 
         return response()->json(['data' => $data, 'message' => 'Deleted successfully.'], 201);
     }
-    
+       
 }

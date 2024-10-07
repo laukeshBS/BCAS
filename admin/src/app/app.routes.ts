@@ -12,6 +12,8 @@ import { CommonTitleComponent } from './pages/common-title/common-title.componen
 import { LoginComponent } from './pages/auth/login/login.component';
 import { AuthGuard } from './guards/auth.guard';
 import { MenuComponent } from './pages/menu/menu.component';
+import { SliderComponent } from './pages/slider/slider.component';
+import { SlideComponent } from './pages/slide/slide.component';
 
 export const routes: Routes = [
     { path: 'acts-and-policies', component: ActsAndPoliciesComponent, canActivate: [AuthGuard]  },
@@ -25,6 +27,8 @@ export const routes: Routes = [
     { path: 'region', component: RegionComponent, canActivate: [AuthGuard]  },
     { path: 'common-title', component: CommonTitleComponent, canActivate: [AuthGuard]  },
     { path: 'menu', component: MenuComponent, canActivate: [AuthGuard]  },
+    { path: 'slider', component: SliderComponent, canActivate: [AuthGuard]  },
+    { path: 'slide', component: SlideComponent, canActivate: [AuthGuard]  },
     { path: 'login', component: LoginComponent  },
     { path: '**', redirectTo: '/login' }
 ];

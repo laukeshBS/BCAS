@@ -72,7 +72,7 @@ Route::middleware('auth:admin_api')->group(function () {
         Route::post('langlist','index');
     });
     Route::controller(menus::class)->group(function(){
-        Route::post('menulist','index');
+        Route::post('menulist','data');
         Route::get('menu-by-id/{id}','data_by_id');
         Route::post('menu-store','store');
         Route::post('menu-update/{id}','update');
@@ -100,11 +100,19 @@ Route::middleware('auth:admin_api')->group(function () {
     });
     Route::controller(SliderController::class)->group(function(){
         Route::post('slider-by-slug','slider_by_slug');
-        Route::post('slider-store','store_slider_api');
+        Route::post('slider-list','cms_data');
+        Route::get('slider-by-id/{id}','cms_data_by_id');
+        Route::post('slider-store','store');
+        Route::post('slider-update/{id}','update');
+        Route::delete('slider-delete/{id}','delete');
       
     });
     Route::controller(SlideController::class)->group(function(){
-        Route::post('slide-store','store_slide_api');
+        Route::post('slide-list','cms_data');
+        Route::get('slide-by-id/{id}','cms_data_by_id');
+        Route::post('slide-store','store');
+        Route::post('slide-update/{id}','update');
+        Route::delete('slide-delete/{id}','delete');
       
     });
     Route::controller(ActandpoliciesController::class)->group(function(){

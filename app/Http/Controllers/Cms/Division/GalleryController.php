@@ -4,359 +4,152 @@ namespace App\Http\Controllers\Cms\Division;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Cms\Division\Division_gallery as gallery;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Session;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-
+use App\Models\Cms\Division\DivisionGallery;
 class GalleryController extends Controller
 {
-  /**
-     * Display a listing of the gallery.
-     */
     public $user;
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('admin')->user();
-            return $next($request);
-        });
-    }
-    public function index(Request $request): View
-    {
-        if (is_null($this->user) || !$this->user->can('gallery.view')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Gallery !');
-        }
-       // $lists='';
-        $parentgallery="";
-            $title="Gallery List";
-            $approve_status=session()->get('status');
-            $sertitle=Session::get('Crtitle');
-            $approve_status=Session::get('status');
-            $lang_code=Session::get('lang_code');
-            $lists = gallery::whereNotNull('title');
-            //$lists = gallery::with(['galleryCategory', 'center']);
-          // dd( $lists);
-            if (!empty($sertitle)) {
-                $lists = gallery::whereNotNull('title');
-                $lists->where('title', 'LIKE', "%{$sertitle}%");
-            }
-            if (!empty($approve_status)) {
-               
-                $lists->where('status',$approve_status);
-            }
-            if (!empty($lang_code)) {
-               
-                $lists->where('lang_code',$lang_code);
-            }
-            $list = $lists->orderBy('position', 'ASC')->select('*')->paginate(10);
-           // dd($list);
-        return view('cms/division/gallery/index',compact(['list','title','parentgallery']));
-    }
 
-    /**
-     * Show the form for creating a new Gallery.
-     */
-    public function create()
+    // API
+    public function data(Request $request)
     {
-        if (is_null($this->user) || !$this->user->can('gallery.create')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Gallery !');
-        }
-        $title="Add Gallery";
-        
-        return view('cms/division/gallery/add',compact(['title']));
-    }
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
 
-    /**
-     * Store a newly created Gallery in storage.
-     */
-    public function store(Request $request): mixed {
-     //dd($request);
-        if(isset($request->search)){
-            $title=clean_single_input(trim($request->title));
-             $approve_status=clean_single_input($request->status);
-             $lang_code=clean_single_input($request->lang_code);
-             Session::put('title', $title);
-             Session::put('status', $approve_status);
-             Session::put('lang_code', $lang_code);
-             return redirect('admin/division/gallery');
-           }
-        if(isset($request->cmdsubmit)){  
-         $txtupload1 ='';
-         $rules = array(
-            'title' => 'required|max:64',
-            'description' => 'required',
-            'status' => 'required',
-            'lang_code' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required',
-            'division' => 'required',
-            'image' => 'required',
-            'category_id' => 'required'
-        );
-        $valid
-        =array(
-             'title.required'=>'Gallery title field  is required',
-             'description.required'=>'Gallery description  field  is required',
-             'lang_code.required'=>'Languages  field  is required',
-             'status.required' =>'Gallery Status field is required',
-             'start_date.required' =>'Gallery Start date field is required',
-             'end_date.required' =>'Gallery End date field is required',
-             'division.required' =>'Gallery division field is required',
-             'category_id.required' =>'Gallery category field is required'
-        );
-        $validator = '';
-        $img_upload1="";
-        
-            $validator = Validator::make($request->all(), $rules,$valid);
-        
-        if ($validator->fails()) {
-      
-            return redirect('admin/division/gallery/create')->withErrors($validator)->withInput();
-            
-        }else{
-            if (!empty($request->image)){
-                if (!is_dir('public/uploads/admin/cmsfiles/division/gallery')) {
-                    mkdir('public/uploads/admin/cmsfiles/division/gallery', 0777, TRUE);
+        $slide = DivisionGallery::select('*') ->paginate($perPage, ['*'], 'page', $page);
+        if ($slide->isNotEmpty()) {
+            $slide->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                if ($item->media) {
+                    $item->media = asset('public/'.$item->media);
                 }
-                    $rulesdsad = array(
-                        'image' => 'required|mimes:jpg,png,web,jpge|max:2048',
-                    );
-                    $randomString = Str::random(4);
-                    $image = str_replace(' ','_',clean_single_input($request->title.$randomString)).'image'.'.'.$request->image->extension();  
-            
-                    $res= $request->image->move(public_path('uploads/admin/cmsfiles/division/gallery'), $image);
-                    if($res){
-                        $image =$image;
-                    }
-                    $image2 ='uploads/admin/cmsfiles//division/gallery'.$image; //die();
-                    
-                    if (file_exists($image2)) {
-                        unlink($image2);
-                    }
-                        $validator = Validator::make($request->all(), $rulesdsad);
-                        $pArray['image']  				    = clean_single_input($image);
-			}
-            
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $dataArr = array(); 
-           //dd $image="";
-            $pArray['title']    				    = trim($request->title); 
-            $pArray['slugs']    				    = Str::slug(clean_single_input($request->title));
-			$pArray['lang_code']    			    = clean_single_input($request->lang_code);
-			$pArray['description']    			    = clean_single_input($request->description);
-			$pArray['status']  					    = clean_single_input($request->status);
-            $pArray['position']  					= clean_single_input($request->position);
-            $pArray['division']  				    = clean_single_input($request->division);
-			$pArray['start_date']		            = clean_single_input($request->start_date);
-			$pArray['end_date']    					= clean_single_input($request->end_date); //clean_single_input($request->description);
-		    $pArray['is_news']  				    = $request->is_news;
-			$pArray['created_by']  					= clean_single_input($user_login_id);
-			$pArray['category_id']  			    = clean_single_input($request->category_id);
-            //dd($pArray);
-			$create 	= gallery::create($pArray);
-           
-            $lastInsertID = $create->id;
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $action_by_role=Auth::guard('admin')->user()->username;
-            if($lastInsertID > 0){
-                $logs_data = array(
-                    'module_item_title'     => $request->title,
-                    'module_item_id'        => $lastInsertID,
-                    'action_by'             =>  $user_login_id,
-                    'old_data'              =>  json_encode($pArray),
-                    'new_data'              =>  json_encode($pArray),
-                    'action_name'           =>  'Add Gallery',
-                    'lang_id'               =>  clean_single_input($request->lang_code),
-                    'action_type'        	=> 'Gallery Model',
-                    'approve_status'        => clean_single_input($request->status),
-                    'action_by_role'        =>  $action_by_role
-                );
-                audit_trails($logs_data);
-                return redirect('admin/division/gallery')->with('success','Gallery has successfully added');
-			}
-           
+                return $item;
+            });
         }
+        return response()->json([
+            'title' => 'List',
+            'data' => $slide->items(),
+            'total' => $slide->total(),
+            'current_page' => $slide->currentPage(),
+            'last_page' => $slide->lastPage(),
+            'per_page' => $slide->perPage(),
+        ]);
     }
-      
-    }
-
-    /**
-     * Display the specified Gallery.
-     */
-    public function show(string $id)
+    public function data_by_id($id)
     {
-        if (is_null($this->user) || !$this->user->can('gallery.view')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Gallery !');
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
         }
 
-        dd("Here");
-        // $title="Child Gallery List";
-        // $whEre  = "";
-        // $id=clean_single_input($id);
-        // $parentgallery = gallery::where('id', $id)->first();
+        // Retrieve the data by ID
+        $data = DivisionGallery::find($validatedId);
 
-        // $list = gallery::withTrashed()->whereNull('deleted_at')->where('gallery_child_id',$id)->paginate(10);
-        //  return view('cms/division/training/gallerys/index',compact(['list','title','id','parentgallery']));
-    }
-
-    /**
-     * Show the form for editing the specified gallery.
-     */
-    public function edit(string $id)
-    {
-        if (is_null($this->user) || !$this->user->can('gallery.edit')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Gallery !');
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
         }
-        $id=clean_single_input($id);
-        $title="Edit Gallery";
+        
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
 
-        $data = gallery::find($id);
-        //dd($data);
-        return view('cms/division/gallery/edit',compact(['title','data']));
+        return response()->json($data);
     }
-
-    /**
-     * Update the specified gallery in storage. update
-     */
-    public function update(Request $request, string $id)
+    public function store(Request $request)
     {
-        $id= clean_single_input($id);
-        $rules = array(
-            'title' => 'required|max:64',
-            'description' => 'required',
+        $validated = $request->validate([
+            'title' => 'required|min:2|max:255',
+            'slug' => 'required|min:2|max:255',
+            'description' => 'nullable|max:500',
+            'image' => 'required|file|mimes:jpg,jpeg,png|max:20480',
+            'parent_id' => 'required',
+            'division' => 'required',
+            'position' => 'required',
             'status' => 'required',
-            'lang_code' => 'required',
+            'lang_code' => 'required|exists:languages,lang_code',
             'start_date' => 'required',
             'end_date' => 'required',
-            'division' => 'required',
-            'category_id' => 'required'
-        );
-        $valid
-        =array(
-             'title.required'=>'Gallery title field  is required',
-             'description.required'=>'Gallery description  field  is required',
-             'lang_code.required'=>'Languages  field  is required',
-             'status.required' =>'Gallery Status field is required',
-             'start_date.required' =>'Gallery Start date field is required',
-             'end_date.required' =>'Gallery End date field is required',
-             'division.required' =>'Gallery division field is required',
-             'category_id.required' =>'Gallery category field is required'
-        );
-        
-            $validator = Validator::make($request->all(), $rules, $valid);
-        
-        if ($validator->fails()) {
-      
-            return  back()->withErrors($validator)->withInput();
+            'is_news' => 'required',
+            'created_by' => 'required',
             
-        }else{
+        ]);
+
+        // Handle file upload
+        if ($request->hasFile('image')) {
+            $docUpload = $request->file('doc_upload');
+            $docPath = time() . '_' . $docUpload->getClientOriginalName();
+            $docUpload->move(public_path('uploads/admin/cmsfiles/division/gallery'), $docPath);
+            $filePath = $docPath;
+        }
+
+        // Create a new form instance
+        $data = new DivisionGallery(); // Assuming you have a Form model
+        $data->title = $validated['title'];
+        $data->slug = $validated['slug'];
+        $data->description = $validated['description'];
+        $data->parent_id = $validated['parent_id'];
+        $data->division = $validated['division'];
+        $data->position = $validated['position'];
+        $data->status = $validated['status'];
+        $data->lang_code = $validated['lang_code'];
+        $data->start_date = $validated['start_date'];
+        $data->end_date = $validated['end_date'];
+        $data->is_news = $validated['is_news'];
+        $data->created_by = $validated['created_by'];
+        $data->image = $filePath;
+        
+        $data->save();
+
+        return response()->json(['data' => $data, 'message' => 'Created successfully.'], 201);
+    }
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'title' => 'required|min:2|max:255',
+            'slug' => 'required|min:2|max:255',
+            'description' => 'nullable|max:500',
+            'image' => 'required|file|mimes:jpg,jpeg,png|max:20480',
+            'parent_id' => 'required',
+            'division' => 'required',
+            'position' => 'required',
+            'status' => 'required',
+            'lang_code' => 'required|exists:languages,lang_code',
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'is_news' => 'required',
+            'created_by' => 'required',
+        ]);
+        $data = DivisionGallery::find($id);
+
+        if (!$data) {
+            return $this->sendError('No data found.', 404);
+        }
+
+        // Handle file upload
+        if ($request->hasFile('image')) {
+            $docUpload = $request->file('doc_upload');
+            $docPath = time() . '_' . $docUpload->getClientOriginalName();
+            $docUpload->move(public_path('uploads/admin/cmsfiles/division/gallery'), $docPath);
+            $validated['image'] = $docPath;
+        }
+
+        $data->update($validated);
+
+        return response()->json(['data' => $data, 'message' => 'Updated successfully.'], 201);
+    }
+    public function delete($id)
+    {
+        $data = DivisionGallery::find($id);
+
+        if (!$data) {
+            return $this->sendError('No data found.', 404);
+        }
+        $data->delete();
+
+        return response()->json(['data' => $data, 'message' => 'Deleted successfully.'], 201);
+    }
     
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $dataArr = array(); 
-            if (!empty($request->image)){
-                if (!is_dir('public/uploads/admin/cmsfiles/division/gallery')) {
-                    mkdir('public/uploads/admin/cmsfiles/division/gallery', 0777, TRUE);
-                }
-                    $rulesdsad = array(
-                        'image' => 'required|mimes:jpg,png,web,jpge|max:2048',
-                    );
-                    $randomString = Str::random(4);
-                    $image = str_replace(' ','_',clean_single_input($request->title.$randomString)).'image'.'.'.$request->image->extension();  
-                    $res= $request->image->move(public_path('uploads/admin/cmsfiles/division/gallery'), $image);
-                    if($res){
-                        $image =$image;
-                    }
-                    $image2 ='uploads/admin/cmsfiles/division/gallery'.$image; //die();
-                    
-                    if (file_exists($image2)) {
-                        unlink($image2);
-                    }
-                        $validator = Validator::make($request->all(), $rulesdsad);
-                        $pArray['image']  				    = clean_single_input($image);
-			}else{
-                $pArray['image']  				    = clean_single_input($request->oldimage);
-            }
-            $pArray['title']    				    = trim($request->title); 
-            $pArray['slugs']    				    = Str::slug(clean_single_input($request->title));
-			$pArray['lang_code']    			    = clean_single_input($request->lang_code);
-			$pArray['description']    			    = clean_single_input($request->description);
-			$pArray['status']  					    = clean_single_input($request->status);
-            $pArray['position']  					= clean_single_input($request->position);
-            $pArray['division']  				    =  clean_single_input($request->division);
-			$pArray['start_date']		            = clean_single_input($request->start_date);
-			$pArray['end_date']    					= $request->end_date; 
-            $pArray['is_news']  				    = $request->is_news;
-			$pArray['created_by']  					= clean_single_input($user_login_id);
-			$pArray['category_id']  			    = clean_single_input($request->category_id);
-		
-			$create 	= gallery::where('id', $id)->update($pArray);
-            $lastInsertID = $id;
-           
-            $data = gallery::find($lastInsertID);
-            if($create > 0){
-
-                $lastInsertID = $id;
-                $user_login_id=Auth::guard('admin')->user()->id;
-                $action_by_role=Auth::guard('admin')->user()->username;
-                if($lastInsertID > 0){
-                    $logs_data = array(
-                        'module_item_title'     =>  $request->title,
-                        'module_item_id'        =>  $lastInsertID,
-                        'action_by'             =>  $user_login_id,
-                        'old_data'              =>  json_encode($data),
-                        'new_data'              =>  json_encode($pArray),
-                        'action_name'           =>  'Update Gallery ',
-                        //'page_category'         =>  '',
-                        'lang_id'               =>   clean_single_input($request->lang_code),
-                        'action_type'        	=>  'Gallery Model',
-                        'approve_status'        =>  clean_single_input($request->status),
-                        'action_by_role'        =>  $action_by_role
-                    );
-                    audit_trails($logs_data);
-            
-                   return redirect('admin/division/gallery')->with('success','Gallery has successfully Updated');
-			    }
-            }
-           
-        }
-    }
-
-    /**
-     * Remove the specified Gallery from storage.
-     */
-    public function destroy(gallery $gallery)
-    {
-        if (is_null($this->user) || !$this->user->can('gallery.delete')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Gallery !');
-        }
-        $delete= $gallery->delete();
-        $data = gallery::find($gallery->id);
-        if($delete > 0){
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $action_by_role=Auth::guard('admin')->user()->username;
-                        $logs_data = array(
-                            'module_item_title'     =>  $gallery->gallery_title,
-                            'module_item_id'        =>  $gallery->id,
-                            'action_by'             =>  $user_login_id,
-                            'old_data'             =>  json_encode($data),
-                            'new_data'             =>  json_encode($gallery),
-                            'action_name'           =>  'Delete',
-                            'lang_id'               =>  clean_single_input($gallery->lang_code),
-                            'action_type'        	=> 'Gallery Model',
-                            'approve_status'        => clean_single_input($gallery->status),
-                            'action_by_role'        => $action_by_role
-                        );
-                        
-            audit_trails($logs_data);
-
-            return redirect('admin/division/gallery')->with('success','Gallery deleted successfully');
-        }
-        
-    }
 }

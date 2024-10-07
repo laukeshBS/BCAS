@@ -1,304 +1,121 @@
 <?php
 
 namespace App\Http\Controllers\Cms\Division;
-use App\Models\Cms\Division\Division_document_category as documentCategories;
+use App\Models\Cms\Division\DivisionDocumentCategory;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Session;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
 
 class DocumentCategoriesController extends Controller
 {
-    /**
-     * Display a listing of the Document Categories.
-     */
     public $user;
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('admin')->user();
-            return $next($request);
-        });
-    }
-    public function index(Request $request): View
-    {
-        if (is_null($this->user) || !$this->user->can('document.view')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Document Categories !');
-        }
-       // $lists='';
-        $parentdocument="";
-            $title="Document Categories List";
-            $approve_status=session()->get('status');
-            $sertitle=Session::get('Crtitle');
-            $approve_status=Session::get('status');
-            $lang_code=Session::get('lang_code');
-            $lists = documentCategories::whereNotNull('title');
-            if (!empty($sertitle)) {
-                $lists = documentCategories::whereNotNull('title');
-                $lists->where('title', 'LIKE', "%{$sertitle}%");
-            }
-            if (!empty($approve_status)) {
-               
-                $lists->where('status',$approve_status);
-            }
-            if (!empty($lang_code)) {
-               
-                $lists->where('lang_code',$lang_code);
-            }
-            $list = $lists->orderBy('position', 'ASC')->select('*')->paginate(10);
-           // dd("hetees");
-        return view('cms/division/documentCategories/index',compact(['list','title','parentdocument']));
-    }
 
-    /**
-     * Show the form for creating a new Document Categories.
-     */
-    public function create()
+    // API
+    public function data(Request $request)
     {
-        if (is_null($this->user) || !$this->user->can('document.create')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Document Categories !');
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $slide = DivisionDocumentCategory::select('*') ->paginate($perPage, ['*'], 'page', $page);
+        if ($slide->isNotEmpty()) {
+            $slide->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                if ($item->media) {
+                    $item->media = asset('public/'.$item->media);
+                }
+                return $item;
+            });
         }
-        $title="Add Document Categories";
+        return response()->json([
+            'title' => 'List',
+            'data' => $slide->items(),
+            'total' => $slide->total(),
+            'current_page' => $slide->currentPage(),
+            'last_page' => $slide->lastPage(),
+            'per_page' => $slide->perPage(),
+        ]);
+    }
+    public function data_by_id($id)
+    {
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
+        }
+
+        // Retrieve the data by ID
+        $data = DivisionDocumentCategory::find($validatedId);
+
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
+        }
         
-        return view('cms/division/documentCategories/add',compact(['title']));
-    }
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
 
-    /**
-     * Store a newly created Document Categories in storage.
-     */
-    public function store(Request $request): mixed {
-     //dd($request);
-        if(isset($request->search)){
-            $title=clean_single_input(trim($request->title));
-             $approve_status=clean_single_input($request->status);
-             $lang_code=clean_single_input($request->lang_code);
-             Session::put('title', $title);
-             Session::put('status', $approve_status);
-             Session::put('lang_code', $lang_code);
-             return redirect('admin/division/document_categories');
-           }
-        if(isset($request->cmdsubmit)){  
-         $txtupload1 ='';
-         $rules = array(
-            'title' => 'required|max:64',
-            'description' => 'required',
+        return response()->json($data);
+    }
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'title' => 'required|min:2|max:255',
+            'slug' => 'required|min:2|max:255',
+            'description' => 'nullable|max:500',
             'division' => 'required',
+            'position' => 'required',
             'status' => 'required',
-            'lang_code' => 'required',
+            'lang_code' => 'required|exists:languages,lang_code',
             
-        );
-        $valid
-        =array(
-             'title.required'=>'Document category title field  is required',
-             'description.required'=>'Document categorydescription  field  is required',
-             'lang_code.required'=>'Languages  field  is required',
-             'status.required' =>'Document category status field is required',
-             'division.required' =>'Document category division field is required',
-            
-        );
-        $validator = '';
-        $img_upload1="";
+        ]);
+
+        // Create a new form instance
+        $data = new DivisionDocumentCategory(); // Assuming you have a Form model
+        $data->title = $validated['title'];
+        $data->slug = $validated['slug'];
+        $data->description = $validated['description'];
+        $data->division = $validated['division'];
+        $data->position = $validated['position'];
+        $data->status = $validated['status'];
+        $data->lang_code = $validated['lang_code'];
         
-            $validator = Validator::make($request->all(), $rules,$valid);
-        
-        if ($validator->fails()) {
-      
-            return redirect('admin/division/document_categories/create')->withErrors($validator)->withInput();
-            
-        }else{
-            
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $dataArr = array(); 
-           //dd $banner_img="";
-            $pArray['title']    				    = trim($request->title); 
-            $pArray['slugs']    				    = Str::slug(clean_single_input($request->title));
-			$pArray['lang_code']    			    = clean_single_input($request->lang_code);
-			$pArray['description']    			    = clean_single_input($request->description);
-			$pArray['status']  					    = clean_single_input($request->status);
-            $pArray['position']  					= clean_single_input($request->position);
-            $pArray['division']  				    = clean_single_input($request->division);
-			$pArray['created_by']  					= clean_single_input($user_login_id);
-			$create 	= documentCategories::create($pArray);
-           
-            $lastInsertID = $create->id;
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $action_by_role=Auth::guard('admin')->user()->username;
-            if($lastInsertID > 0){
-                $logs_data = array(
-                    'module_item_title'     => $request->title,
-                    'module_item_id'        => $lastInsertID,
-                    'action_by'             =>  $user_login_id,
-                    'old_data'              =>  json_encode($pArray),
-                    'new_data'              =>  json_encode($pArray),
-                    'action_name'           =>  'Add Document',
-                    'lang_id'               =>  clean_single_input($request->lang_code),
-                    'action_type'        	=> 'Document Model',
-                    'approve_status'        => clean_single_input($request->status),
-                    'action_by_role'        =>  $action_by_role
-                );
-                audit_trails($logs_data);
-                return redirect('admin/division/document_categories')->with('success','Document category has successfully added');
-			}
-           
-        }
-    }
-      
-    }
+        $data->save();
 
-    /**
-     * Display the specified document.
-     */
-    public function show(string $id)
+        return response()->json(['data' => $data, 'message' => 'Created successfully.'], 201);
+    }
+    public function update(Request $request, $id)
     {
-        if (is_null($this->user) || !$this->user->can('document.view')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Document category !');
-        }
-        // $title="Child document List";
-        // $whEre  = "";
-        // $id=clean_single_input($id);
-        // $parentdocument = document::where('id', $id)->first();
-
-        // $list = document::withTrashed()->whereNull('deleted_at')->paginate(10);
-        //  return view('cms/division/training/documentCategories/index',compact(['list','title','id','parentdocument']));
-    }
-
-    /**
-     * Show the form for editing the specified document Categories.
-     */
-    public function edit(string $id)
-    {
-        if (is_null($this->user) || !$this->user->can('document.edit')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Document !');
-        }
-        $id=clean_single_input($id);
-        $title="Edit document";
-        $data = documentCategories::find($id);
-        //dd( $data );
-        return view('cms/division/documentCategories/edit',compact(['title','data']));
-    }
-
-    /**
-     * Update the specified document Categories in storage. update
-     */
-    public function update(Request $request, string $id)
-    {
-        $id= clean_single_input($id);
-        $rules = array(
-            'title' => 'required|max:64',
-            'description' => 'required',
+        $validated = $request->validate([
+            'title' => 'required|min:2|max:255',
+            'slug' => 'required|min:2|max:255',
+            'description' => 'nullable|max:500',
             'division' => 'required',
+            'position' => 'required',
             'status' => 'required',
-            'lang_code' => 'required',
-            
-        );
-        $valid
-        =array(
-             'title.required'=>'Document category title field  is required',
-             'description.required'=>'Document categorydescription  field  is required',
-             'lang_code.required'=>'Languages  field  is required',
-             'status.required' =>'Document category status field is required',
-             'division.required' =>'Document category division field is required',
-            
-        );
-        
-            $validator = Validator::make($request->all(), $rules, $valid);
-        
-        if ($validator->fails()) {
-      
-            return  back()->withErrors($validator)->withInput();
-            
-        }else{
-    
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $dataArr = array(); 
-            $pArray['title']    				    = trim($request->title); 
-			$pArray['lang_code']    			    = clean_single_input($request->lang_code);
-			$pArray['description']    			    = clean_single_input($request->description);
-			$pArray['status']  					    = clean_single_input($request->status);
-            $pArray['position']  					= clean_single_input($request->position);
-            $pArray['division']  				    = clean_single_input($request->division);
-			$pArray['created_by']  					= clean_single_input($user_login_id);
-           // dd($pArray);
-			$create 	= documentcategories::where('id', $id)->update($pArray);
-            $lastInsertID = $id;
-           
-            $data = documentCategories::find($lastInsertID);
-            if($create > 0){
+            'lang_code' => 'required|exists:languages,lang_code',
+        ]);
+        $data = DivisionDocumentCategory::find($id);
 
-                $lastInsertID = $id;
-                $user_login_id=Auth::guard('admin')->user()->id;
-                $action_by_role=Auth::guard('admin')->user()->username;
-                if($lastInsertID > 0){
-                    $logs_data = array(
-                        'module_item_title'     =>  $request->title,
-                        'module_item_id'        =>  $lastInsertID,
-                        'action_by'             =>  $user_login_id,
-                        'old_data'              =>  json_encode($data),
-                        'new_data'              =>  json_encode($pArray),
-                        'action_name'           =>  'Update Document Categories ',
-                        //'page_category'         =>  '',
-                        'lang_id'               =>   clean_single_input($request->lang_code),
-                        'action_type'        	=>  'Document Categories Model',
-                        'approve_status'        =>  clean_single_input($request->status),
-                        'action_by_role'        =>  $action_by_role
-                    );
-                    audit_trails($logs_data);
-            
-                   return redirect('admin/division/document_categories')->with('success','Document Category has successfully Updated');
-			    }
-            }
-           
+        if (!$data) {
+            return $this->sendError('No data found.', 404);
         }
-    }
 
-    /**
-     * Remove the specified document from storage.
-     */
-    public function destroy(documentCategories $documentCategories,$id)
+        $data->update($validated);
+
+        return response()->json(['data' => $data, 'message' => 'Updated successfully.'], 201);
+    }
+    public function delete($id)
     {
-        // Authorization check
-        if (is_null($this->user) || !$this->user->can('document.delete')) {
-            abort(403, 'Sorry !! You are Unauthorized to delete any Document Categories !');
+        $data = DivisionDocumentCategory::find($id);
+
+        if (!$data) {
+            return $this->sendError('No data found.', 404);
         }
-    
-        // Delete the category
-      
-        $documentdelete = documentCategories::find($id);
-        $delete= $documentdelete->delete();
-        if ($delete) {
-            $user_login_id = Auth::guard('admin')->user()->id;
-            $action_by_role = Auth::guard('admin')->user()->username;
-            
-            // Create audit log data
-            $logs_data = [
-                'module_item_title' => $documentdelete->title,
-                'module_item_id' => $documentdelete->id,
-                'action_by' => $user_login_id,
-                'old_data' => json_encode($documentdelete), // Log the deleted category data
-                'new_data' => null,
-                'action_name' => 'Delete',
-                'lang_id' => clean_single_input($documentdelete->lang_code),
-                'action_type' => 'Document Model',
-                'approve_status' => clean_single_input($documentdelete->status),
-                'action_by_role' => $action_by_role
-            ];
-    
-            // Call the audit_trails function to log the action
-            audit_trails($logs_data);
-    
-            // Redirect with success message
-            return redirect('admin/division/document_categories')->with('success', 'Document Category deleted successfully');
-        }
-    
-        // Redirect with error message if deletion fails
-        return redirect('admin/division/document_categories')->with('error', 'Failed to delete Document Category');
+        $data->delete();
+
+        return response()->json(['data' => $data, 'message' => 'Deleted successfully.'], 201);
     }
-    
-   
+       
 }
