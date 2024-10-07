@@ -27,8 +27,6 @@ use App\Http\Controllers\Cms\ActandpoliciesController;
 
 use App\Http\Controllers\Cms\CateringCompanyController;
 use App\Http\Controllers\Cms\WorkingAirportsController;
-use App\Http\Controllers\Cms\QuarterlyReportOnlineFormsController;
-use App\Http\Controllers\Cms\OpsiSecurityController;
 use App\Http\Controllers\Cms\QuarterlyReportOnlineiiFormsController;
 
 use App\Http\Controllers\Cms\CommonController as Common;
@@ -133,7 +131,7 @@ Route::middleware(['cors', 'throttle:60,1','auth:admin_api'])->group(function ()
       
     });
     Route::controller(EventController::class)->group(function(){
-        Route::post('event-list','event_list');
+        // Route::post('event-list','event_list');
         Route::post('event-list-for-homepage','event_list_for_homepage');
         Route::post('event-list','data');
         Route::get('event-list-by-id/{id}','data_by_id');
