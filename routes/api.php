@@ -218,7 +218,7 @@ Route::middleware(['cors', 'throttle:60,1','auth:admin_api'])->group(function ()
     Route::controller(TenderController::class)->group(function(){
         Route::post('tender-list','data');
         Route::get('tender-details/{id}','data_by_id');
-        Route::post('tender-list','data');
+        // Route::post('tender-list','data');
         Route::get('tender-list-by-id/{id}','data_by_id');
         Route::post('tender-store','store');
         Route::post('tender-update/{id}','update');
