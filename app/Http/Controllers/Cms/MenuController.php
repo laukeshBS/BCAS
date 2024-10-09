@@ -236,7 +236,6 @@ class MenuController extends BaseController
         $lang_code = $request->input('lang_code');
         $menu_child_id = $request->input('menu_child_id', 0);
         $menu_position = $request->input('menu_position');
-//dd($request);
         // Validate the lang_code parameter
         if (!$lang_code) {
             return response()->json(['error' => 'Lang code parameter is missing.'], 400);

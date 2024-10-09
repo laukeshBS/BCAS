@@ -331,12 +331,16 @@
                         </div>
         
                         <div class="form-group">
-                            <label for="language_id">Language ID</label>
-                            <input type="text" name="language_id" class="form-control"  [(ngModel)]="selectedEvent.language_id" required #language_id="ngModel">
-                            <div *ngIf="language_id.invalid && (language_id.dirty || language_id.touched)" class="text-danger">
+                          <label for="language_id">Language</label>
+                          <select name="language_id" class="form-control" [(ngModel)]="selectedEvent.language_id" required #language_id="ngModel">
+                              <option value="" disabled>Select Language</option>
+                              <option value="en">English</option>
+                              <option value="hi">Hindi</option>
+                          </select>
+                          <div *ngIf="language_id.invalid && (language_id.dirty || language_id.touched)" class="text-danger">
                               <div *ngIf="language_id.errors?.['required']">Language is required.</div>
-                            </div>
-                        </div>
+                          </div>
+                      </div>
         
                         <div class="form-group">
                             <label for="menu_name">Menu Name</label>
@@ -392,7 +396,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <label for="menu_child_id">Menu Child ID</label>
-                            <input type="number" name="menu_child_id" class="form-control"  [(ngModel)]="selectedEvent.menu_child_id" #menu_child_id="ngModel">
+                            <input type="number" name="menu_child_id" class="form-control"  [(ngModel)]="selectedEvent.menu_child_id" #menu_child_id="ngModel" [value]="selectedEvent.menu_child_id !== undefined ? selectedEvent.menu_child_id : 0" min="0">
                         </div>
         
                         <div class="form-group">

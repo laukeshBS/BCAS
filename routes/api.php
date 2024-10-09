@@ -27,13 +27,14 @@ use App\Http\Controllers\Cms\ActandpoliciesController;
 
 use App\Http\Controllers\Cms\CateringCompanyController;
 use App\Http\Controllers\Cms\WorkingAirportsController;
-use App\Http\Controllers\Cms\QuarterlyReportOnlineiiFormsController;
-
 use App\Http\Controllers\Cms\CommonController as Common;
+
 use App\Http\Controllers\Cms\LanguageController as lang;
 use App\Http\Controllers\Cms\Common\CommonTitleController;
+use App\Http\Controllers\Cms\PermittedProhibitedController;
 use App\Http\Controllers\Cms\AvsecTrainingCalendarController;
 use App\Http\Controllers\Cms\QuarterlyReportOnlineFormsController;
+use App\Http\Controllers\Cms\QuarterlyReportOnlineiiFormsController;
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 /*
 |--------------------------------------------------------------------------
@@ -272,6 +273,14 @@ Route::middleware(['cors', 'throttle:60,1','auth:admin_api'])->group(function ()
         Route::post('title-store','store');
         Route::post('title-update/{id}','update');
         Route::delete('title-delete/{id}','delete');
+      
+    });
+    Route::controller(PermittedProhibitedController::class)->group(function(){
+        Route::post('permitted-prohibited-list','index');
+        Route::get('permitted-prohibited-list-by-id/{id}','data_by_id');
+        Route::post('permitted-prohibited-store','store');
+        Route::post('permitted-prohibited-update/{id}','update');
+        Route::delete('permitted-prohibited-delete/{id}','delete');
       
     });
 });

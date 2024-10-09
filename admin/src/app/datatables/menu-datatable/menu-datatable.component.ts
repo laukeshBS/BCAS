@@ -15,7 +15,7 @@ declare var bootstrap: any;
 })
 export class MenuDatatableComponent {
   events: any[] = [];
-  selectedEvent: any = {};
+  selectedEvent: any = { menu_child_id: 0 };
   fileToUpload: File | null = null;
   limit = 10; 
   lang_code = 'en'; 
@@ -29,6 +29,7 @@ export class MenuDatatableComponent {
   fileToUploadBanner: File | null = null;
   fileToUploadImg: File | null = null;
   userId: number | null = null;
+  language_id: string = ''; 
 
   constructor(private MenuService: MenuService) {}
 
@@ -101,6 +102,7 @@ export class MenuDatatableComponent {
       console.error('Missing required fields');
       return;
     }
+    
 
     const formData = new FormData();
     formData.append('menu_type', this.selectedEvent.menu_type);
