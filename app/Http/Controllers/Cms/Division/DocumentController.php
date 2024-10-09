@@ -74,6 +74,7 @@ class DocumentController extends Controller
             'start_date' => 'required',
             'end_date' => 'required',
             'is_news' => 'required',
+            'category_id' => 'required',
             'created_by' => 'required',
             
         ]);
@@ -99,6 +100,7 @@ class DocumentController extends Controller
         $data->start_date = $validated['start_date'];
         $data->end_date = $validated['end_date'];
         $data->is_news = $validated['is_news'];
+        $data->category_id = $validated['category_id'];
         $data->created_by = $validated['created_by'];
         $data->image = $filePath;
         
@@ -121,6 +123,7 @@ class DocumentController extends Controller
             'start_date' => 'required',
             'end_date' => 'required',
             'is_news' => 'required',
+            'category_id' => 'required',
             'created_by' => 'required',
         ]);
         $data = DivisionDocument::find($id);
