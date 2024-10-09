@@ -1,0 +1,406 @@
+<div *ngIf="events.length > 0" style="overflow-x: auto">
+    <button (click)="addEvent()" class="btn btn-outline-primary btn-sm">Add</button>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Menu Child</th>
+            <th>Position</th>
+            <th>Type</th>
+            <th>Name</th>
+            <th>URL</th>
+            <th>Title</th>
+            <th>Keyword</th>
+            <th>Description</th>
+            <th>Content</th>
+            <th>Links</th>
+            <th>Start_Date</th>
+            <th>End Date</th>
+            <th>Page Order</th>
+            <th>Status</th>
+            <th>Language</th>
+            <th>Published Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events">
+            <td>{{ event.menu_child_id }}</td>
+            <td>{{ event.menu_position }}</td>
+            <td>{{ event.menu_type }}</td>
+            <td>{{ event.menu_name }}</td>
+            <td>{{ event.menu_url }}</td>
+            <td>{{ event.menu_title }}</td>
+            <td>{{ event.menu_keyword }}</td>
+            <td>{{ event.menu_description }}</td>
+            <td>{{ event.content }}</td>
+            <td>{{ event.menu_links }}</td>
+            <td>{{ event.start_date }}</td>
+            <td>{{ event.end_date }}</td>
+            <td>{{ event.page_order }}</td>
+            <td>{{ event.approve_status }}</td>
+            <td>{{ event.language_id }}</td>
+            <td>{{ event.created_at }}</td>
+            <td>
+              <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
+              <button (click)="deleteEvent(event.id)" class="btn btn-outline-danger btn-sm">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div *ngIf="events.length === 0">
+      <p>Loading.</p>
+    </div>
+    <nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+      <ul class="pagination">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="changePage(currentPage - 1)" [attr.aria-disabled]="currentPage === 1">Previous</a>
+        </li>
+        
+        <li *ngFor="let page of [].constructor(lastPage); let i = index" class="page-item" [class.active]="i + 1 === currentPage">
+          <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+        </li>
+        
+        <li class="page-item" [class.disabled]="currentPage === lastPage">
+          <a class="page-link" (click)="changePage(currentPage + 1)" [attr.aria-disabled]="currentPage === lastPage">Next</a>
+        </li>
+      </ul>
+    </nav>
+    
+    <!-- Bootstrap modal -->
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog  modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editEventModalLabel">Edit Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="modifyEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label for="menu_type" class="form-label">Menu Type</label>
+                      <input 
+                        type="text" 
+                        id="menu_type" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.menu_type" 
+                        name="menu_type" 
+                        required 
+                        #menuType="ngModel"
+                      />
+                      <div *ngIf="menuType.invalid && (menuType.dirty || menuType.touched)" class="text-danger">
+                        <div *ngIf="menuType.errors?.['required']">Menu Type is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="language_id" class="form-label">Language ID</label>
+                      <input 
+                        type="text" 
+                        id="language_id" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.language_id" 
+                        name="language_id" 
+                        required 
+                        #languageId="ngModel"
+                      />
+                      <div *ngIf="languageId.invalid && (languageId.dirty || languageId.touched)" class="text-danger">
+                        <div *ngIf="languageId.errors?.['required']">Language ID is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="menu_name" class="form-label">Menu Name</label>
+                      <input 
+                        type="text" 
+                        id="menu_name" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.menu_name" 
+                        name="menu_name" 
+                        required 
+                        #menuName="ngModel"
+                      />
+                      <div *ngIf="menuName.invalid && (menuName.dirty || menuName.touched)" class="text-danger">
+                        <div *ngIf="menuName.errors?.['required']">Menu Name is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="page_order" class="form-label">Page Order</label>
+                      <input 
+                        type="number" 
+                        id="page_order" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.page_order" 
+                        name="page_order" 
+                        required 
+                        #pageOrder="ngModel"
+                      />
+                      <div *ngIf="pageOrder.invalid && (pageOrder.dirty || pageOrder.touched)" class="text-danger">
+                        <div *ngIf="pageOrder.errors?.['required']">Page Order is required.</div>
+                      </div>
+                    </div>
+                  </div>
+              
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label for="menu_position" class="form-label">Menu Position</label>
+                      <input 
+                        type="text" 
+                        id="menu_position" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.menu_position" 
+                        name="menu_position" 
+                        required 
+                        #menuPosition="ngModel"
+                      />
+                      <div *ngIf="menuPosition.invalid && (menuPosition.dirty || menuPosition.touched)" class="text-danger">
+                        <div *ngIf="menuPosition.errors?.['required']">Menu Position is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="menu_url" class="form-label">Menu URL</label>
+                      <input 
+                        type="url" 
+                        id="menu_url" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.menu_url" 
+                        name="menu_url" 
+                        required 
+                        #menuUrl="ngModel"
+                      />
+                      <div *ngIf="menuUrl.invalid && (menuUrl.dirty || menuUrl.touched)" class="text-danger">
+                        <div *ngIf="menuUrl.errors?.['required']">Menu URL is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="menu_title" class="form-label">Menu Title (optional)</label>
+                      <input 
+                        type="text" 
+                        id="menu_title" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.menu_title" 
+                        name="menu_title" 
+                      />
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="approve_status" class="form-label">Approve Status</label>
+                      <input 
+                        type="number" 
+                        id="approve_status" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.approve_status" 
+                        name="approve_status" 
+                        required 
+                        #approveStatus="ngModel"
+                      />
+                      <div *ngIf="approveStatus.invalid && (approveStatus.dirty || approveStatus.touched)" class="text-danger">
+                        <div *ngIf="approveStatus.errors?.['required']">Approve Status is required.</div>
+                      </div>
+                    </div>
+                  </div>
+              
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label for="menu_child_id" class="form-label">Menu Child ID (optional)</label>
+                      <input 
+                        type="number" 
+                        id="menu_child_id" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.menu_child_id" 
+                        name="menu_child_id" 
+                      />
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="menu_keyword" class="form-label">Menu Keyword (optional)</label>
+                      <input 
+                        type="text" 
+                        id="menu_keyword" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.menu_keyword" 
+                        name="menu_keyword" 
+                      />
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="menu_description" class="form-label">Menu Description (optional)</label>
+                      <textarea 
+                        id="menu_description" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.menu_description" 
+                        name="menu_description" 
+                      ></textarea>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="current_version" class="form-label">Current Version (optional)</label>
+                      <input 
+                        type="text" 
+                        id="current_version" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.current_version" 
+                        name="current_version" 
+                      />
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="row">
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label for="doc_upload" class="form-label">Document Upload (optional)</label>
+                      <input 
+                        type="file" 
+                        (change)="onFileChange($event)" 
+                        class="form-control" 
+                        accept=".pdf,.doc,.docx"
+                      />
+                    </div>
+                  </div>
+              
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label for="banner_img" class="form-label">Banner Image (optional)</label>
+                      <input 
+                        type="file" 
+                        (change)="onFileChange($event)" 
+                        class="form-control" 
+                        accept="image/*"
+                      />
+                    </div>
+                  </div>
+              
+                  <div class="col-md-4">
+                    <div class="mb-3">
+                      <label for="img_upload" class="form-label">Image Upload (optional)</label>
+                      <input 
+                        type="file" 
+                        (change)="onFileChange($event)" 
+                        class="form-control" 
+                        accept="image/*"
+                      />
+                    </div>
+                  </div>
+                </div>
+              
+                <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Save Changes</button>
+              </form>            
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addEventModalLabel">add Menu</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="saveEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="menu_type">Menu Type</label>
+                            <input type="text" name="menu_type" class="form-control" required>
+                        </div>
+        
+                        <div class="form-group">
+                            <label for="language_id">Language ID</label>
+                            <input type="text" name="language_id" class="form-control" required>
+                        </div>
+        
+                        <div class="form-group">
+                            <label for="menu_name">Menu Name</label>
+                            <input type="text" name="menu_name" class="form-control" required>
+                        </div>
+        
+                        <div class="form-group">
+                            <label for="page_order">Page Order</label>
+                            <input type="number" name="page_order" class="form-control" required>
+                        </div>
+                    </div>
+        
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="menu_position">Menu Position</label>
+                            <input type="text" name="menu_position" class="form-control" required>
+                        </div>
+        
+                        <div class="form-group">
+                            <label for="menu_url">Menu URL</label>
+                            <input type="url" name="menu_url" class="form-control" required>
+                        </div>
+        
+                        <div class="form-group">
+                            <label for="menu_title">Menu Title (optional)</label>
+                            <input type="text" name="menu_title" class="form-control">
+                        </div>
+        
+                        <div class="form-group">
+                            <label for="approve_status">Approve Status</label>
+                            <input type="number" name="approve_status" class="form-control" required>
+                        </div>
+                    </div>
+        
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="menu_child_id">Menu Child ID (optional)</label>
+                            <input type="number" name="menu_child_id" class="form-control">
+                        </div>
+        
+                        <div class="form-group">
+                            <label for="menu_keyword">Menu Keyword (optional)</label>
+                            <input type="text" name="menu_keyword" class="form-control">
+                        </div>
+        
+                        <div class="form-group">
+                            <label for="menu_description">Menu Description (optional)</label>
+                            <textarea name="menu_description" class="form-control"></textarea>
+                        </div>
+        
+                        <div class="form-group">
+                            <label for="current_version">Current Version (optional)</label>
+                            <input type="text" name="current_version" class="form-control">
+                        </div>
+                    </div>
+                </div>
+        
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="doc_upload">Document Upload (optional)</label>
+                            <input type="file" (change)="onFileChange($event)" class="form-control" accept=".pdf,.doc,.docx">
+                        </div>
+                    </div>
+        
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="banner_img">Banner Image (optional)</label>
+                            <input type="file" (change)="onFileChange($event)" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+        
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="img_upload">Image Upload (optional)</label>
+                            <input type="file" (change)="onFileChange($event)" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+        
+                <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Save Changes</button>
+            </form>
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    

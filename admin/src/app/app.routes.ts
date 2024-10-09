@@ -8,16 +8,24 @@ import { NoticesComponent } from './pages/notices/notices.component';
 import { VacanciesComponent } from './pages/vacancies/vacancies.component';
 import { DivisionComponent } from './pages/division/division.component';
 import { RegionComponent } from './pages/region/region.component';
+import { CommonTitleComponent } from './pages/common-title/common-title.component';
+import { LoginComponent } from './pages/auth/login/login.component';
+import { AuthGuard } from './guards/auth.guard';
+import { MenuComponent } from './pages/menu/menu.component';
 
 export const routes: Routes = [
-    { path: 'acts-and-policies', component: ActsAndPoliciesComponent },
-    { path: 'circulars', component: CircularsComponent },
-    { path: 'events', component: EventsComponent },
-    { path: 'forms', component: FormsComponent },
-    { path: 'tenders', component: TendersComponent },
-    { path: 'notices', component: NoticesComponent },
-    { path: 'vacancies', component: VacanciesComponent },
-    { path: 'division', component: DivisionComponent },
-    { path: 'region', component: RegionComponent },
+    { path: 'acts-and-policies', component: ActsAndPoliciesComponent, canActivate: [AuthGuard]  },
+    { path: 'circulars', component: CircularsComponent, canActivate: [AuthGuard]  },
+    { path: 'events', component: EventsComponent, canActivate: [AuthGuard]  },
+    { path: 'forms', component: FormsComponent, canActivate: [AuthGuard]  },
+    { path: 'tenders', component: TendersComponent, canActivate: [AuthGuard]  },
+    { path: 'notices', component: NoticesComponent, canActivate: [AuthGuard]  },
+    { path: 'vacancies', component: VacanciesComponent, canActivate: [AuthGuard]  },
+    { path: 'division', component: DivisionComponent, canActivate: [AuthGuard]  },
+    { path: 'region', component: RegionComponent, canActivate: [AuthGuard]  },
+    { path: 'common-title', component: CommonTitleComponent, canActivate: [AuthGuard]  },
+    { path: 'menu', component: MenuComponent, canActivate: [AuthGuard]  },
+    { path: 'login', component: LoginComponent  },
+    { path: '**', redirectTo: '/login' }
 ];
 

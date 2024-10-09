@@ -145,7 +145,7 @@ function handleMenuType(id) {
                             </div>
                             <div class="col-12 col-md-6 col-lg-6">
                                 <div class="form-group">
-                                    <input name="url" autocomplete="off" type="text" maxlength="36" minlength=""
+                                    <input name="url" autocomplete="off" type="text"  minlength=""
                                         class="input_class form-control @error('url') is-invalid @enderror "
                                         id="txteMenu_title"
                                         value="{{!empty($data->menu_url)?$data->menu_url:old('url')}}" />

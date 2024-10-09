@@ -12,7 +12,7 @@
     "devDependencies": {
         "@types/express": "^4.17.21",
         "axios": "^1.6.0",
-        "bootstrap": "^4.0.0",
+        "bootstrap": "^4.6.2",
         "cross-env": "^7.0.3",
         "jquery": "^3.2",
         "laravel-mix": "^6.0.43",

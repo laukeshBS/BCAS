@@ -1,17 +1,18 @@
 <?php
 
 namespace App\Http\Controllers\Cms\Common;
-use App\Models\Cms\Common\CommonTitle as CommonTitle;
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Session;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Cms\Common\CommonTitle as CommonTitle;
 
 class CommonTitleController extends Controller
 {
@@ -19,266 +20,129 @@ class CommonTitleController extends Controller
      * Display a listing of the CommonTitle.
      */
     public $user;
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('admin')->user();
-            return $next($request);
-        });
-    }
-    public function index(Request $request): View
-    {
-        if (is_null($this->user) || !$this->user->can('course.view')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any CommonTitle !');
-        }
-       // $lists='';
-        $parentCourse="";
-            $title="CommonTitle List";
-            $approve_status=session()->get('status');
-            $sertitle=Session::get('Crtitle');
-            $approve_status=Session::get('status');
-            $lang_code=Session::get('lang_code');
-            $lists = CommonTitle::whereNotNull('title');
-            if (!empty($sertitle)) {
-                $lists = CommonTitle::whereNotNull('title');
-                $lists->where('title', 'LIKE', "%{$sertitle}%");
-            }
-            if (!empty($approve_status)) {
-               
-                $lists->where('status',$approve_status);
-            }
-            if (!empty($lang_code)) {
-               
-                $lists->where('lang_code',$lang_code);
-            }
-            $list = $lists->orderBy('created_at', 'ASC')->select('*')->paginate(10);
-           // dd("hetees");
-        return view('cms/commonTitle/index',compact(['list','title','parentCourse']));
-    }
 
-    /**
-     * Show the form for creating a new CommonTitle.
-     */
-    public function create()
+    public function __construct(){}
+
+    public function index(Request $request)
     {
-        if (is_null($this->user) || !$this->user->can('course.create')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any CommonTitle !');
+        // Get parameters from the request
+        $approve_status = $request->input('status');
+        $lang_code = $request->input('lang_code');
+        $perPage = $request->input('limit'); // Default limit to 5
+        $page = $request->input('currentPage'); // Default page number to 1
+
+        // Initialize query builder
+        $query = CommonTitle::whereNotNull('title');
+
+        // Apply filters if provided
+        if (!empty($approve_status)) {
+            $query->where('status', $approve_status);
         }
-        $title="Add CommonTitle";
+
+        if (!empty($lang_code)) {
+            $query->where('lang_code', $lang_code);
+        }
         
-        return view('cms/commonTitle/add',compact(['title']));
+        // Get the paginated list
+        $list = $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'title' => 'CommonTitle List',
+            'data' => $list->items(), // Get items for the current page
+            'total' => $list->total(), // Total number of items
+            'current_page' => $list->currentPage(), // Current page number
+            'last_page' => $list->lastPage(), // Last page number
+            'per_page' => $list->perPage(), // Items per page
+        ]);
+    }
+    public function data_by_id($id)
+    {
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
+        }
+
+        // Retrieve the data by ID
+        $data = CommonTitle::find($validatedId);
+
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
+        }
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
+
+        // Return the data as JSON
+        return response()->json($data);
     }
 
-    /**
-     * Store a newly created CommonTitle in storage.
-     */
-    public function store(Request $request): mixed {
-     //dd($request);
-        if(isset($request->search)){
-            $title=clean_single_input(trim($request->title));
-             $approve_status=clean_single_input($request->status);
-             $lang_code=clean_single_input($request->lang_code);
-             Session::put('title', $title);
-             Session::put('status', $approve_status);
-             Session::put('lang_code', $lang_code);
-             return redirect('admin/common_title');
-           }
-        if(isset($request->cmdsubmit)){  
-         $txtupload1 ='';
-         $rules = array(
-            'title' => 'required|max:64',
-            'slugs' => 'required',
+    public function store(Request $request)
+    {
+        Log::info($request->all());
+        $validated = $request->validate([
+            'title' => 'required|max:255',
+            'slugs' => 'nullable|max:255', // Changed from slugs to slug
+            'status' => 'required|integer', // Ensure status is an integer
+            'lang_code' => 'required|string|max:2', // Assuming lang_code is a 2-letter code
+        ]);
+
+        // Create a new Act and Policy instance
+        $query = new CommonTitle();
+        $query->title = $validated['title'];
+        $query->slugs = $validated['slugs'];
+        $query->status = $validated['status'];
+        $query->lang_code = $validated['lang_code'];
+        $query->save();
+        
+        // Return the data as JSON
+        return response()->json($query);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'title' => 'required|max:255',
+            'slugs' => 'max:500',
             'status' => 'required',
-            'lang_code' => 'required',
-            
-        );
-        $valid
-        =array(
-             'title.required'=>'Course title field  is required',
-             'slugs.required'=>'Course slugs  field  is required',
-             'lang_code.required'=>'Short languages  field  is required',
-             'status.required' =>'Course Status field is required',
-            
-        );
-        $validator = '';
-        $img_upload1="";
-        
-            $validator = Validator::make($request->all(), $rules,$valid);
-        
-        if ($validator->fails()) {
-      
-            return redirect('admin/common_title/create')->withErrors($validator)->withInput();
-            
-        }else{
-            
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $dataArr = array(); 
-           //dd $banner_img="";
-            $pArray['title']    				    = trim($request->title); 
-			$pArray['lang_code']    			    = clean_single_input($request->lang_code);
-			$pArray['slugs']    			        = Str::slug(clean_single_input($request->slugs));
-            $pArray['status']  					    = clean_single_input($request->status);
-            $pArray['created_by']  					= clean_single_input($user_login_id);
-			$create 	= CommonTitle::create($pArray);
-           
-            $lastInsertID = $create->id;
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $action_by_role=Auth::guard('admin')->user()->username;
-            if($lastInsertID > 0){
-                $logs_data = array(
-                    'module_item_title'     => $request->title,
-                    'module_item_id'        => $lastInsertID,
-                    'action_by'             =>  $user_login_id,
-                    'old_data'              =>  json_encode($pArray),
-                    'new_data'              =>  json_encode($pArray),
-                    'action_name'           =>  'Add CommonTitle',
-                    'lang_id'               =>  clean_single_input($request->lang_code),
-                    'action_type'        	=> 'CommonTitle Model',
-                    'approve_status'        => clean_single_input($request->status),
-                    'action_by_role'        =>  $action_by_role
-                );
-                audit_trails($logs_data);
-                return redirect('admin/common_title')->with('success','CommonTitle has successfully added');
-			}
-           
+        ]);
+
+        $query = CommonTitle::find($id);
+
+        if (!$query) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
         }
-    }
-      
+
+        $query->title = $request->input('title');
+        $query->slugs = $request->input('slugs');
+        $query->status = $request->input('status');
+
+        $query->save();
+
+        // Return the data as JSON
+        return response()->json($query);
     }
 
-    /**
-     * Display the specified Course.
-     */
-    public function show(string $id)
+    public function delete($id)
     {
-        if (is_null($this->user) || !$this->user->can('course.view')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Course !');
-        }
-        // $title="Child Course List";
-        // $whEre  = "";
-        // $id=clean_single_input($id);
-        // $parentCourse = Course::where('id', $id)->first();
+        // Find by id
+        $query = CommonTitle::find($id);
 
-        // $list = Course::withTrashed()->whereNull('deleted_at')->paginate(10);
-        //  return view('cms/commonTitle/index',compact(['list','title','id','parentCourse']));
+        if (!$query) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
+        }
+
+        // Delete data
+        $query->delete();
+
+        // Return the data as JSON
+        return response()->json($query);
     }
-
-    /**
-     * Show the form for editing the specified CommonTitle.
-     */
-    public function edit(string $id)
-    {
-        if (is_null($this->user) || !$this->user->can('course.edit')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Course !');
-        }
-        $id=clean_single_input($id);
-        $title="Edit Course";
-        $data = CommonTitle::find($id);
-        //dd( $data );
-        return view('cms/commonTitle/edit',compact(['title','data']));
-    }
-
-    /**
-     * Update the specified CommonTitle in storage. update
-     */
-    public function update(Request $request, string $id)
-    {
-        $id= clean_single_input($id);
-        $rules = array(
-            'title' => 'required|max:64',
-            'slugs' => 'required',
-            'status' => 'required',
-            'lang_code' => 'required',
-            
-        );
-        $valid
-        =array(
-             'title.required'=>'Course title field  is required',
-             'slugs.required'=>'Course slugs  field  is required',
-             'lang_code.required'=>'Short languages  field  is required',
-             'status.required' =>'Course Status field is required',
-            
-        );
-        
-            $validator = Validator::make($request->all(), $rules, $valid);
-        
-        if ($validator->fails()) {
-      
-            return  back()->withErrors($validator)->withInput();
-            
-        }else{
-    
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $dataArr = array(); 
-            $pArray['title']    				    = trim($request->title); 
-			$pArray['lang_code']    			    = clean_single_input($request->lang_code);
-			$pArray['slugs']    			        = Str::slug(clean_single_input($request->slugs));
-			$pArray['status']  					    = clean_single_input($request->status);
-            $pArray['created_by']  					= clean_single_input($user_login_id);
-           // dd($pArray);
-			$create 	= CommonTitle::where('id', $id)->update($pArray);
-            $lastInsertID = $id;
-           
-            $data = CommonTitle::find($lastInsertID);
-            if($create > 0){
-
-                $lastInsertID = $id;
-                $user_login_id=Auth::guard('admin')->user()->id;
-                $action_by_role=Auth::guard('admin')->user()->username;
-                if($lastInsertID > 0){
-                    $logs_data = array(
-                        'module_item_title'     =>  $request->title,
-                        'module_item_id'        =>  $lastInsertID,
-                        'action_by'             =>  $user_login_id,
-                        'old_data'              =>  json_encode($data),
-                        'new_data'              =>  json_encode($pArray),
-                        'action_name'           =>  'Update CommonTitle ',
-                        //'page_category'         =>  '',
-                        'lang_id'               =>   clean_single_input($request->lang_code),
-                        'action_type'        	=>  'CommonTitle Model',
-                        'approve_status'        =>  clean_single_input($request->status),
-                        'action_by_role'        =>  $action_by_role
-                    );
-                    audit_trails($logs_data);
-            
-                   return redirect('admin/common_title')->with('success','CommonTitle has successfully Updated');
-			    }
-            }
-           
-        }
-    }
-
-    /**
-     * Remove the specified Course from storage.
-     */
-    public function destroy(CommonTitle $CommonTitle)
-    {
-        if (is_null($this->user) || !$this->user->can('course.delete')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any CommonTitle !');
-        }
-        $delete= $CommonTitle->delete();
-        $data = Course::find($CommonTitle->id);
-        if($delete > 0){
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $action_by_role=Auth::guard('admin')->user()->username;
-                        $logs_data = array(
-                            'module_item_title'     =>  $CommonTitle->title,
-                            'module_item_id'        =>  $CommonTitle->id,
-                            'action_by'             =>  $user_login_id,
-                            'old_data'             =>  json_encode($data),
-                            'new_data'             =>  json_encode($CommonTitle),
-                            'action_name'           =>  'Delete',
-                            'lang_id'               =>  clean_single_input($CommonTitle->lang_code),
-                            'action_type'        	=> 'Course Model',
-                            'approve_status'        => clean_single_input($CommonTitle->approve_status),
-                            'action_by_role'        => $action_by_role
-                        );
-                        
-            audit_trails($logs_data);
-
-            return redirect('admin/common_title')->with('success','CommonTitle deleted successfully');
-        }
-        
-    }
-   
 }

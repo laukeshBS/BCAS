@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Admin\Admin;
 use App\Models\Cms\Menu;
+use App\Models\Cms\Contact;
+use App\Models\Cms\Common\CommonTitle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
@@ -22,20 +24,20 @@ class DashboardController extends Controller
         });
     }
 
-
     public function index()
     {
         if (is_null($this->user) || !$this->user->can('dashboard.view')) {
-            abort(403, 'Sorry !! You are Unauthorized to view dashboard !');
+            abort(403, 'Sorry !! You are Unauthorized to view dashboard!');
         }
 
-        $total_roles = count(Role::connection
-        (
-        'bcas_admin'
-        )->select('id')->get());
-        $total_admins = count(Admin::select('id')->get());
-        $total_menus = count(Menu::select('id')->get());
-        $total_permissions = count(Permission::select('id')->get());
-        return view('admin.pages.dashboard.index', compact('total_admins', 'total_roles', 'total_menus','total_permissions'));
+        // Correct method usage for connecting to a specific connection
+        $total_roles = Role::onWriteConnection('bcas_admin')->count();
+        $total_admins = Admin::count();
+        $total_menus = Menu::count();
+        $CommonTitle = CommonTitle::count();
+        $total_permissions = Permission::count();
+        $total_contacts = Contact::count();
+
+        return view('admin.pages.dashboard.index', compact('total_admins','CommonTitle', 'total_roles', 'total_menus', 'total_permissions'));
     }
 }
