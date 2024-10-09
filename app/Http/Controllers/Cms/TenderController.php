@@ -23,6 +23,7 @@ class TenderController extends Controller
         $limit = $request->input('limit', 5);
         $lang_code = $request->input('lang_code');
 
+
         // Fetch data from the database
         $data = Tender::where('lang_code', $lang_code)
             ->orderBy('id', 'desc')
@@ -30,14 +31,33 @@ class TenderController extends Controller
             ->get(); // Execute the query to get the results
 
         // Transform the data
+
+    
+        // Validate input
+        if (!$lang_code) {
+            return response()->json(['error' => 'Language code is required'], 400);
+        }
+    
+        $data = Tender::select('*')
+            ->where('lang_code', $lang_code)
+            ->orderBy('id', 'desc')
+            ->limit($limit)
+            ->get();
+    
+        if ($data->isEmpty()) {
+            return response()->json(['message' => 'No data found'], 404);
+        }
+
         $data->transform(function ($item) {
             $item->start_date = date('d-m-Y', strtotime($item->start_date));
             $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             $item->document = asset('public/documents/' . $item->document);
-            return $item; // Return the transformed item
-        });
 
+            return $item; // Return the transformed item
+
+        });
+    
         return response()->json($data);
     }
 
