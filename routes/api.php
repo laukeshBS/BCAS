@@ -24,8 +24,10 @@ use App\Http\Controllers\Cms\QuarterlyReportOnlineiiFormsController;
 use App\Http\Controllers\Cms\CommonController as Common;
 use App\Http\Controllers\Cms\LanguageController as lang;
 use App\Http\Controllers\Cms\Common\CommonTitleController;
+use App\Http\Controllers\Cms\PermittedProhibitedController;
 use App\Http\Controllers\Cms\AvsecTrainingCalendarController;
 use App\Http\Controllers\Cms\QuarterlyReportOnlineFormsController;
+use App\Http\Controllers\Cms\QuarterlyReportOnlineiiFormsController;
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -89,6 +91,14 @@ Route::middleware(['cors'])->group(function () {
         Route::post('/visitor/increment', 'incrementVisitorCount');
     });
 
+    Route::controller(menus::class)->group(function(){
+        Route::post('menulist','data');
+        Route::get('menu-by-id/{id}','data_by_id');
+        Route::post('menu-store','store');
+        Route::post('menu-update/{id}','update');
+        Route::delete('menu-delete/{id}','delete');
+
+
     Route::controller(SliderController::class)->group(function () {
         Route::post('slider-by-slug', 'slider_by_slug');
     });
@@ -123,6 +133,24 @@ Route::middleware(['cors'])->group(function () {
      
       
     });
+
+    Route::controller(SliderController::class)->group(function(){
+        Route::post('slider-by-slug','slider_by_slug');
+        Route::post('slider-list','cms_data');
+        Route::get('slider-by-id/{id}','cms_data_by_id');
+        Route::post('slider-store','store');
+        Route::post('slider-update/{id}','update');
+        Route::delete('slider-delete/{id}','delete');
+      
+    });
+    Route::controller(SlideController::class)->group(function(){
+        Route::post('slide-list','cms_data');
+        Route::get('slide-by-id/{id}','cms_data_by_id');
+        Route::post('slide-store','store');
+        Route::post('slide-update/{id}','update');
+        Route::delete('slide-delete/{id}','delete');
+      
+
   
     Route::controller(AvsecTrainingCalendarController::class)->group(function () {
         Route::post('avsecTraining-list-approved', 'avsecTrainingCalendar_list_approved');
@@ -132,6 +160,7 @@ Route::middleware(['cors'])->group(function () {
         Route::post('airport-list-approved', 'airport_list_approved');
         Route::get('airport-list-by-id/{id}', 'data_by_id');
 
+
     });
 
     Route::controller(AirlinesController::class)->group(function () {
@@ -140,6 +169,17 @@ Route::middleware(['cors'])->group(function () {
         Route::get('airline-list-by-id/{id}', 'data_by_id');
 
     });
+
+    Route::controller(EventController::class)->group(function(){
+        // Route::post('event-list','event_list');
+        Route::post('event-list-for-homepage','event_list_for_homepage');
+        Route::post('event-list','data');
+        Route::get('event-list-by-id/{id}','data_by_id');
+        Route::post('event-store','store');
+        Route::post('event-update/{id}','update');
+        Route::delete('event-delete/{id}','delete');
+      
+
 
     Route::controller(CateringCompanyController::class)->group(function () {
         Route::post('catering-list', 'catering_list');
@@ -181,6 +221,7 @@ Route::middleware(['cors'])->group(function () {
     });
     Route::controller(CommonTitleController::class)->group(function () {
         Route::post('title-list','index');
+
     });
     Route::controller(CircularController::class)->group(function () {
         Route::post('circular-list', 'circular_list');
@@ -308,8 +349,12 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::delete('notice-delete/{id}', 'delete');
     });
 
-    Route::controller(TenderController::class)->group(function () {
+    Route::controller(TenderController::class)->group(function(){
+        Route::post('tender-list','data');
+        Route::get('tender-details/{id}','data_by_id');
+      
         Route::post('tender-store', 'store');
+
         Route::get('tender-list-by-id/{id}','data_by_id');
         Route::post('tender-update/{id}', 'update');
         Route::delete('tender-delete/{id}', 'delete');
@@ -352,4 +397,16 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::post('title-update/{id}','update');
         Route::delete('title-delete/{id}','delete');
     });
+
+    Route::controller(PermittedProhibitedController::class)->group(function(){
+        Route::post('permitted-prohibited-list','index');
+        Route::get('permitted-prohibited-list-by-id/{id}','data_by_id');
+        Route::post('permitted-prohibited-store','store');
+        Route::post('permitted-prohibited-update/{id}','update');
+        Route::delete('permitted-prohibited-delete/{id}','delete');
+      
+    });
 });
+
+});
+

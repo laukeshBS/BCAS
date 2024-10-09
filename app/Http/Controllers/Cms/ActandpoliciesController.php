@@ -66,8 +66,8 @@ class ActandpoliciesController extends Controller
                 'error' => 'Data not found'
             ], 404);
         }
-        // $data->start_date = date('d-m-Y', strtotime($data->start_date));
-        // $data->end_date = date('d-m-Y', strtotime($data->end_date));
+        $data->start_date = date('d-m-Y', strtotime($data->start_date));
+        $data->end_date = date('d-m-Y', strtotime($data->end_date));
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
         $data->document = asset('public/documents/' . $data->document) ;
 

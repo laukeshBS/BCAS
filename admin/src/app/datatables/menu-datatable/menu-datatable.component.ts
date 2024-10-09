@@ -15,7 +15,7 @@ declare var bootstrap: any;
 })
 export class MenuDatatableComponent {
   events: any[] = [];
-  selectedEvent: any = {};
+  selectedEvent: any = { menu_child_id: 0 };
   fileToUpload: File | null = null;
   limit = 10; 
   lang_code = 'en'; 
@@ -25,11 +25,17 @@ export class MenuDatatableComponent {
   totalItems: number = 0; // Total items to calculate total pages
   loading: boolean = false;
   lastPage: number = 0; // Last page
+  fileToUploadDoc: File | null = null;
+  fileToUploadBanner: File | null = null;
+  fileToUploadImg: File | null = null;
+  userId: number | null = null;
+  language_id: string = ''; 
 
   constructor(private MenuService: MenuService) {}
 
   ngOnInit(): void {
     this.loadList();
+    this.loadUserId();
   }
 
   loadList(): void {
@@ -38,9 +44,6 @@ export class MenuDatatableComponent {
       this.events = data.data;
       this.totalItems = data.total; // Assuming the API returns total items
       this.lastPage = Math.ceil(this.totalItems / this.limit);
-      console.log('Total Items:', this.totalItems);
-    console.log('Current Page:', this.currentPage);
-    console.log('Last Page:', this.lastPage);
       this.formatEventDates();
       this.loading = false; // Stop loading
     }, error => {
@@ -95,15 +98,35 @@ export class MenuDatatableComponent {
 
   saveEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.slugs || !this.selectedEvent.status) {
+    if (!this.selectedEvent.menu_type || !this.selectedEvent.language_id || !this.selectedEvent.menu_name || !this.selectedEvent.page_order || !this.selectedEvent.menu_position || !this.selectedEvent.menu_url || !this.selectedEvent.menu_title || !this.selectedEvent.approve_status || !this.selectedEvent.menu_description) {
       console.error('Missing required fields');
       return;
     }
+    
 
     const formData = new FormData();
-    formData.append('title', this.selectedEvent.title);
-    formData.append('slugs', this.selectedEvent.slugs);
-    formData.append('status', this.selectedEvent.status);
+    formData.append('menu_type', this.selectedEvent.menu_type);
+    formData.append('language_id', this.selectedEvent.language_id);
+    formData.append('menu_name', this.selectedEvent.menu_name);
+    formData.append('page_order', this.selectedEvent.page_order);
+    formData.append('menu_position', this.selectedEvent.menu_position);
+    formData.append('menu_url', this.selectedEvent.menu_url);
+    formData.append('menu_title', this.selectedEvent.menu_title);
+    formData.append('approve_status', this.selectedEvent.approve_status);
+    formData.append('menu_description', this.selectedEvent.menu_description);
+    formData.append('menu_child_id', this.selectedEvent.menu_child_id);
+    if (this.fileToUploadDoc) {
+      formData.append('doc_upload', this.fileToUploadDoc, this.fileToUploadDoc.name);
+    }
+    if (this.fileToUploadBanner) {
+      formData.append('banner_img', this.fileToUploadBanner, this.fileToUploadBanner.name);
+    }
+    if (this.fileToUploadImg) {
+      formData.append('img_upload', this.fileToUploadImg, this.fileToUploadImg.name);
+    }
+    if (this.userId) {
+      formData.append('created_by', this.userId.toString()); // Convert to string
+    }
 
     this.MenuService.storeEvent(formData).subscribe(
       (event: HttpEvent<any>) => {
@@ -118,16 +141,34 @@ export class MenuDatatableComponent {
 
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.slugs || !this.selectedEvent.status || !this.selectedEvent.lang_code) {
+    if (!this.selectedEvent.menu_type || !this.selectedEvent.language_id || !this.selectedEvent.menu_name || !this.selectedEvent.page_order || !this.selectedEvent.menu_position || !this.selectedEvent.menu_url || !this.selectedEvent.menu_title || !this.selectedEvent.approve_status || !this.selectedEvent.menu_description) {
       console.error('Missing required fields');
       return;
     }
 
     const formData = new FormData();
-    formData.append('title', this.selectedEvent.title);
-    formData.append('slugs', this.selectedEvent.slugs);
-    formData.append('status', this.selectedEvent.status);
-    formData.append('lang_code', this.selectedEvent.lang_code);
+    formData.append('menu_type', this.selectedEvent.menu_type);
+    formData.append('language_id', this.selectedEvent.language_id);
+    formData.append('menu_name', this.selectedEvent.menu_name);
+    formData.append('page_order', this.selectedEvent.page_order);
+    formData.append('menu_position', this.selectedEvent.menu_position);
+    formData.append('menu_url', this.selectedEvent.menu_url);
+    formData.append('menu_title', this.selectedEvent.menu_title);
+    formData.append('approve_status', this.selectedEvent.approve_status);
+    formData.append('menu_description', this.selectedEvent.menu_description);
+    formData.append('menu_child_id', this.selectedEvent.menu_child_id);
+    if (this.fileToUploadDoc) {
+      formData.append('doc_upload', this.fileToUploadDoc, this.fileToUploadDoc.name);
+    }
+    if (this.fileToUploadBanner) {
+      formData.append('banner_img', this.fileToUploadBanner, this.fileToUploadBanner.name);
+    }
+    if (this.fileToUploadImg) {
+      formData.append('img_upload', this.fileToUploadImg, this.fileToUploadImg.name);
+    }
+    if (this.userId) {
+      formData.append('created_by', this.userId.toString()); // Convert to string
+    }
 
     this.MenuService.updateEvent(this.selectedEvent.id, formData).subscribe(
       (event: HttpEvent<any>) => {
@@ -176,9 +217,54 @@ export class MenuDatatableComponent {
     }
   }
 
-  onFileChange(event: any): void {
+  onFileChange(event: any, type: string): void {
     if (event.target.files.length > 0) {
-      this.fileToUpload = event.target.files[0];
+      const file = event.target.files[0];
+      const validTypes = ['image/jpeg', 'image/png', 'application/pdf']; // Adjust types as needed
+      if (!validTypes.includes(file.type)) {
+        this.selectedFileError = 'Invalid file type. Only JPG, PNG, and PDF are allowed.';
+        return;
+      }
+      if (file.size > 5000000) {
+        this.selectedFileError = 'File size exceeds 5MB limit.';
+        return;
+      }
+      switch (type) {
+        case 'doc_upload':
+          this.fileToUploadDoc = file;
+          break;
+        case 'banner_img':
+          this.fileToUploadBanner = file;
+          break;
+        case 'img_upload':
+          this.fileToUploadImg = file;
+          break;
+      }
+
+      this.selectedFileError = null; // Clear any previous error
+    }
+  }
+  oneditFileChange(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      // Optionally validate file type and size
+      if (file.size > 5000000) { // Example: limit to 5MB
+        this.selectedFileError = 'File size exceeds 5MB limit.';
+      } else {
+        this.selectedFile = file;
+        this.selectedFileError = '';
+        this.fileToUpload = event.target.files[0];
+      }
+    }
+  }
+  loadUserId(): void {
+    const userData = localStorage.getItem('user'); // Retrieve user data from localStorage
+    if (userData) {
+      const user = JSON.parse(userData); // Parse the JSON string back to an object
+      this.userId = user.id; // Assign the user ID
+      console.log('User ID:', this.userId); // Log the user ID for verification
+    } else {
+      console.warn('No user data found in localStorage');
     }
   }
 }

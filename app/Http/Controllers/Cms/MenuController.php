@@ -11,8 +11,34 @@ use App\Http\Controllers\Cms\BaseController as BaseController;
 
 class MenuController extends BaseController
 {
-    public function index(Request $request)
+    public function data(Request $request)
     {
+
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+        $menus = Menu::select(
+            'id',
+            'menu_type',
+            'menu_child_id',
+            'menu_position',
+            'language_id',
+            'menu_name',
+            'menu_url',
+            'menu_title',
+            'menu_keyword',
+            'menu_description',
+            'content',
+            'doc_upload',
+            'menu_links',
+            'page_order',
+            'current_version',
+            'welcomedescription',
+            'banner_img',
+            'img_upload'
+        )
+        ->orderBy('id', 'ASC')
+        ->paginate($perPage, ['*'], 'page', $page);
+
         // Get the parameters from the request
         $lang_code = $request->input('lang_code');
         $menu_child_id = $request->input('menu_child_id', 0);
@@ -104,20 +130,32 @@ class MenuController extends BaseController
         }
     }
 
-    private function updateMediaUrls($menu, $baseUrl)
-    {
-        if ($menu->doc_upload) {
-            $menu->doc_upload = $baseUrl . '/' . $menu->doc_upload;
-        }
-        if ($menu->img_upload) {
-            $menu->img_upload = $baseUrl . '/' . $menu->img_upload;
-        }
-        if ($menu->banner_img) {
-            $menu->banner_img = $baseUrl . '/' . $menu->banner_img;
-        }
 
-        foreach ($menu->children as $childMenu) {
-            $this->updateMediaUrls($childMenu, $baseUrl);
+
+        if ($menus->isNotEmpty()) {
+            $menus->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                if ($item->doc_upload) {
+                    $item->doc_upload = asset('public/uploads/admin/cmsfiles/menus/' . $item->doc_upload) ;
+                }
+                if ($item->banner_img) {
+                    $item->banner_img = asset('public/uploads/admin/cmsfiles/menus/' . $item->banner_img) ;
+                }
+                if ($item->img_upload) {
+                    $item->img_upload = asset('public/uploads/admin/cmsfiles/menus/' . $item->img_upload) ;
+                }
+                return $item;
+            });
+            return response()->json([
+                'title' => 'Menu List',
+                'data' => $menus->items(), // Get items for the current page
+                'total' => $menus->total(), // Total number of items
+                'current_page' => $menus->currentPage(), // Current page number
+                'last_page' => $menus->lastPage(), // Last page number
+                'per_page' => $menus->perPage(), // Items per page
+            ]);
+        } else {
+            return $this->sendError('No menus found for the given language code.', 404);
         }
     }
     public function data_by_id($id)
@@ -153,7 +191,7 @@ class MenuController extends BaseController
             'menu_position' => 'required|string|max:255',
             'language_id' => 'required|string|max:10',
             'menu_name' => 'required|string|max:255',
-            'menu_url' => 'required|url|max:255',
+            'menu_url' => 'required|max:255',
             'menu_title' => 'nullable|string|max:255',
             'menu_keyword' => 'nullable|string|max:255',
             'menu_description' => 'nullable|string',
@@ -176,21 +214,21 @@ class MenuController extends BaseController
 
         if ($request->hasFile('doc_upload')) {
             $docUpload = $request->file('doc_upload');
-            $docPath = 'uploads/admin/cmsfiles/menus/' . time() . '_' . $docUpload->getClientOriginalName();
+            $docPath = time() . '_' . $docUpload->getClientOriginalName();
             $docUpload->move(public_path('uploads/admin/cmsfiles/menus/'), $docPath);
             $data['doc_upload'] = $docPath;
         }
 
         if ($request->hasFile('banner_img')) {
             $bannerImg = $request->file('banner_img');
-            $bannerPath = 'uploads/admin/cmsfiles/menus/' . time() . '_' . $bannerImg->getClientOriginalName();
+            $bannerPath = time() . '_' . $bannerImg->getClientOriginalName();
             $bannerImg->move(public_path('uploads/admin/cmsfiles/menus/'), $bannerPath);
             $data['banner_img'] = $bannerPath;
         }
 
         if ($request->hasFile('img_upload')) {
             $imgUpload = $request->file('img_upload');
-            $imgPath = 'uploads/admin/cmsfiles/menus/' . time() . '_' . $imgUpload->getClientOriginalName();
+            $imgPath = time() . '_' . $imgUpload->getClientOriginalName();
             $imgUpload->move(public_path('uploads/admin/cmsfiles/menus/'), $imgPath);
             $data['img_upload'] = $imgPath;
         }
@@ -200,7 +238,156 @@ class MenuController extends BaseController
 
         return response()->json(['data' => $menu, 'message' => 'Menu created successfully.'], 201);
     }
+    public function update(Request $request, $id)
+    {
+        // Find the existing menu entry
+        $menu = Menu::find($id);
 
+        if (!$menu) {
+            return response()->json(['message' => 'Menu not found.'], 404);
+        }
+
+        // Validate incoming data
+        $validator = Validator::make($request->all(), [
+            'menu_type' => 'required|string|max:255',
+            'menu_child_id' => 'nullable|integer',
+            'menu_position' => 'required|string|max:255',
+            'language_id' => 'required|string|max:10',
+            'menu_name' => 'required|string|max:255',
+            'menu_url' => 'required|string|max:255',
+            'menu_title' => 'nullable|string|max:255',
+            'menu_keyword' => 'nullable|string|max:255',
+            'menu_description' => 'nullable|string',
+            'content' => 'nullable|string',
+            'doc_upload' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+            'banner_img' => 'nullable|file|image|max:2048',
+            'img_upload' => 'nullable|file|image|max:2048',
+            'page_order' => 'required|integer',
+            'current_version' => 'nullable|string|max:10',
+            'welcomedescription' => 'nullable|string',
+            'approve_status' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        // Update data with request input
+        $data = $request->all();
+
+        try {
+            // Handle file uploads
+            if ($request->hasFile('doc_upload')) {
+                $docUpload = $request->file('doc_upload');
+                $docPath = time() . '_' . $docUpload->getClientOriginalName();
+                $docUpload->move(public_path('uploads/admin/cmsfiles/menus/'), $docPath);
+                $data['doc_upload'] = $docPath;
+            }
+
+            if ($request->hasFile('banner_img')) {
+                $docUpload = $request->file('banner_img');
+                $docPath = time() . '_' . $docUpload->getClientOriginalName();
+                $docUpload->move(public_path('uploads/admin/cmsfiles/menus/'), $docPath);
+                $data['banner_img'] = $docPath;
+            }
+
+            if ($request->hasFile('img_upload')) {
+                $docUpload = $request->file('img_upload');
+                $docPath = time() . '_' . $docUpload->getClientOriginalName();
+                $docUpload->move(public_path('uploads/admin/cmsfiles/menus/'), $docPath);
+                $data['img_upload'] = $docPath;
+            }
+
+            // Update the menu entry
+            $menu->update($data);
+
+            return response()->json(['data' => $menu, 'message' => 'Menu updated successfully.'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while updating the menu.'], 500);
+        }
+    }
+    public function delete($id)
+    {
+        $actandpolicy = Menu::find($id);
+
+        if (!$actandpolicy) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
+        }
+        $actandpolicy->delete();
+
+        return response()->json($actandpolicy);
+    }
+
+
+    // web
+    public function index(Request $request): JsonResponse
+    {
+        // Get the parameters from the request
+        $lang_code = $request->input('lang_code');
+        $menu_child_id = $request->input('menu_child_id', 0);
+        $menu_position = $request->input('menu_position');
+        // Validate the lang_code parameter
+        if (!$lang_code) {
+            return response()->json(['error' => 'Lang code parameter is missing.'], 400);
+        }
+
+        // Retrieve the menu items
+        $menus = Menu::where('language_id', $lang_code)
+            ->where('menu_child_id', $menu_child_id)
+            ->where('approve_status', 3)
+            ->when($menu_position, function ($query) use ($menu_position) {
+                return $query->where('menu_position', $menu_position);
+            })
+            ->with(['children' => function ($query) use ($menu_position) {
+                $query->where('approve_status', 3)
+                    ->when($menu_position, function ($query) use ($menu_position) {
+                        return $query->where('menu_position', $menu_position);
+                    })
+                    ->orderBy('page_order', 'ASC');
+            }])
+            ->orderBy('page_order', 'ASC')
+            ->get();
+
+        // Check if any menus were found
+        if ($menus->isEmpty()) {
+            return response()->json(['error' => 'No menus found for the given language code.'], 404);
+        }
+
+        // Prepare the base URL for media paths
+        $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
+
+        // Append base URL to media paths in the menu items
+        $this->appendBaseUrlToMedia($menus, $baseUrl);
+
+        // Return the menu list as a successful response
+        return response()->json(['success' => true, 'data' => $menus], 200);
+    }
+
+    private function appendBaseUrlToMedia($menus, $baseUrl)
+    {
+        foreach ($menus as $menu) {
+            $this->updateMediaUrls($menu, $baseUrl);
+        }
+    }
+
+    private function updateMediaUrls($menu, $baseUrl)
+    {
+        if ($menu->doc_upload) {
+            $menu->doc_upload = $baseUrl . '/' . $menu->doc_upload;
+        }
+        if ($menu->img_upload) {
+            $menu->img_upload = $baseUrl . '/' . $menu->img_upload;
+        }
+        if ($menu->banner_img) {
+            $menu->banner_img = $baseUrl . '/' . $menu->banner_img;
+        }
+
+        foreach ($menu->children as $childMenu) {
+            $this->updateMediaUrls($childMenu, $baseUrl);
+        }
+    }
     public function lang_slugs_wise(Request $request): JsonResponse
     {
         $data = $request->all();

@@ -26,7 +26,7 @@ class Menu extends Model
     'update_date',
     'approve_status',
     'created_by',
-    'page_postion',
+    'page_order',
     'current_version',
     'welcomedescription',
     'banner_img',

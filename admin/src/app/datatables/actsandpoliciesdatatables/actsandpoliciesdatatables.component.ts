@@ -71,6 +71,7 @@ export class ActsandpoliciesdatatablesComponent {
   addEvent(): void {
     const modalElement = document.getElementById('addEventModal');
     if (modalElement) {
+      this.selectedEvent = '';
       const modal = new bootstrap.Modal(modalElement);
       modal.show();
     }

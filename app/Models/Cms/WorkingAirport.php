@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Working_airport extends Model
+class WorkingAirport extends Model
 {
     use SoftDeletes;
 
