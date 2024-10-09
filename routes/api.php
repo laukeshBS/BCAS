@@ -406,7 +406,5 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::delete('permitted-prohibited-delete/{id}','delete');
       
     });
+    
 });
-
-});
-

@@ -65,8 +65,7 @@ class DocumentController extends Controller
             'title' => 'required|min:2|max:255',
             'slug' => 'required|min:2|max:255',
             'description' => 'nullable|max:500',
-            'image' => 'required|file|mimes:jpg,jpeg,png|max:20480',
-            'parent_id' => 'required',
+            'document' => 'required|file|mimes:pdf|max:20480',
             'division' => 'required',
             'position' => 'required',
             'status' => 'required',
@@ -80,10 +79,10 @@ class DocumentController extends Controller
         ]);
 
         // Handle file upload
-        if ($request->hasFile('image')) {
-            $docUpload = $request->file('doc_upload');
+        if ($request->hasFile('document')) {
+            $docUpload = $request->file('document');
             $docPath = time() . '_' . $docUpload->getClientOriginalName();
-            $docUpload->move(public_path('uploads/admin/cmsfiles/division/gallery'), $docPath);
+            $docUpload->move(public_path('uploads/admin/cmsfiles/division/document'), $docPath);
             $filePath = $docPath;
         }
 
@@ -92,17 +91,16 @@ class DocumentController extends Controller
         $data->title = $validated['title'];
         $data->slug = $validated['slug'];
         $data->description = $validated['description'];
-        $data->parent_id = $validated['parent_id'];
+        $data->status = $validated['status'];
         $data->division = $validated['division'];
         $data->position = $validated['position'];
-        $data->status = $validated['status'];
         $data->lang_code = $validated['lang_code'];
         $data->start_date = $validated['start_date'];
         $data->end_date = $validated['end_date'];
         $data->is_news = $validated['is_news'];
         $data->category_id = $validated['category_id'];
         $data->created_by = $validated['created_by'];
-        $data->image = $filePath;
+        $data->document = $filePath;
         
         $data->save();
 
@@ -114,8 +112,7 @@ class DocumentController extends Controller
             'title' => 'required|min:2|max:255',
             'slug' => 'required|min:2|max:255',
             'description' => 'nullable|max:500',
-            'image' => 'required|file|mimes:jpg,jpeg,png|max:20480',
-            'parent_id' => 'required',
+            'document' => 'required|file|mimes:pdf|max:20480',
             'division' => 'required',
             'position' => 'required',
             'status' => 'required',
@@ -133,11 +130,11 @@ class DocumentController extends Controller
         }
 
         // Handle file upload
-        if ($request->hasFile('image')) {
-            $docUpload = $request->file('doc_upload');
+        if ($request->hasFile('document')) {
+            $docUpload = $request->file('document');
             $docPath = time() . '_' . $docUpload->getClientOriginalName();
             $docUpload->move(public_path('uploads/admin/cmsfiles/division/gallery'), $docPath);
-            $validated['image'] = $docPath;
+            $validated['document'] = $docPath;
         }
 
         $data->update($validated);
