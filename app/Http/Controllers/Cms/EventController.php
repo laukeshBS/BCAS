@@ -103,6 +103,8 @@ class EventController extends Controller
         }
         // $data->start_date = date('d-m-Y', strtotime($data->start_date));
         // $data->end_date = date('d-m-Y', strtotime($data->end_date));
+        $data->start_date = date('d-m-Y', strtotime($data->start_date));
+        $data->end_date = date('d-m-Y', strtotime($data->end_date));
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
         $data->document = asset('public/documents/' . $data->document) ;
 
@@ -150,6 +152,8 @@ class EventController extends Controller
             'title' => 'required|max:255',
             'description' => 'max:500',
             'status' => 'required',
+            'start_date'=>'required',
+            'end_date'=>'required',
             'document' => 'file|mimes:pdf|max:2048',
         ]);
 
@@ -164,6 +168,8 @@ class EventController extends Controller
         $actandpolicy->title = $request->input('title');
         $actandpolicy->description = $request->input('description');
         $actandpolicy->status = $request->input('status');
+        $actandpolicy->start_date = $request->input('start_date');
+        $actandpolicy->end_date = $request->input('end_date');
 
         if ($request->hasFile('document')) {
             $docUpload = $request->file('document');

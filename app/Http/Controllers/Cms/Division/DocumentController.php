@@ -4,383 +4,153 @@ namespace App\Http\Controllers\Cms\Division;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Cms\Division\Division_document as document;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Session;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
+use App\Models\Cms\Division\DivisionDocument;
 
 class DocumentController extends Controller
 {
-  /**
-     * Display a listing of the document.
-     */
     public $user;
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('admin')->user();
-            return $next($request);
-        });
-    }
-    public function index(Request $request): View
-    {
-        if (is_null($this->user) || !$this->user->can('document.view')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Document !');
-        }
-       // $lists='';
-        $parentdocument="";
-            $title="Document List";
-            $approve_status=session()->get('status');
-            $sertitle=Session::get('Crtitle');
-            $approve_status=Session::get('status');
-            $lang_code=Session::get('lang_code');
-            $lists = document::with('category');
-         // dd( $lists);
-            if (!empty($sertitle)) {
-                $lists = document::whereNotNull('title');
-                $lists->where('title', 'LIKE', "%{$sertitle}%");
-            }
-            if (!empty($approve_status)) {
-               
-                $lists->where('status',$approve_status);
-            }
-            if (!empty($lang_code)) {
-               
-                $lists->where('lang_code',$lang_code);
-            }
-            $list = $lists->orderBy('position', 'ASC')->select('*')->paginate(10);
-        return view('cms/division/documents/index',compact(['list','title','parentdocument']));
-    }
 
-    /**
-     * Show the form for creating a new Document.
-     */
-    public function create()
+    // API
+    public function data(Request $request)
     {
-        if (is_null($this->user) || !$this->user->can('document.create')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any Document !');
-        }
-        $title="Add Document";
-        
-        return view('cms/division/documents/add',compact(['title']));
-    }
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
 
-    /**
-     * Store a newly created Document in storage.
-     */
-    public function store(Request $request): mixed {
-     //dd($request);
-        if(isset($request->search)){
-            $title=clean_single_input(trim($request->title));
-             $approve_status=clean_single_input($request->status);
-             $lang_code=clean_single_input($request->lang_code);
-             Session::put('title', $title);
-             Session::put('status', $approve_status);
-             Session::put('lang_code', $lang_code);
-             return redirect('admin/division/document');
-           }
-        if(isset($request->cmdsubmit)){  
-         $document1 ='';
-         $rules = array(
-            'title' => 'required|max:64',
-            'description' => 'required',
-            'status' => 'required',
-            'lang_code' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required',
-            'division' => 'required',
-            'category_id' => 'required',
-            'document' => 'required|mimes:pdf,xlx,csv|max:2048'
-        );
-        $valid
-        =array(
-             'title.required'=>'Document title field  is required',
-             'description.required'=>'Document description  field  is required',
-             'lang_code.required'=>'Languages  field  is required',
-             'status.required' =>'Document Status field is required',
-             'start_date.required' =>'Document Start date field is required',
-             'end_date.required' =>'Document End date field is required',
-             'category_id.required' =>'Document category field is required',
-             'division.required' =>'Document division field is required',
-             'document.required' =>'Document file field is required',
-        );
-        $validator = '';
-        $document1="";
-        
-            $validator = Validator::make($request->all(), $rules,$valid);
-        
-        if ($validator->fails()) {
-      
-            return redirect('admin/division/document/create')->withErrors($validator)->withInput();
-            
-        }else{
-            if ($request->hasFile('document')) {
-
-                if (!is_dir('public/uploads/admin/cmsfiles/division/document/')) {
-                    mkdir('public/uploads/admin/cmsfiles/division/document/', 0777, TRUE);
+        $slide = DivisionDocument::select('*') ->paginate($perPage, ['*'], 'page', $page);
+        if ($slide->isNotEmpty()) {
+            $slide->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                if ($item->media) {
+                    $item->media = asset('public/'.$item->media);
                 }
-                
-                 
-                $randomString = Str::random(4);
-                $document1 = str_replace(' ','_',clean_single_input($request->title.$randomString)).'document'.'.'.$request->document->extension();  
-                $rulesdsad = array(
-                        'document' => 'required|mimes:pdf,xlx,csv|max:2048',
-                    );
-                    $valid
-                        =array(
-                            'document.required'=>'Files field  is required',
-                            
-                
-                        );
-                    $res= $request->document->move(public_path('uploads/admin/cmsfiles/division/document/'), $document1);
-                    
-                    
-                    if($res){
-                        $document1 =$document1;
-                    }
-                    $document2 ='uploads/admin/cmsfiles/division/document/'.$document1; //die();
-                    
-                    if (file_exists($document2)) {
-                        unlink($document2);
-                    }
-                        $validator = Validator::make($request->all(), $rulesdsad,$valid);
-			}
-            
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $dataArr = array(); 
-           //dd $banner_img="";
-            $pArray['title']    				    = trim($request->title); 
-            $pArray['slugs']    				    = Str::slug(clean_single_input($request->title));
-			$pArray['lang_code']    			    = clean_single_input($request->lang_code);
-			$pArray['description']    			    = clean_single_input($request->description);
-			$pArray['status']  					    = clean_single_input($request->status);
-            $pArray['position']  					= clean_single_input($request->position);
-            $pArray['division']  				    = clean_single_input($request->division);
-			$pArray['start_date']		            = clean_single_input($request->start_date);
-			$pArray['end_date']    					= $request->end_date; //clean_single_input($request->description);
-			$pArray['document']    				    = $document1;
-            $pArray['is_news']  				    = $request->is_news;;
-			//$pArray['document_links']    				= $request->txtweblink;
-			$pArray['created_by']  					= clean_single_input($user_login_id);
-			$pArray['category_id']  			    = clean_single_input($request->category_id);
-			$create 	= document::create($pArray);
-           
-            $lastInsertID = $create->id;
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $action_by_role=Auth::guard('admin')->user()->username;
-            if($lastInsertID > 0){
-                $logs_data = array(
-                    'module_item_title'     => $request->title,
-                    'module_item_id'        => $lastInsertID,
-                    'action_by'             =>  $user_login_id,
-                    'old_data'              =>  json_encode($pArray),
-                    'new_data'              =>  json_encode($pArray),
-                    'action_name'           =>  'Add document',
-                    'lang_id'               =>  clean_single_input($request->lang_code),
-                    'action_type'        	=> 'document Model',
-                    'approve_status'        => clean_single_input($request->status),
-                    'action_by_role'        =>  $action_by_role
-                );
-                audit_trails($logs_data);
-                return redirect('admin/division/document')->with('success','document has successfully added');
-			}
-           
+                return $item;
+            });
         }
+        return response()->json([
+            'title' => 'List',
+            'data' => $slide->items(),
+            'total' => $slide->total(),
+            'current_page' => $slide->currentPage(),
+            'last_page' => $slide->lastPage(),
+            'per_page' => $slide->perPage(),
+        ]);
     }
-      
-    }
-
-    /**
-     * Display the specified document.
-     */
-    public function show(string $id)
+    public function data_by_id($id)
     {
-        if (is_null($this->user) || !$this->user->can('document.view')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any document !');
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
         }
 
-        dd("Here");
-        // $title="Child document List";
-        // $whEre  = "";
-        // $id=clean_single_input($id);
-        // $parentdocument = document::where('id', $id)->first();
+        // Retrieve the data by ID
+        $data = DivisionDocument::find($validatedId);
 
-        // $list = document::withTrashed()->whereNull('deleted_at')->where('document_child_id',$id)->paginate(10);
-        //  return view('cms/division/training/documents/index',compact(['list','title','id','parentdocument']));
-    }
-
-    /**
-     * Show the form for editing the specified document.
-     */
-    public function edit(string $id)
-    {
-        if (is_null($this->user) || !$this->user->can('document.edit')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any document !');
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
         }
-        $id=clean_single_input($id);
-        $title="Edit document";
+        
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
 
-        $data = document::find($id);
-        //dd($data);
-        return view('cms/division/documents/edit',compact(['title','data']));
+        return response()->json($data);
     }
-
-    /**
-     * Update the specified document in storage. update
-     */
-    public function update(Request $request, string $id)
+    public function store(Request $request)
     {
-        $id = clean_single_input($id);
-        $documentName = $request->oldupload ?? '';
-        $user_login_id = Auth::guard('admin')->user()->id;
-    
-        // Validate main form inputs
-        $rules = [
-            'title' => 'required|max:64',
-            'description' => 'required',
+        $validated = $request->validate([
+            'title' => 'required|min:2|max:255',
+            'slug' => 'required|min:2|max:255',
+            'description' => 'nullable|max:500',
+            'document' => 'required|file|mimes:pdf|max:20480',
+            'division' => 'required',
+            'position' => 'required',
             'status' => 'required',
-            'lang_code' => 'required',
+            'lang_code' => 'required|exists:languages,lang_code',
             'start_date' => 'required',
             'end_date' => 'required',
-            'division' => 'required',
+            'is_news' => 'required',
             'category_id' => 'required',
-        ];
-        $messages = [
-            'title.required' => 'Document title field is required',
-            'description.required' => 'Document description field is required',
-            'lang_code.required' => 'Languages field is required',
-            'status.required' => 'Document Status field is required',
-            'start_date.required' => 'Document Start date field is required',
-            'end_date.required' => 'Document End date field is required',
-            'category_id.required' => 'Document category field is required',
-            'division.required' => 'Document division field is required',
-        ];
-        
-        $validator = Validator::make($request->all(), $rules, $messages);
-        
-        if ($validator->fails()) {
-            return back()->withErrors($validator)->withInput();
-        }
-    
-        // Handle file upload if a new file is provided
+            'created_by' => 'required',
+            
+        ]);
+
+        // Handle file upload
         if ($request->hasFile('document')) {
-            $fileRules = [
-                'document' => 'required|mimes:pdf,xlx,csv|max:2048',
-            ];
-            $fileMessages = [
-                'document.required' => 'Files field is required',
-                'document.mimes' => 'Only PDF, XLX, and CSV files are allowed',
-                'document.max' => 'File size should not exceed 2MB',
-            ];
-    
-            $fileValidator = Validator::make($request->all(), $fileRules, $fileMessages);
-    
-            if ($fileValidator->fails()) {
-                return back()->withErrors($fileValidator)->withInput();
-            }
-    
-            if (!is_dir(public_path('uploads/admin/cmsfiles/division/document/'))) {
-                mkdir(public_path('uploads/admin/cmsfiles/division/document/'), 0777, true);
-            }
-    
-            $randomString = Str::random(4);
-            $documentName = str_replace(' ', '_', clean_single_input($request->title . $randomString)) . 'document.' . $request->document->extension();
-    
-            try {
-                $res = $request->document->move(public_path('uploads/admin/cmsfiles/division/document/'), $documentName);
-    
-                if ($res) {
-                    if ($request->filled('oldupload') && file_exists(public_path($request->oldupload))) {
-                        unlink(public_path($request->oldupload));
-                    }
-                } else {
-                    return back()->withErrors(['document' => 'Failed to upload the document.'])->withInput();
-                }
-            } catch (\Exception $e) {
-                return back()->withErrors(['document' => 'Failed to upload the document: ' . $e->getMessage()])->withInput();
-            }
+            $docUpload = $request->file('document');
+            $docPath = time() . '_' . $docUpload->getClientOriginalName();
+            $docUpload->move(public_path('uploads/admin/cmsfiles/division/document'), $docPath);
+            $filePath = $docPath;
         }
-    
-        // Prepare data for updating the document
-        $dataArr = [
-            'title' => trim($request->title),
-            'slugs' => Str::slug(clean_single_input($request->title)),
-            'lang_code' => clean_single_input($request->lang_code),
-            'description' => clean_single_input($request->description),
-            'status' => clean_single_input($request->status),
-            'position' => clean_single_input($request->position),
-            'division' => clean_single_input($request->division),
-            'start_date' => clean_single_input($request->start_date),
-            'end_date' => $request->end_date,
-            'is_news' => $request->is_news,
-            'created_by' => clean_single_input($user_login_id),
-            'category_id' => clean_single_input($request->category_id),
-            'document' => clean_single_input($documentName),
-        ];
-    
-        // Update the document
-        $update = document::where('id', $id)->update($dataArr);
-    
-        if ($update > 0) {
-            $data = document::find($id);
-    
-            // Log the update action
-            $logs_data = [
-                'module_item_title' => $request->title,
-                'module_item_id' => $id,
-                'action_by' => $user_login_id,
-                'old_data' => json_encode($data),
-                'new_data' => json_encode($dataArr),
-                'action_name' => 'Update document',
-                'lang_id' => clean_single_input($request->lang_code),
-                'action_type' => 'document Model',
-                'approve_status' => clean_single_input($request->status),
-                'action_by_role' => Auth::guard('admin')->user()->username,
-            ];
-            audit_trails($logs_data);
-    
-            return redirect('admin/division/document')->with('success', 'Document has been successfully updated');
-        }
-    
-        return back()->withErrors(['update' => 'Failed to update the document'])->withInput();
-    }
-    
 
-    /**
-     * Remove the specified document from storage.
-     */
-    public function destroy(document $document)
-    {
-        if (is_null($this->user) || !$this->user->can('document.delete')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any document !');
-        }
-        $delete= $document->delete();
-        $data = document::find($document->id);
-        if($delete > 0){
-            $user_login_id=Auth::guard('admin')->user()->id;
-            $action_by_role=Auth::guard('admin')->user()->username;
-                        $logs_data = array(
-                            'module_item_title'     =>  $document->document_title,
-                            'module_item_id'        =>  $document->id,
-                            'action_by'             =>  $user_login_id,
-                            'old_data'             =>  json_encode($data),
-                            'new_data'             =>  json_encode($document),
-                            'action_name'           =>  'Delete',
-                            'lang_id'               =>  clean_single_input($document->lang_code),
-                            'action_type'        	=> 'document Model',
-                            'approve_status'        => clean_single_input($document->status),
-                            'action_by_role'        => $action_by_role
-                        );
-                        
-            audit_trails($logs_data);
-
-            return redirect('admin/division/document')->with('success','Document deleted successfully');
-        }
+        // Create a new form instance
+        $data = new DivisionDocument(); // Assuming you have a Form model
+        $data->title = $validated['title'];
+        $data->slug = $validated['slug'];
+        $data->description = $validated['description'];
+        $data->status = $validated['status'];
+        $data->division = $validated['division'];
+        $data->position = $validated['position'];
+        $data->lang_code = $validated['lang_code'];
+        $data->start_date = $validated['start_date'];
+        $data->end_date = $validated['end_date'];
+        $data->is_news = $validated['is_news'];
+        $data->category_id = $validated['category_id'];
+        $data->created_by = $validated['created_by'];
+        $data->document = $filePath;
         
+        $data->save();
+
+        return response()->json(['data' => $data, 'message' => 'Created successfully.'], 201);
     }
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'title' => 'required|min:2|max:255',
+            'slug' => 'required|min:2|max:255',
+            'description' => 'nullable|max:500',
+            'document' => 'required|file|mimes:pdf|max:20480',
+            'division' => 'required',
+            'position' => 'required',
+            'status' => 'required',
+            'lang_code' => 'required|exists:languages,lang_code',
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'is_news' => 'required',
+            'category_id' => 'required',
+            'created_by' => 'required',
+        ]);
+        $data = DivisionDocument::find($id);
+
+        if (!$data) {
+            return $this->sendError('No data found.', 404);
+        }
+
+        // Handle file upload
+        if ($request->hasFile('document')) {
+            $docUpload = $request->file('document');
+            $docPath = time() . '_' . $docUpload->getClientOriginalName();
+            $docUpload->move(public_path('uploads/admin/cmsfiles/division/gallery'), $docPath);
+            $validated['document'] = $docPath;
+        }
+
+        $data->update($validated);
+
+        return response()->json(['data' => $data, 'message' => 'Updated successfully.'], 201);
+    }
+    public function delete($id)
+    {
+        $data = DivisionDocument::find($id);
+
+        if (!$data) {
+            return $this->sendError('No data found.', 404);
+        }
+        $data->delete();
+
+        return response()->json(['data' => $data, 'message' => 'Deleted successfully.'], 201);
+    }
+    
 }

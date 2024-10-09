@@ -6,7 +6,7 @@ import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { Subscription } from 'rxjs';
-
+ 
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -19,9 +19,9 @@ export class AppComponent implements OnInit, OnDestroy {
   loggedIn$: boolean = false;
   loading: boolean = true;
   private subscription: Subscription = new Subscription();
-
+ 
   constructor(private authService: AuthService) {}
-
+ 
   ngOnInit(): void {
     this.subscription.add(
       this.authService.loggedIn$.subscribe(isLoggedIn => {
@@ -31,13 +31,15 @@ export class AppComponent implements OnInit, OnDestroy {
       })
     );
   }
-
+ 
   logout() {
     this.authService.logout();
     // Reflect the logged-out state is handled via the BehaviorSubject in AuthService
   }
-
+ 
   ngOnDestroy(): void {
     this.subscription.unsubscribe(); // Clean up subscriptions on destroy
   }
 }
+ 
+ 

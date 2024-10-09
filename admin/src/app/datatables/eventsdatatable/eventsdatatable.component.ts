@@ -54,10 +54,16 @@ export class EventsdatatableComponent {
       }
     });
   }
+  private formatDate(dateString: string): string {
+    const [day, month, year] = dateString.split('-');
+    return `${year}-${month}-${day}`; // Converts DD-MM-YYYY to YYYY-MM-DD
+  }
 
   editEvent(id: number): void {
     this.EventsService.getEvent(id).subscribe(data => {
       this.selectedEvent = data;
+      this.selectedEvent.start_date = this.formatDate(this.selectedEvent.start_date);
+      this.selectedEvent.end_date = this.formatDate(this.selectedEvent.end_date);
       console.log(this.selectedEvent);
       this.openEditModal();
     });

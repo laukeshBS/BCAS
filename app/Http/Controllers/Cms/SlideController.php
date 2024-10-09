@@ -17,14 +17,6 @@ class SlideController extends Controller
 {
     public $user;
 
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('admin')->user();
-            return $next($request);
-        });
-    }
-
     // API
     public function data()
     {
@@ -37,7 +29,55 @@ class SlideController extends Controller
 
         return response()->json($slide);
     }
-    public function store_slide_api(Request $request)
+    public function cms_data(Request $request)
+    {
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $slide = Slide::select('*') ->paginate($perPage, ['*'], 'page', $page);
+        if ($slide->isNotEmpty()) {
+            $slide->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                if ($item->media) {
+                    $item->media = asset('public/'.$item->media);
+                }
+                return $item;
+            });
+        }
+        return response()->json([
+            'title' => 'List',
+            'data' => $slide->items(), 
+            'total' => $slide->total(), 
+            'current_page' => $slide->currentPage(), 
+            'last_page' => $slide->lastPage(), 
+            'per_page' => $slide->perPage(), 
+        ]);
+    }
+    public function cms_data_by_id($id)
+    {
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
+        }
+
+        // Retrieve the data by ID
+        $data = Slide::find($validatedId);
+
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
+        }
+        
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
+
+        return response()->json($data);
+    }
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'slider_id' => 'required|exists:sliders,id',
@@ -45,20 +85,20 @@ class SlideController extends Controller
             'title' => 'required|min:2|max:255',
             'description' => 'nullable|max:500',
             'url' => 'nullable|url',
-            'media_type' => 'required|in:image,video',
+            'media_type' => 'required',
             'media' => 'required|file|mimes:jpg,jpeg,png,mp4,mpeg,ogg|max:20480',
             'order_index' => 'required|integer',
-            'status' => 'required|in:1,2',
+            'status' => 'required',
         ]);
 
         $filePath = null;
 
         // Handle file upload
         if ($request->hasFile('media')) {
-            $file = $request->file('media');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('public/slides', $fileName); // Store the file in the 'public/forms' directory
-            $filePath = 'slides/' . $fileName; // Adjust the path if you need to store it in the database
+            $docUpload = $request->file('doc_upload');
+            $docPath = 'slides/' . time() . '_' . $docUpload->getClientOriginalName();
+            $docUpload->move(public_path('slides'), $docPath);
+            $filePath = $docPath;
         }
         // Create a new form instance
         $slide = new Slide(); // Assuming you have a Form model
@@ -72,10 +112,9 @@ class SlideController extends Controller
         $slide->status = $validated['status'];
         $slide->save();
 
-        return response()->json($slide);
+        return response()->json(['data' => $slide, 'message' => 'Slide created successfully.'], 201);
     }
-
-    public function update_slide(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'slider_id' => 'required|exists:sliders,id',
@@ -83,15 +122,15 @@ class SlideController extends Controller
             'title' => 'required|min:2|max:255',
             'description' => 'nullable|max:500',
             'url' => 'nullable|url',
-            'media_type' => 'required|in:image,video',
+            'media_type' => 'required',
             'media' => 'nullable|file|mimes:jpg,jpeg,png,mp4,mpeg,ogg|max:20480',
             'order_index' => 'required|integer',
-            'status' => 'required|in:1,2',
+            'status' => 'required',
         ]);
         $slide = Slide::find($id);
 
         if (!$slide) {
-            return redirect()->route('cms.slide.list')->with('error', 'Slide not found.');
+            return $this->sendError('No Slide found.', 404);
         }
         $inputs=[
             'slider_id' => $request->input('slider_id'),
@@ -104,26 +143,25 @@ class SlideController extends Controller
             'status' => $request->input('status'),
         ];
         if ($request->hasFile('media')) {
-            $file = $request->file('media');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $filePath = $file->storeAs('public/slides', $fileName); // Store the file in the 'public/slides' directory
-            $filePath = 'slides/' . $fileName; // Adjust the path if you need to store it in the database
-            $inputs['media'] = $filePath; // Set the media path in the inputs array
+            $docUpload = $request->file('doc_upload');
+            $docPath = 'slides/' . time() . '_' . $docUpload->getClientOriginalName();
+            $docUpload->move(public_path('slides'), $docPath);
+            $inputs['media'] = $docPath;
         }
 
         $slide->update($inputs);
 
-        return response()->json($slide);
+        return response()->json(['data' => $slide, 'message' => 'Slide Updated successfully.'], 201);
     }
-    public function delete_slide($id)
+    public function delete($id)
     {
         $slide = Slide::find($id);
 
         if (!$slide) {
-            return redirect()->route('cms.slide')->with('error', 'Slide '.$id.' not found.');
+            return $this->sendError('No Slide found.', 404);
         }
         $slide->delete();
 
-        return response()->json($slide);
+        return response()->json(['data' => $slide, 'message' => 'Slide Deleted successfully.'], 201);
     }
 }

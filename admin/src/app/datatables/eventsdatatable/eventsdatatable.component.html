@@ -34,7 +34,7 @@
     </div>
     
     <div *ngIf="events.length === 0">
-      <p>No Acts and Policies Available.</p>
+      <p>No Events Available.</p>
     </div>
     
     <!-- Bootstrap modal -->
@@ -120,10 +120,10 @@
                   [(ngModel)]="selectedEvent.start_date" 
                   name="start_date" 
                   required
-                  #startDate="ngModel"
+                  #start_date="ngModel"
                 />
-                <div *ngIf="startDate.invalid && (startDate.dirty || startDate.touched)" class="text-danger">
-                  <div *ngIf="startDate.errors?.['required']">Start Date is required.</div>
+                <div *ngIf="start_date.invalid && (start_date.dirty || start_date.touched)" class="text-danger">
+                  <div *ngIf="start_date.errors?.['required']">Start Date is required.</div>
                 </div>
               </div>
             
@@ -136,10 +136,10 @@
                   [(ngModel)]="selectedEvent.end_date" 
                   name="end_date" 
                   required
-                  #endDate="ngModel"
+                  #end_date="ngModel"
                 />
-                <div *ngIf="endDate.invalid && (endDate.dirty || endDate.touched)" class="text-danger">
-                  <div *ngIf="endDate.errors?.['required']">End Date is required.</div>
+                <div *ngIf="end_date.invalid && (end_date.dirty || end_date.touched)" class="text-danger">
+                  <div *ngIf="end_date.errors?.['required']">End Date is required.</div>
                 </div>
               </div>
             
