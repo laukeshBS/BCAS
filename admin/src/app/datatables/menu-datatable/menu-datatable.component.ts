@@ -67,10 +67,10 @@ export class MenuDatatableComponent {
   formatEventDates(): void {
     this.events.forEach(event => {
       event.created_at = new Date(event.created_at).toLocaleDateString('en-GB');
-      if (event.status==1) {
-        event.status = 'Active';
+      if (event.status==3) {
+        event.status = 'Published';
       }else{
-        event.status = 'Inactive';
+        event.status = 'Draft';
       }
       if (event.document!='') {
         event.document = '<a href="'+event.document+'">'+event.title+' Document</a>';
