@@ -4,8 +4,9 @@ namespace App\Http\Controllers\Cms\Division;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Cms\Division\DivisionGallery;
-class GalleryController extends Controller
+use App\Models\Cms\Division\Training\DivisionCourse;
+
+class CourseController extends Controller
 {
     public $user;
 
@@ -15,7 +16,7 @@ class GalleryController extends Controller
         $perPage = $request->input('limit');
         $page = $request->input('currentPage');
 
-        $slide = DivisionGallery::select('*') ->paginate($perPage, ['*'], 'page', $page);
+        $slide = DivisionCourse::select('*') ->paginate($perPage, ['*'], 'page', $page);
         if ($slide->isNotEmpty()) {
             $slide->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
@@ -45,7 +46,7 @@ class GalleryController extends Controller
         }
 
         // Retrieve the data by ID
-        $data = DivisionGallery::find($validatedId);
+        $data = DivisionCourse::find($validatedId);
 
         // Return a 404 response if data is not found
         if (!$data) {
@@ -64,42 +65,34 @@ class GalleryController extends Controller
             'title' => 'required|min:2|max:255',
             'slug' => 'required|min:2|max:255',
             'description' => 'nullable|max:500',
-            'image' => 'required|file|mimes:jpg,jpeg,png|max:20480',
-            'parent_id' => 'required',
             'division' => 'required',
             'position' => 'required',
             'status' => 'required',
-            'lang_code' => 'required|exists:languages,lang_code',
+            'lang_code' => 'required',
             'start_date' => 'required',
             'end_date' => 'required',
+            'center_id' => 'required',
             'is_news' => 'required',
+            'category_id' => 'required',
             'created_by' => 'required',
             
         ]);
 
-        // Handle file upload
-        if ($request->hasFile('image')) {
-            $docUpload = $request->file('image');
-            $docPath = time() . '_' . $docUpload->getClientOriginalName();
-            $docUpload->move(public_path('uploads/admin/cmsfiles/division/gallery'), $docPath);
-            $filePath = $docPath;
-        }
-
         // Create a new form instance
-        $data = new DivisionGallery(); // Assuming you have a Form model
+        $data = new DivisionCourse(); // Assuming you have a Form model
         $data->title = $validated['title'];
         $data->slug = $validated['slug'];
         $data->description = $validated['description'];
-        $data->parent_id = $validated['parent_id'];
         $data->division = $validated['division'];
         $data->position = $validated['position'];
         $data->status = $validated['status'];
         $data->lang_code = $validated['lang_code'];
         $data->start_date = $validated['start_date'];
         $data->end_date = $validated['end_date'];
+        $data->center_id = $validated['center_id'];
         $data->is_news = $validated['is_news'];
+        $data->category_id = $validated['category_id'];
         $data->created_by = $validated['created_by'];
-        $data->image = $filePath;
         
         $data->save();
 
@@ -111,38 +104,29 @@ class GalleryController extends Controller
             'title' => 'required|min:2|max:255',
             'slug' => 'required|min:2|max:255',
             'description' => 'nullable|max:500',
-            'image' => 'required|file|mimes:jpg,jpeg,png|max:20480',
-            'parent_id' => 'required',
             'division' => 'required',
             'position' => 'required',
             'status' => 'required',
-            'lang_code' => 'required|exists:languages,lang_code',
+            'lang_code' => 'required',
             'start_date' => 'required',
             'end_date' => 'required',
+            'center_id' => 'required',
             'is_news' => 'required',
+            'category_id' => 'required',
             'created_by' => 'required',
         ]);
-        $data = DivisionGallery::find($id);
+        $data = DivisionCourse::find($id);
 
         if (!$data) {
             return $this->sendError('No data found.', 404);
         }
-
-        // Handle file upload
-        if ($request->hasFile('image')) {
-            $docUpload = $request->file('image');
-            $docPath = time() . '_' . $docUpload->getClientOriginalName();
-            $docUpload->move(public_path('uploads/admin/cmsfiles/division/gallery'), $docPath);
-            $validated['image'] = $docPath;
-        }
-
         $data->update($validated);
 
         return response()->json(['data' => $data, 'message' => 'Updated successfully.'], 201);
     }
     public function delete($id)
     {
-        $data = DivisionGallery::find($id);
+        $data = DivisionCourse::find($id);
 
         if (!$data) {
             return $this->sendError('No data found.', 404);
