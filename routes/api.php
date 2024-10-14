@@ -226,6 +226,8 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::delete('circular-delete/{id}', 'delete');
     });
 
+   Route::controller(CateringCompanyController::class)->group(function () {
+   });
     Route::controller(WorkingAirportsController::class)->group(function () {
         Route::get('airport-list-by-id/{id}', 'data_by_id');
         Route::post('airport-add', 'store');
@@ -241,6 +243,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(CateringCompanyController::class)->group(function () {
+
         Route::get('catering-list-by-id/{id}', 'data_by_id');
         Route::post('catering-add', 'store');
         Route::post('catering-update/{id}', 'update');
@@ -269,7 +272,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(TenderController::class)->group(function(){
-        Route::post('tender-list','data');
+       // Route::post('tender-list','data');
         Route::get('tender-details/{id}','data_by_id');
         Route::post('tender-store', 'store');
         Route::get('tender-list-by-id/{id}','data_by_id');
@@ -333,7 +336,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
       
     });
     Route::controller(SliderController::class)->group(function(){
-        Route::post('slider-by-slug','slider_by_slug');
+        //Route::post('slider-by-slug','slider_by_slug');
         Route::post('slider-list','cms_data');
         Route::get('slider-by-id/{id}','cms_data_by_id');
         Route::post('slider-store','store');

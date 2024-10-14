@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Cms;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Cms\Working_airport;
+use App\Models\Cms\WorkingAirport;
 use App\Helpers\AuditTrail;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
@@ -28,7 +28,7 @@ class WorkingAirportsController extends Controller
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
 
-        $airports = Working_airport::select('*')
+        $airports = WorkingAirport::select('*')
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -50,7 +50,7 @@ public function airport_list_approved(Request $request)
     $airport_name = $request->input('airport_name');
 
     // Query to fetch approved airports based on the provided filters
-    $airports = Working_airport::select('*')
+    $airports = WorkingAirport::select('*')
         ->where('approved_status_clearance', 'APPROVED')
         ->where('approved_status_programme', 'APPROVED')
         ->when($region_name, function ($query, $region_name) {
@@ -77,7 +77,7 @@ public function airport_list_approved(Request $request)
         $limit = $request->input('limit', 5);
         $lang_code = $request->input('lang_code');
 
-        $data = Working_airport::select('*')
+        $data = WorkingAirport::select('*')
             ->where('lang_code',$lang_code)
             ->orderBy('id', 'desc')
             ->limit($limit)
@@ -104,7 +104,7 @@ public function airport_list_approved(Request $request)
         }
 
         // Retrieve the data by ID
-        $data = Working_airport::find($validatedId);
+        $data = WorkingAirport::find($validatedId);
 
         // Return a 404 response if data is not found
         if (!$data) {
@@ -168,8 +168,8 @@ public function airport_list_approved(Request $request)
 //dd($data);
         //$data['created_by'] = Auth::guard('admin')->user()->id;
 
-        // // Create new Working_airport record
-        $airportdata = Working_airport::create($data);
+        // // Create new WorkingAirport record
+        $airportdata = WorkingAirport::create($data);
 
         // // Log audit trail
         // $user_login_id = Auth::guard('admin')->user()->id;
@@ -220,7 +220,7 @@ public function airport_list_approved(Request $request)
         ]);
         
 
-        $airportdata = Working_airport::find($id);
+        $airportdata = WorkingAirport::find($id);
 
         if (!$airportdata) {
             return response()->json([
@@ -257,7 +257,7 @@ public function airport_list_approved(Request $request)
     public function delete($id)
     {
         // Find the airportdata by id
-        $airportdata = Working_airport::find($id);
+        $airportdata = WorkingAirport::find($id);
 
         if (!$airportdata) {
             return response()->json([

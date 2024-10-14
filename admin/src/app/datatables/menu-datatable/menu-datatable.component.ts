@@ -3,6 +3,8 @@ import { MenuService } from '../../services/menu.service';  // Import the servic
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { LanguageService } from '../../services/language.service';
 
 declare var bootstrap: any;
 
@@ -15,6 +17,7 @@ declare var bootstrap: any;
 })
 export class MenuDatatableComponent {
   events: any[] = [];
+  selectedMenuType: any;// Property to hold selected menu type
   selectedEvent: any = { menu_child_id: 0 };
   fileToUpload: File | null = null;
   limit = 10; 
@@ -30,20 +33,28 @@ export class MenuDatatableComponent {
   fileToUploadImg: File | null = null;
   userId: number | null = null;
   language_id: string = ''; 
+  languages: any;
+  PrimaryLink:any[] = [];
+  pagesStatus: any;
 
-  constructor(private MenuService: MenuService) {}
+  constructor(private MenuService: MenuService,private sanitizer: DomSanitizer
+    ,private languageService: LanguageService,) {}
 
   ngOnInit(): void {
-    this.loadList();
+   // this.loadList();
     this.loadUserId();
+    this.loadLangList();
+    this.onlangChange(this.lang_code);
   }
-
-  loadList(): void {
+ 
+  loadList(langCode:any): void {
     this.loading = true; // Start loading
+    this.lang_code=langCode;
     this.MenuService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
       this.events = data.data;
       this.totalItems = data.total; // Assuming the API returns total items
       this.lastPage = Math.ceil(this.totalItems / this.limit);
+      //console.log(this.totalItems);
       this.formatEventDates();
       this.loading = false; // Stop loading
     }, error => {
@@ -51,12 +62,59 @@ export class MenuDatatableComponent {
       this.loading = false; // Stop loading on error
     });
   }
+  loadLangList(): void {
+    this.loading = true; // Start loading
+    this.languageService.languagesList().subscribe({
+      next: (data: any) => {
+        this.languages = data.data;
+      },
+      error: (error: any) => {
+        //this.loadingService.hide();
+        this.loading = true;
+        console.error('Error fetching languages', error);
+      }
+    });
+  }
+  onlangChange(value:any){
+    this.loadList(value);
+    this.PrimaryLink =  this.events;
+  //console.log(value);
+    this.lang_code=value;
+    this.loading = true; // Start loading
+    this.MenuService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
+      this.PrimaryLink = data.data;
+      this.formatEventDates();
+      this.loading = false; // Stop loading
+    }, error => {
+      console.error('Error loading events:', error);
+      this.loading = false; // Stop loading on error
+    });
+    
+ }
+  loadChidedList(pageID:any): void {
+    //alert(pageID);
+    this.loading = true; // Start loading
+    this.MenuService.loadChidedList(this.limit, this.lang_code, this.currentPage,pageID).subscribe(data => {
+      this.events = data.data;
+      this.totalItems = data.total; // Assuming the API returns total items
+      this.lastPage = Math.ceil(this.totalItems / this.limit);
+      //this.formatEventDates();
+      this.loading = false; // Stop loading
+    }, error => {
+      console.error('Error loading events:', error);
+      this.loading = false; // Stop loading on error
+    });
+  }
+  BackEvent(){
+    //this.router.navigate([`/menu/`]);
+    location.reload();
+  }
   // Change page method
   changePage(page: number): void {
-    console.log('Changing to page:', page); // Debugging line
+    //('Changing to page:', page); // Debugging line
     if (page < 1 || page > this.lastPage) return; // Prevent out of bounds
     this.currentPage = page;
-    this.loadList(); // Reload data
+    this.loadList(this.lang_code); // Reload data
   }
 
   // Total pages calculation
@@ -65,13 +123,22 @@ export class MenuDatatableComponent {
   }
 
   formatEventDates(): void {
+    //console.log(this.events);
     this.events.forEach(event => {
       event.created_at = new Date(event.created_at).toLocaleDateString('en-GB');
-      if (event.status==3) {
+    
+     this.pageStatus(event.approve_status)
+     switch (event.approve_status) {
+      case 3:
         event.status = 'Published';
-      }else{
+          break;
+      case 2:
+        event.status = 'Pending';
+          break;
+      default:
         event.status = 'Draft';
-      }
+          break;
+       }
       if (event.document!='') {
         event.document = '<a href="'+event.document+'">'+event.title+' Document</a>';
       }else{
@@ -79,11 +146,26 @@ export class MenuDatatableComponent {
       }
     });
   }
+  pageStatus(status:any){
+    // console.log('statoo11'+status);
+    // console.log('statoo'+this.pagesStatus);
+        switch (status) {
+          case 3:
+              this.pagesStatus = 'Published';
+              break;
+          case 2:
+              this.pagesStatus = 'Pending';
+              break;
+          default:
+              this.pagesStatus = 'Draft';
+              break;
+      }
+  }
 
   editEvent(id: number): void {
     this.MenuService.getEvent(id).subscribe(data => {
       this.selectedEvent = data;
-      console.log(this.selectedEvent);
+     // console.log(this.selectedEvent);
       this.openEditModal();
     });
   }
@@ -97,21 +179,22 @@ export class MenuDatatableComponent {
   }
 
   saveEvent(): void {
-    // Validate the form data
-    if (!this.selectedEvent.menu_type || !this.selectedEvent.language_id || !this.selectedEvent.menu_name || !this.selectedEvent.page_order || !this.selectedEvent.menu_position || !this.selectedEvent.menu_url || !this.selectedEvent.menu_title || !this.selectedEvent.approve_status || !this.selectedEvent.menu_description) {
+    // // Validate the form data
+    if (!this.selectedEvent.menu_type || !this.selectedEvent.language_id || !this.selectedEvent.menu_position || !this.selectedEvent.menu_name || !this.selectedEvent.welcomedescription || !this.selectedEvent.menu_url  || !this.selectedEvent.approve_status ) {
       console.error('Missing required fields');
       return;
     }
     
-
+     //console.log(this.selectedEvent);
     const formData = new FormData();
     formData.append('menu_type', this.selectedEvent.menu_type);
     formData.append('language_id', this.selectedEvent.language_id);
+    formData.append('menu_position', this.selectedEvent.menu_position);
     formData.append('menu_name', this.selectedEvent.menu_name);
     formData.append('page_order', this.selectedEvent.page_order);
-    formData.append('menu_position', this.selectedEvent.menu_position);
+    formData.append('welcomedescription', this.selectedEvent.welcomedescription);
     formData.append('menu_url', this.selectedEvent.menu_url);
-    formData.append('menu_title', this.selectedEvent.menu_title);
+    formData.append('menu_link', this.selectedEvent.menu_link);
     formData.append('approve_status', this.selectedEvent.approve_status);
     formData.append('menu_description', this.selectedEvent.menu_description);
     formData.append('menu_child_id', this.selectedEvent.menu_child_id);
@@ -127,10 +210,10 @@ export class MenuDatatableComponent {
     if (this.userId) {
       formData.append('created_by', this.userId.toString()); // Convert to string
     }
-
+   // console.log(formData);
     this.MenuService.storeEvent(formData).subscribe(
       (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
+          this.loadList(this.lang_code); // Refresh the list of events
           this.closeAddModal(); // Close the modal or form
       },
       error => {
@@ -140,8 +223,9 @@ export class MenuDatatableComponent {
   }
 
   modifyEvent(): void {
+    //console.log(this.selectedEvent);
     // Validate the form data
-    if (!this.selectedEvent.menu_type || !this.selectedEvent.language_id || !this.selectedEvent.menu_name || !this.selectedEvent.page_order || !this.selectedEvent.menu_position || !this.selectedEvent.menu_url || !this.selectedEvent.menu_title || !this.selectedEvent.approve_status || !this.selectedEvent.menu_description) {
+    if (!this.selectedEvent.menu_type || !this.selectedEvent.menu_position || !this.selectedEvent.language_id || !this.selectedEvent.menu_name  || !this.selectedEvent.welcomedescription || !this.selectedEvent.menu_url  || !this.selectedEvent.approve_status ) {
       console.error('Missing required fields');
       return;
     }
@@ -152,8 +236,9 @@ export class MenuDatatableComponent {
     formData.append('menu_name', this.selectedEvent.menu_name);
     formData.append('page_order', this.selectedEvent.page_order);
     formData.append('menu_position', this.selectedEvent.menu_position);
+    formData.append('welcomedescription', this.selectedEvent.welcomedescription);
     formData.append('menu_url', this.selectedEvent.menu_url);
-    formData.append('menu_title', this.selectedEvent.menu_title);
+    formData.append('menu_link', this.selectedEvent.menu_link);
     formData.append('approve_status', this.selectedEvent.approve_status);
     formData.append('menu_description', this.selectedEvent.menu_description);
     formData.append('menu_child_id', this.selectedEvent.menu_child_id);
@@ -172,7 +257,7 @@ export class MenuDatatableComponent {
 
     this.MenuService.updateEvent(this.selectedEvent.id, formData).subscribe(
       (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
+          this.loadList(this.lang_code); // Refresh the list of events
           this.closeEditModal(); // Close the modal or form
       },
       error => {
@@ -262,9 +347,23 @@ export class MenuDatatableComponent {
     if (userData) {
       const user = JSON.parse(userData); // Parse the JSON string back to an object
       this.userId = user.id; // Assign the user ID
-      console.log('User ID:', this.userId); // Log the user ID for verification
+      //console.log('User ID:', this.userId); // Log the user ID for verification
     } else {
       console.warn('No user data found in localStorage');
     }
+  }
+  getSanitizedHtml(html: string): SafeHtml {
+    //console.log(html);
+    if (html === 'null' || !html) {
+      return  this['sanitizer'].bypassSecurityTrustHtml('Important Notification :');
+    }
+    return this['sanitizer'].bypassSecurityTrustHtml(html);
+  }
+
+
+  // Method to handle changes in menu type
+  handleMenuType(id: any) { 
+    this.selectedMenuType = id??this.selectedEvent.menu_type; // Update the selected menu type
+    this.formatEventDates();
   }
 }

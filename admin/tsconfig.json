@@ -23,6 +23,10 @@
       "dom"
     ]
   },
+  "typeRoots": [
+    "node_modules/@types", // Location of type definitions
+    "src" // Custom type definitions
+  ],
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
