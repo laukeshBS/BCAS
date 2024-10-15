@@ -9,7 +9,7 @@ import { environment } from '../environments/environment';
 
 export class DivisionService {
   
-  private apiUrl = environment.apiBaseUrl + 'division-list';
+  private apiUrl = environment.apiBaseUrl + 'division-list-api';
   private getbyidapiUrl = environment.apiBaseUrl + 'division-list-by-id';
   private storeApiUrl = environment.apiBaseUrl + 'division-store';
   private updateApiUrl = environment.apiBaseUrl + 'division-update';
