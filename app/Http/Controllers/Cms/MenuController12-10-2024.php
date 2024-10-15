@@ -11,115 +11,6 @@ use App\Http\Controllers\Cms\BaseController as BaseController;
 
 class MenuController extends BaseController
 {
-    public function index(Request $request)
-    {
-        // Get the parameters from the request
-        $lang_code = $request->input('lang_code');
-        $menu_child_id = $request->input('menu_child_id', 0);
-        $menu_position = $request->input('menu_position');
-        //dd($request);
-        // Validate the lang_code parameter
-        if (!$lang_code) {
-            return response()->json(['error' => 'Lang code parameter is missing.'], 400);
-        }
-
-        // Retrieve the menu items
-        $menus = Menu::where('language_id', $lang_code)
-            ->where('menu_child_id', $menu_child_id)
-            ->where('approve_status', 3)
-            ->when($menu_position, function ($query) use ($menu_position) {
-                return $query->where('menu_position', $menu_position);
-            })
-            ->with(['children' => function ($query) use ($menu_position) {
-                $query->where('approve_status', 3)
-                    ->when($menu_position, function ($query) use ($menu_position) {
-                        return $query->where('menu_position', $menu_position);
-                    })
-                    ->orderBy('page_order', 'ASC');
-            }])
-            ->orderBy('page_order', 'ASC')
-            ->get();
-
-        // Check if any menus were found
-        if ($menus->isEmpty()) {
-            return response()->json(['error' => 'No menus found for the given language code.'], 404);
-        }
-
-        // Prepare the base URL for media paths
-        $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
-
-        // Append base URL to media paths in the menu items
-        $this->appendBaseUrlToMedia($menus, $baseUrl);
-
-        // Return the menu list as a successful response
-        return response()->json(['success' => true, 'data' => $menus], 200);
-    }
-    public function menu_list(Request $request)
-    {
-        // Get the parameters from the request
-        $lang_code = $request->input('lang_code');
-        $menu_child_id = $request->input('menu_child_id', 0);
-        $menu_position = $request->input('menu_position');
-        //dd($request);
-        // Validate the lang_code parameter
-        if (!$lang_code) {
-            return response()->json(['error' => 'Lang code parameter is missing.'], 400);
-        }
-
-        // Retrieve the menu items
-        $menus = Menu::where('language_id', $lang_code)
-            ->where('menu_child_id', $menu_child_id)
-            ->where('approve_status', 3)
-            ->when($menu_position, function ($query) use ($menu_position) {
-                return $query->where('menu_position', $menu_position);
-            })
-            ->with(['children' => function ($query) use ($menu_position) {
-                $query->where('approve_status', 3)
-                    ->when($menu_position, function ($query) use ($menu_position) {
-                        return $query->where('menu_position', $menu_position);
-                    })
-                    ->orderBy('page_order', 'ASC');
-            }])
-            ->orderBy('page_order', 'ASC')
-            ->get();
-
-        // Check if any menus were found
-        if ($menus->isEmpty()) {
-            return response()->json(['error' => 'No menus found for the given language code.'], 404);
-        }
-
-        // Prepare the base URL for media paths
-        $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
-
-        // Append base URL to media paths in the menu items
-        $this->appendBaseUrlToMedia($menus, $baseUrl);
-
-        // Return the menu list as a successful response
-        return response()->json(['success' => true, 'data' => $menus], 200);
-    }
-    private function appendBaseUrlToMedia($menus, $baseUrl)
-    {
-        foreach ($menus as $menu) {
-            $this->updateMediaUrls($menu, $baseUrl);
-        }
-    }
-    private function updateMediaUrls($menu, $baseUrl)
-    {
-        if ($menu->doc_upload) {
-            $menu->doc_upload = $baseUrl . '/' . $menu->doc_upload;
-        }
-        if ($menu->img_upload) {
-            $menu->img_upload = $baseUrl . '/' . $menu->img_upload;
-        }
-        if ($menu->banner_img) {
-            $menu->banner_img = $baseUrl . '/' . $menu->banner_img;
-        }
-
-        foreach ($menu->children as $childMenu) {
-            $this->updateMediaUrls($childMenu, $baseUrl);
-        }
-    }
-
     public function data(Request $request)
     {
         $perPage = $request->input('limit');
@@ -339,72 +230,72 @@ class MenuController extends BaseController
 
 
     // web
-    // public function index(Request $request): JsonResponse
-    // {
-    //     // Get the parameters from the request
-    //     $lang_code = $request->input('lang_code');
-    //     $menu_child_id = $request->input('menu_child_id', 0);
-    //     $menu_position = $request->input('menu_position');
-    //     // Validate the lang_code parameter
-    //     if (!$lang_code) {
-    //         return response()->json(['error' => 'Lang code parameter is missing.'], 400);
-    //     }
+    public function index(Request $request): JsonResponse
+    {
+        // Get the parameters from the request
+        $lang_code = $request->input('lang_code');
+        $menu_child_id = $request->input('menu_child_id', 0);
+        $menu_position = $request->input('menu_position');
+        // Validate the lang_code parameter
+        if (!$lang_code) {
+            return response()->json(['error' => 'Lang code parameter is missing.'], 400);
+        }
 
-    //     // Retrieve the menu items
-    //     $menus = Menu::where('language_id', $lang_code)
-    //         ->where('menu_child_id', $menu_child_id)
-    //         ->where('approve_status', 3)
-    //         ->when($menu_position, function ($query) use ($menu_position) {
-    //             return $query->where('menu_position', $menu_position);
-    //         })
-    //         ->with(['children' => function ($query) use ($menu_position) {
-    //             $query->where('approve_status', 3)
-    //                 ->when($menu_position, function ($query) use ($menu_position) {
-    //                     return $query->where('menu_position', $menu_position);
-    //                 })
-    //                 ->orderBy('page_order', 'ASC');
-    //         }])
-    //         ->orderBy('page_order', 'ASC')
-    //         ->get();
+        // Retrieve the menu items
+        $menus = Menu::where('language_id', $lang_code)
+            ->where('menu_child_id', $menu_child_id)
+            ->where('approve_status', 3)
+            ->when($menu_position, function ($query) use ($menu_position) {
+                return $query->where('menu_position', $menu_position);
+            })
+            ->with(['children' => function ($query) use ($menu_position) {
+                $query->where('approve_status', 3)
+                    ->when($menu_position, function ($query) use ($menu_position) {
+                        return $query->where('menu_position', $menu_position);
+                    })
+                    ->orderBy('page_order', 'ASC');
+            }])
+            ->orderBy('page_order', 'ASC')
+            ->get();
 
-    //     // Check if any menus were found
-    //     if ($menus->isEmpty()) {
-    //         return response()->json(['error' => 'No menus found for the given language code.'], 404);
-    //     }
+        // Check if any menus were found
+        if ($menus->isEmpty()) {
+            return response()->json(['error' => 'No menus found for the given language code.'], 404);
+        }
 
-    //     // Prepare the base URL for media paths
-    //     $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
+        // Prepare the base URL for media paths
+        $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
 
-    //     // Append base URL to media paths in the menu items
-    //     $this->appendBaseUrlToMedia($menus, $baseUrl);
+        // Append base URL to media paths in the menu items
+        $this->appendBaseUrlToMedia($menus, $baseUrl);
 
-    //     // Return the menu list as a successful response
-    //     return response()->json(['success' => true, 'data' => $menus], 200);
-    // }
+        // Return the menu list as a successful response
+        return response()->json(['success' => true, 'data' => $menus], 200);
+    }
 
-    // private function appendBaseUrlToMedia($menus, $baseUrl)
-    // {
-    //     foreach ($menus as $menu) {
-    //         $this->updateMediaUrls($menu, $baseUrl);
-    //     }
-    // }
+    private function appendBaseUrlToMedia($menus, $baseUrl)
+    {
+        foreach ($menus as $menu) {
+            $this->updateMediaUrls($menu, $baseUrl);
+        }
+    }
 
-    // private function updateMediaUrls($menu, $baseUrl)
-    // {
-    //     if ($menu->doc_upload) {
-    //         $menu->doc_upload = $baseUrl . '/' . $menu->doc_upload;
-    //     }
-    //     if ($menu->img_upload) {
-    //         $menu->img_upload = $baseUrl . '/' . $menu->img_upload;
-    //     }
-    //     if ($menu->banner_img) {
-    //         $menu->banner_img = $baseUrl . '/' . $menu->banner_img;
-    //     }
+    private function updateMediaUrls($menu, $baseUrl)
+    {
+        if ($menu->doc_upload) {
+            $menu->doc_upload = $baseUrl . '/' . $menu->doc_upload;
+        }
+        if ($menu->img_upload) {
+            $menu->img_upload = $baseUrl . '/' . $menu->img_upload;
+        }
+        if ($menu->banner_img) {
+            $menu->banner_img = $baseUrl . '/' . $menu->banner_img;
+        }
 
-    //     foreach ($menu->children as $childMenu) {
-    //         $this->updateMediaUrls($childMenu, $baseUrl);
-    //     }
-    // }
+        foreach ($menu->children as $childMenu) {
+            $this->updateMediaUrls($childMenu, $baseUrl);
+        }
+    }
     public function lang_slugs_wise(Request $request): JsonResponse
     {
         $data = $request->all();
@@ -891,7 +782,7 @@ class MenuController extends BaseController
 
         return response()->json(['message' => 'CSV data imported successfully.'], 200);
     }
-    public function import11CSV(Request $request)
+    public function importCSV(Request $request)
     {
         // Validate the uploaded file
         $validator = Validator::make($request->all(), [
@@ -1076,90 +967,5 @@ class MenuController extends BaseController
 
         return response()->json(['message' => 'CSV data imported successfully.'], 200);
     }
-    public function importCSV(Request $request)
-    {
-        // Validate the uploaded file
-        $validator = Validator::make($request->all(), [
-            'csv_file' => 'required|file|mimes:csv,txt',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 400);
-        }
-
-        // Open the file
-        $file = fopen($request->file('csv_file')->getRealPath(), 'r');
-
-        if (!$file) {
-            return response()->json(['error' => 'Failed to open the file.'], 500);
-        }
-
-        // Read the header row
-        $header = fgetcsv($file, 1000, ',');
-
-        // Check if header is valid
-        if (!$header || count($header) < 6) { // Ensure at least 13 columns for the header
-            fclose($file);
-            return response()->json(['error' => 'Invalid CSV file format.'], 400);
-        }
-
-        $rowNumber = 1;
-        while (($row = fgetcsv($file, 1000, ',')) !== false) {
-            // Check if the row length matches the header length
-            if (count($row) != count($header)) {
-                echo "count error";
-                // Skip this row and proceed to the next one
-                continue;
-            }
-
-            // Create an associative array using header names
-            $data = array_combine($header, $row);
-
-            if (!$data) {
-                echo "count combinations";
-                continue; // Skip if array_combine fails
-            }
-
-            // Prepare data for insertion
-            $insertData = [
-               
-                'description' => isset($data['description']) ? preg_replace('/[^\x20-\x7E]/', '', $data['description']) : null,
-                'carry_on' => $data['carry_on'] ?? null,
-                'checked' => $data['checked'] ?? null,
-                'status' => $data['status'] ?? null,
-                'positions' => $data['positions'] ?? null,
-                'lang_code' => $data['lang_code'] ?? null,
-                'created_by' => !empty($data['created_by']) && is_numeric($data['created_by']) ? (int)$data['created_by'] : 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-            
-            
-            
-            
-            // Insert data into the database
-            try {
-            //     echo"<pre>";
-              
-            //    print_r($insertData );
-            //   echo"</pre>";
-
-                DB::table('permitted_prohibiteds')->insert($insertData);
-            } catch (\Exception $e) {
-                // Log or handle the error
-              echo"<pre>";
-              echo $e->getMessage();
-               print_r($row );
-              echo"</pre>";
-               //  Example: Log::error('Import Error', ['row' => $row, 'error' => $e->getMessage()]);
-                continue; // Skip the row with error and continue
-            }
-
-            $rowNumber++;
-        }
-
-        fclose($file);
-
-        return response()->json(['message' => 'CSV data imported successfully.'], 200);
-    }
+    
 }
