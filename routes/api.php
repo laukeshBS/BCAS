@@ -15,7 +15,8 @@ use App\Http\Controllers\Cms\{
 };
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 use App\Http\Controllers\Admin\Auth\LoginController;
-
+use App\Http\Controllers\Admin\RolesController;
+use App\Http\Controllers\Admin\AdminsController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -157,6 +158,14 @@ Route::middleware(['cors'])->group(function () {
 
 // Admin Routes
 Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function () {
+    Route::controller(RolesController::class)->group(function () {
+        Route::post('roleslist', 'index');
+        Route::post('all_permissions', 'all_permissions');
+    });
+    Route::controller(AdminsController::class)->group(function () {
+        Route::post('adminList', 'index');
+      
+    });
     Route::controller(menus::class)->group(function () {
         Route::post('menulist', 'index');
         Route::get('menu-by-id/{id}', 'data_by_id');

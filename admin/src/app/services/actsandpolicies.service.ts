@@ -10,6 +10,7 @@ import { environment } from '../environments/environment';
 export class ActsandpoliciesService {
 
   private apiUrl = environment.apiBaseUrl + 'acts-and-policies-list';
+  //private apiUrl = environment.apiBaseUrl + 'all_permissions';
   private getbyidapiUrl = environment.apiBaseUrl + 'acts-and-policies-list-by-id';
   private storeApiUrl = environment.apiBaseUrl + 'acts-and-policies-store';
   private updateApiUrl = environment.apiBaseUrl + 'acts-and-policies-update';

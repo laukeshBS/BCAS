@@ -1,0 +1,56 @@
+<div *ngIf="airportlists.length > 0" style="overflow-x: auto">
+    <button (click)="addEvent()" class="btn btn-outline-primary btn-sm">Add</button>
+    <table class="table table-bordered">
+      <thead>
+        <tr>
+         
+          <th>Airport Orders</th>
+          <th>Region Name</th>
+          <th>Serial Number</th>
+          <th>Airport Name</th>
+          <th>Entity Name</th>
+          <th>Address</th>
+          <th>Mobile Number</th>
+          <th>Phone Number</th>
+          <th>Unique Reference Number</th>
+          <th>Approval Status (Clearance)</th>
+          <th>Date of Approval (Clearance)</th>
+          <th>Approval Status (Programme)</th>
+          <th>Date of Approval (Programme)</th>
+          <th>Valid Till</th>
+          <th>Created At</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let airportlist of airportlists">
+       
+         
+          <td>{{ airportlist.airport_orders }}</td>
+          <td>{{ airportlist.region_name }}</td>
+          <td>{{ airportlist.sr_no }}</td>
+          <td>{{ airportlist.airport_name }}</td>
+          <td>{{ airportlist.entity_name }}</td>
+          <td>{{ airportlist.address }}</td>
+          <td>{{ airportlist.mobile_no }}</td>
+          <td>{{ airportlist.phone_no }}</td>
+          <td>{{ airportlist.unique_reference_number }}</td>
+          <td>{{ airportlist.approved_status_clearance }}</td>
+          <td>{{ airportlist.date_of_approval_clearance }}</td>
+          <td>{{ airportlist.approved_status_programme }}</td>
+          <td>{{ airportlist.date_of_approval_programme }}</td>
+          <td>{{ airportlist.valid_till }}</td>
+          <td>{{ airportlist.created_at }}</td>
+          <td>
+            <button (click)="editEvent(airportlist.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
+            <button (click)="deleteEvent(airportlist.id)" class="btn btn-outline-danger btn-sm">Delete</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  
+  <div *ngIf="airportlists.length === 0">
+    <p>No Airport Lists Available.</p>
+  </div>
+  

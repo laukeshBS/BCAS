@@ -16,7 +16,7 @@ class AdminsController extends Controller
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('admin')->user();
+            $this->user = Auth::guard('admin_api')->user();
             return $next($request);
         });
     }
@@ -28,13 +28,15 @@ class AdminsController extends Controller
      */
     public function index()
     {
-        
+        //dd(Auth::guard('admin_api'));
         if (is_null($this->user) || !$this->user->can('admin.view')) {
             abort(403, 'Sorry !! You are Unauthorized to view any admin !');
         }
 
         $admins = Admin::paginate(10);
-        return view('admin.pages.admins.index', compact('admins'));
+        
+        return response()->json(['admins' =>  $admins]);
+       // return view('admin.pages.admins.index', compact('admins'));
     }
 
     /**

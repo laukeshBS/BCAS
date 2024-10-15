@@ -1,36 +1,20 @@
+import { Component } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
-import { PermissionsService } from '../../services/permissions.service';
+import { PermissionsService } from '../../../../services/permissions.service';
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [RouterModule, CommonModule],
+  imports: [CommonModule],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css'] // Corrected 'styleUrl' to 'styleUrls'
+  styleUrls: ['./sidebar.component.css'] // Corrected typo: 'styleUrls' should be used instead of 'styleUrl'
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent {
   constructor(
     private permissionsService: PermissionsService,
     private router: Router
   ) {}
-
-  ngOnInit(): void {
-    const limit = 10; // Adjust as needed
-    const lang_code = 'en'; // Adjust as needed
-
-    console.log('Fetching permissions...'); // Debug log
-
-    // this.permissionsService.fetchPermissions(10, 'en').subscribe(
-    //   response => {
-    //     console.log('Permissions fetched successfully:', response);
-    //   },
-    //   error => {
-    //     console.error('Error fetching permissions:', error);
-    //   }
-    // );
-  }
 
   // Checks if the user has the given permission
   hasPermission(permission: string): boolean {

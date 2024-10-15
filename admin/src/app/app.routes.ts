@@ -32,5 +32,9 @@ export const routes: Routes = [
     { path: 'slide', component: SlideComponent, canActivate: [AuthGuard]  },
     { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard]  },
     // { path: '**', redirectTo: '/login' }
+    {
+        path: 'restricted',
+        loadChildren: () => import('./restricted/restricted.module').then(m => m.RestrictedModule)
+      },
 ];
 
