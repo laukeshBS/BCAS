@@ -6,6 +6,8 @@ import { SidebarComponent } from './layout/sidebar/sidebar.component';
 import { CommonModule } from '@angular/common';
 import { AuthService } from './services/auth.service';
 import { Subscription } from 'rxjs';
+import { SidebarComponent as RestrictedSidebarComponent } from "./restricted/shared/components/sidebar/sidebar.component";
+
  
 @Component({
   selector: 'app-root',

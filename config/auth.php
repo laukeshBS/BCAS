@@ -9,7 +9,7 @@ return [
     |
     | This option controls the default authentication "guard" and password
     | reset options for your application. You may change these defaults
-    | as required, but they're a perfect start for most applications.
+    | as required, but they're a great start for most applications.
     |
     */
 
@@ -24,12 +24,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | Next, you may define every authentication guard for your application.
-    | Of course, a great default configuration has been defined for you
-    | here which uses session storage and the Eloquent user provider.
+    | A default configuration has been provided for you that uses session
+    | storage and the Eloquent user provider.
     |
-    | All authentication drivers have a user provider. This defines how the
-    | users are actually retrieved out of your database or other storage
-    | mechanisms used by this application to persist your user's data.
+    | All authentication drivers have a user provider. This defines how users
+    | are actually retrieved from your database or other storage mechanisms.
     |
     | Supported: "session", "token"
     |
@@ -65,12 +64,12 @@ return [
     |--------------------------------------------------------------------------
     |
     | All authentication drivers have a user provider. This defines how the
-    | users are actually retrieved out of your database or other storage
-    | mechanisms used by this application to persist your user's data.
+    | users are actually retrieved from your database or other storage
+    | mechanisms used to persist your user's data.
     |
-    | If you have multiple user tables or models you may configure multiple
-    | sources which represent each model / table. These sources may then
-    | be assigned to any extra authentication guards you have defined.
+    | If you have multiple user tables or models, you may configure multiple
+    | sources which represent each model/table. These sources may then be
+    | assigned to any additional authentication guards you define.
     |
     | Supported: "database", "eloquent"
     |
@@ -79,12 +78,12 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\User::class,
+            'model' => App\Models\User::class, // Assuming User is the model for web users
         ],
 
         'admins' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Admin\Admin::class,
+            'model' => App\Models\Admin\Admin::class, // Ensure this is the correct Admin model
         ],
     ],
 
@@ -94,12 +93,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | You may specify multiple password reset configurations if you have more
-    | than one user table or model in the application and you want to have
-    | separate password reset settings based on the specific user types.
+    | than one user table or model in the application and want separate
+    | password reset settings for specific user types.
     |
-    | The expire time is the number of minutes that the reset token should be
-    | considered valid. This security feature keeps tokens short-lived so
-    | they have less time to be guessed. You may change this as needed.
+    | The expire time is the number of minutes that the reset token is
+    | considered valid. This keeps tokens short-lived to enhance security.
     |
     */
 
