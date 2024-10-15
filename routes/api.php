@@ -175,7 +175,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::post('menu/importCSV', 'importCSV');
     });
     Route::controller(SliderController::class)->group(function(){
-        Route::post('slider-by-slug','slider_by_slug');
+      //  Route::post('slider-by-slug','slider_by_slug');
         Route::post('slider-list','cms_data');
         Route::get('slider-by-id/{id}','cms_data_by_id');
         Route::post('slider-store','store');
@@ -321,7 +321,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
 
     Route::controller(RegionController::class)->group(function () {
         Route::post('region-list','data');
-        Route::post('region','region_list');
+       // Route::post('region','region_list');
         Route::post('region-store', 'store');
         Route::get('region-list-by-id/{id}','data_by_id');
         Route::post('region-update/{id}','update');
@@ -337,7 +337,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(PermittedProhibitedController::class)->group(function(){
-        Route::post('permitted-prohibited-list','index');
+        //Route::post('permitted-prohibited-list','index');
         Route::get('permitted-prohibited-list-by-id/{id}','data_by_id');
         Route::post('permitted-prohibited-store','store');
         Route::post('permitted-prohibited-update/{id}','update');
