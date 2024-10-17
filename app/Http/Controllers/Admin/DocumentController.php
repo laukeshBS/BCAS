@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Cms\Division;
+namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Models\Admin\Document;
-use Illuminate\Support\Facades\View;
-use Illuminate\Support\Facades\Session;
-use App\Models\Cms\Division\DivisionGallery;
 use GPBMetadata\Google\Api\Auth;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Session;
 
 class DocumentController extends Controller
 {
@@ -28,9 +28,7 @@ class DocumentController extends Controller
         if ($slide->isNotEmpty()) {
             $slide->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                if ($item->media) {
-                    $item->media = asset('public/'.$item->media);
-                }
+                
                 return $item;
             });
         }
@@ -71,27 +69,38 @@ class DocumentController extends Controller
             'doc' => 'required|file|mimes:pdf|max:20480',
             'status' => 'required',
             'position' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'roles' => 'required|array',
         ]);
+
+        $filePath = null;
         if ($request->hasFile('doc')) {
             $docUpload = $request->file('doc');
             $docPath = time() . '_' . $docUpload->getClientOriginalName();
             $docUpload->move(public_path('admin-doc'), $docPath);
             $filePath = $docPath;
         }
-        $data = new Document(); // Assuming you have a Form model
+
+        $data = new Document(); // Assuming you have a Document model
         $data->document_category_id = $validated['document_category_id'];
         $data->doc_name = $validated['doc_name'];
         $data->description = $validated['description'];
         $data->doc_type = $validated['doc_type'];
-        $data->doc = $filePath;
+        $data->doc = $filePath; // Store the file path in the database
         $data->status = $validated['status'];
+        $data->start_date = $validated['start_date'];
+        $data->end_date = $validated['end_date'];
         $data->position = $validated['position'];
-        $data->submitted_by = Auth::user()->id;
-        
+        $data->submitted_by = auth()->id();
+
         $data->save();
+
+        $data->roles()->attach($request->input('roles'));
 
         return response()->json(['data' => $data, 'message' => 'Created successfully.'], 201);
     }
+
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
@@ -102,7 +111,9 @@ class DocumentController extends Controller
             'doc' => 'required|file|mimes:pdf|max:20480',
             'status' => 'required',
             'position' => 'required',
-            'submitted_by' => Auth::user()->id,
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'submitted_by' => auth()->id(),
         ]);
         $data = Document::find($id);
 
@@ -133,4 +144,27 @@ class DocumentController extends Controller
 
         return response()->json(['data' => $data, 'message' => 'Deleted successfully.'], 201);
     }
+    public function show_Document(Request $request,)
+    {
+        $validated = $request->validate([
+            'doc_id' => 'required',
+            'role_id' =>  'required',
+        ]);
+        $document = Document::whereHas('roles', function ($query) use ($validated) {
+            $query->where('roles.id', $validated['role_id']);
+        })->where('documents.id', $validated['doc_id'])->first();
+
+        if (!$document) {
+            return response()->json(['message' => 'Document not found or access denied.'], 403);
+        }
+
+        $fullPath = public_path('admin-doc/' . $document->doc);
+
+        if (!file_exists($fullPath)) {
+            return response()->json(['message' => 'Document file does not exist.'], 404);
+        }
+
+        return response()->file($fullPath);
+    }
+
 }

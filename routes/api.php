@@ -18,6 +18,7 @@ use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\AdminsController;
+use App\Http\Controllers\Admin\DocumentController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -354,6 +355,14 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::post('division-gallery-update/{id}','update');
         Route::delete('division-gallery-delete/{id}','delete');
       
+    });
+    Route::controller(DocumentController::class)->group(function(){
+        Route::post('admin-document-list','data');
+        Route::get('admin-document-by-id/{id}','data_by_id');
+        Route::post('admin-document-store','store');
+        Route::post('admin-document-update/{id}','update');
+        Route::delete('admin-document-delete/{id}','delete');
+        Route::post('admin-document','show_Document');
     });
     
 });

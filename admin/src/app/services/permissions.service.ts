@@ -38,8 +38,8 @@ export class PermissionsService {
       'Content-Type': 'application/json'
     });
   
-    console.log('Headers being sent:', headers.keys()); // Log the header keys
-    console.log('Request body:', body); // Log the request body
+    // console.log('Headers being sent:', headers.keys()); // Log the header keys
+    // console.log('Request body:', body); // Log the request body
   
     return this.http.post<any>(this.apiUrl,{ limit: 10, lang_code: 'en' }, { headers: headers }) // Send the body and headers
       .pipe(
@@ -48,11 +48,11 @@ export class PermissionsService {
           this.userPermissions = response.permissions ? response.permissions.map((perm: any) => perm.name) : [];
           
           // Log userPermissions after setting them
-          console.log('User Permissions:', this.userPermissions);
+          // console.log('User Permissions:', this.userPermissions);
           return response;
         }),
         catchError(error => {
-          console.error('Error fetching permissions:', error); // Log the error
+          // console.error('Error fetching permissions:', error); // Log the error
           return throwError(() => new Error('Error fetching permissions')); // Rethrow the error for further handling if needed
         })
       );
@@ -64,8 +64,8 @@ export class PermissionsService {
     const body = { limit, lang_code };
     const headers = this.getHeaders(); // Get the headers
 
-    console.log('Headers being sent:', headers); // Debug: Log the headers
-    console.log('Request body:', body); // Log the request body
+    // console.log('Headers being sent:', headers); // Debug: Log the headers
+    // console.log('Request body:', body); // Log the request body
 
     return this.http.post<any>(this.apiUrl, body, { headers })  // Send the body and headers
       .pipe(
@@ -74,11 +74,11 @@ export class PermissionsService {
           this.userPermissions = response.permissions.map((perm: any) => perm.name) || [];
           
           // Log userPermissions after setting them
-          console.log('User Permissions:', this.userPermissions);
+          // console.log('User Permissions:', this.userPermissions);
           return response;
         }),
         catchError(error => {
-          console.error('Error fetching permissions:', error); // Log the error
+          // console.error('Error fetching permissions:', error); // Log the error
           return throwError(() => new Error('Error fetching permissions')); // Rethrow the error for further handling if needed
         })
       );
@@ -88,13 +88,13 @@ export class PermissionsService {
 
   // Check if a user has a specific permission
   hasPermission(permission: string): boolean {
-    console.log('Checking permission for:', permission);
+    // console.log('Checking permission for:', permission);
     return this.userPermissions.includes(permission);
   }
 
   // Check if a user has at least one of the provided permissions
   hasAnyPermission(permissions: string[]): boolean {
-    console.log('Checking any permission for:', permissions);
+    // console.log('Checking any permission for:', permissions);
     return permissions.some(permission => this.hasPermission(permission));
   }
 
