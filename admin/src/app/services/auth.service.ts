@@ -18,6 +18,7 @@ interface LoginResponse {
   providedIn: 'root',
 })
 export class AuthService {
+
   private apiUrl = environment.apiBaseUrl;
   private loggedInSubject = new BehaviorSubject<boolean>(this.isAuthenticated());
   loggedIn$ = this.loggedInSubject.asObservable();
@@ -84,4 +85,5 @@ export class AuthService {
   checkLoginStatus(): void {
     this.loggedInSubject.next(this.isAuthenticated());
   }
+ 
 }

@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\User;
+use App\Models\Admin\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -14,174 +13,160 @@ class RolesController extends Controller
 {
     public $user;
 
-
     public function __construct()
     {
         $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('admin')->user();
+            $this->user = Auth::guard('admin_api')->user();
             return $next($request);
         });
     }
+
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
         if (is_null($this->user) || !$this->user->can('role.view')) {
-            abort(403, 'Sorry !! You are Unauthorized to view any role !');
+            return response()->json(['error' => 'Unauthorized to view roles'], 403);
         }
-
-        $roles = Role::paginate(5);
-        return view('admin.pages.roles.index', compact('roles'));
+        //dd(Auth::guard('admin_api')->user());
+        $roles = Role::paginate(15);
+        return response()->json(['roles' => $roles], 200);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
+    public function all_permissions()
     {
-        if (is_null($this->user) || !$this->user->can('role.create')) {
-            abort(403, 'Sorry !! You are Unauthorized to create any role !');
+        if (is_null($this->user) || !$this->user->can('role.view')) {
+            return response()->json(['error' => 'Unauthorized to view roles'], 403);
         }
-
-        $all_permissions  = Permission::all();
-        $permission_groups = User::getpermissionGroups();
-        return view('admin.pages.roles.create', compact('all_permissions', 'permission_groups'));
+        //dd(Auth::guard('admin_api')->user());
+        $all_permissions = Permission::all();
+       
+        return response()->json(['all_permissions' => $all_permissions], 200);
     }
 
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function store(Request $request)
     {
         if (is_null($this->user) || !$this->user->can('role.create')) {
-            abort(403, 'Sorry !! You are Unauthorized to create any role !');
+            return response()->json(['error' => 'Unauthorized to create role'], 403);
         }
 
-        // Validation Data
         $request->validate([
-            'name' => 'required|max:100|unique:roles'
+            'name' => ['required', 'max:100', 'unique:mysql_admin.roles,name'],
         ], [
-            'name.requried' => 'Please give a role name'
+            'name.required' => 'Please provide a role name',
+            'name.max' => 'Role name cannot exceed 100 characters',
+            'name.unique' => 'This role name already exists',
         ]);
 
-        // Process Data
         $role = Role::create(['name' => $request->name, 'guard_name' => 'admin']);
 
-        // $role = DB::table('roles')->where('name', $request->name)->first();
         $permissions = $request->input('permissions');
-
+        //dd($permissions);
         if (!empty($permissions)) {
             $role->syncPermissions($permissions);
         }
 
-        session()->flash('success', 'Role has been created !!');
-        return back();
+        return response()->json(['message' => 'Role created successfully', 'role' => $role], 201);
     }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function edit(int $id)
     {
+        // Check if the user is authorized to edit roles
         if (is_null($this->user) || !$this->user->can('role.edit')) {
-            abort(403, 'Sorry !! You are Unauthorized to edit any role !');
+            return response()->json([
+                'message' => 'Sorry !! You are Unauthorized to edit any role !',
+                'status' => false
+            ], 403);
         }
-
+    
+        // Fetch the role using its ID
         $role = Role::findById($id, 'admin');
+    
+        // Fetch all permissions and group them
         $all_permissions = Permission::all();
-        $permission_groups = User::getpermissionGroups();
-        return view('admin.pages.roles.edit', compact('role', 'all_permissions', 'permission_groups'));
+        $permission_groups = User::getPermissionGroups();
+    
+        // Prepare the response data
+        $data = [
+            'role' => $role,
+            'all_permissions' => $all_permissions,
+            'permission_groups' => $permission_groups
+        ];
+    
+        // Return the response as JSON
+        return response()->json([
+            'data' => $data,
+            'message' => 'Role data retrieved successfully',
+            'status' => true
+        ], 200);
     }
+    
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request, int $id)
     {
         if (is_null($this->user) || !$this->user->can('role.edit')) {
-            abort(403, 'Sorry !! You are Unauthorized to edit any role !');
+            return response()->json(['error' => 'Unauthorized to edit role'], 403);
         }
 
-        // TODO: You can delete this in your local. This is for heroku publish.
-        // This is only for Super Admin role,
-        // so that no-one could delete or disable it by somehow.
-        // if ($id === 1) {
-        //     session()->flash('error', 'Sorry !! You are not authorized to edit this role !');
-        //     return back();
-        // }
-
-        // Validation Data
         $request->validate([
-            'name' => 'required|max:100|unique:roles,name,' . $id
+            'name' => 'required|max:100|unique:mysql_admin.roles,name,' . $id
         ], [
-            'name.requried' => 'Please give a role name'
+            'name.required' => 'Please provide a role name'
         ]);
 
         $role = Role::findById($id, 'admin');
-        $permissions = $request->input('permissions');
+        if (!$role) {
+            return response()->json(['error' => 'Role not found'], 404);
+        }
 
+        $role->name = $request->name;
+        $role->save();
+
+        $permissions = $request->input('permissions');
         if (!empty($permissions)) {
-            $role->name = $request->name;
-            $role->save();
             $role->syncPermissions($permissions);
         }
 
-        session()->flash('success', 'Role has been updated !!');
-        return back();
+        return response()->json(['message' => 'Role updated successfully', 'role' => $role], 200);
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function destroy(int $id)
     {
         if (is_null($this->user) || !$this->user->can('role.delete')) {
-            abort(403, 'Sorry !! You are Unauthorized to delete any role !');
-        }
-
-        // TODO: You can delete this in your local. This is for heroku publish.
-        // This is only for Super Admin role,
-        // so that no-one could delete or disable it by somehow.
-        if ($id === 1) {
-            session()->flash('error', 'Sorry !! You are not authorized to delete this role !');
-            return back();
+            return response()->json(['error' => 'Unauthorized to delete role'], 403);
         }
 
         $role = Role::findById($id, 'admin');
-        if (!is_null($role)) {
-            $role->delete();
+        if (!$role) {
+            return response()->json(['error' => 'Role not found'], 404);
         }
 
-        session()->flash('success', 'Role has been deleted !!');
-        return back();
+        if ($id === 1) { // Assuming ID 1 is for Super Admin role
+            return response()->json(['error' => 'Cannot delete Super Admin role'], 403);
+        }
+
+        $role->delete();
+
+        return response()->json(['message' => 'Role deleted successfully'], 200);
     }
 }

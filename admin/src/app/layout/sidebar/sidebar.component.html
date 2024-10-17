@@ -94,14 +94,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
-            <a [routerLink]="['/menu']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Menu
-              </p>
-            </a>
-          </li>
+         
           <li class="nav-item">
             <a [routerLink]="['/slider']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
@@ -118,6 +111,63 @@
               </p>
             </a>
           </li>
+           <!-- Roles & Permissions -->
+        <li class="nav-item" *ngIf="hasAnyPermission(['role.create', 'role.view', 'role.edit', 'role.delete'])">
+          <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
+            <i class="fa fa-tasks"></i><span>Roles & Permissions</span>
+          </a>
+          <ul>
+            <li class="nav-item" *ngIf="hasPermission('role.view')" [ngClass]="{ 'active': isActive('/admin/roles') }">
+              <a class="nav-link" routerLink="/admin/roles">All Roles</a>
+            </li>
+            <!-- <li *ngIf="hasPermission('role.create')" [ngClass]="{ 'active': isActive('/admin/roles/create') }">
+              <a routerLink="/admin/roles/create">Create Role</a>
+            </li> -->
+          </ul>
+        </li>
+
+        <!-- Admins -->
+        <!-- <li *ngIf="hasAnyPermission(['admin.create', 'admin.view', 'admin.edit', 'admin.delete'])">
+          <a href="javascript:void(0)" aria-expanded="true">
+            <i class="fa fa-user"></i><span>Admins/Users</span>
+          </a>
+          <ul>
+            <li *ngIf="hasPermission('admin.view')" [ngClass]="{ 'active': isActive('/admin/admins') }">
+              <a routerLink="/admin/admins">All Admins/Users</a>
+            </li>
+           
+          </ul>
+        </li> -->
+        
+        <!-- Menus -->
+        <li class="nav-item" *ngIf="hasAnyPermission(['menu.create', 'menu.view', 'menu.edit', 'menu.delete'])">
+          <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
+            <i class="fa fa-user"></i><span>Menus</span>
+          </a>
+          <ul>
+            <li class="nav-item" *ngIf="hasPermission('menu.view')" [ngClass]="{ 'active': isActive('/admin/menus') }">
+              <a class="nav-link" [routerLink]="['/menu']" >All Menus</a>
+            </li>
+            <!-- <li class="nav-item" *ngIf="hasPermission('menu.create')" [ngClass]="{ 'active': isActive('/admin/menus/create') }">
+              <a routerLink="/admin/menus/create">Create Menu</a>
+            </li> -->
+          </ul>
+        </li>
+
+        <!-- Divisions -->
+        <!-- <li *ngIf="hasAnyPermission(['course.create', 'course.view', 'course.edit', 'course.delete'])">
+          <a href="javascript:void(0)" aria-expanded="true">
+            <i class="fa fa-building-o"></i><span>Divisions</span>
+          </a>
+          <ul>
+            <li *ngIf="hasPermission('course.view')" [ngClass]="{ 'active': isActive('/admin/courses') }">
+              <a routerLink="/admin/courses">All Courses</a>
+            </li>
+            <li *ngIf="hasPermission('course.create')" [ngClass]="{ 'active': isActive('/admin/courses/create') }">
+              <a routerLink="/admin/courses/create">Create Course</a>
+            </li>
+          </ul>
+        </li> -->
         </ul>
       </nav>
     </div>

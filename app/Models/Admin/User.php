@@ -12,6 +12,7 @@ class User extends Authenticatable
 {
     use Notifiable, HasRoles;
 
+    // Specify the default connection for this model
     protected $connection = 'mysql_admin';
     
     /**
@@ -20,7 +21,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','status',
+        'name', 'email', 'password', 'status',
     ];
 
     /**
@@ -41,18 +42,22 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    // Using mysql_admin connection explicitly
     public static function getpermissionGroups()
     {
-        $permission_groups = DB::table('permissions')
+        $permission_groups = DB::connection('mysql_admin') // Use mysql_admin connection here
+            ->table('permissions')
             ->select('group_name as name')
             ->groupBy('group_name')
             ->get();
         return $permission_groups;
     }
 
+    // Using mysql_admin connection explicitly
     public static function getpermissionsByGroupName($group_name)
     {
-        $permissions = DB::table('permissions')
+        $permissions = DB::connection('mysql_admin') // Use mysql_admin connection here
+            ->table('permissions')
             ->select('name', 'id')
             ->where('group_name', $group_name)
             ->get();

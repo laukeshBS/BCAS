@@ -1,0 +1,194 @@
+<div *ngIf="events.length > 0" style="overflow-x: auto">
+    <button (click)="addEvent()" class="btn btn-outline-primary btn-sm">Add</button>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Permissions</th>
+            <th>Status</th>
+            <th>Published Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events">
+            <td>{{ event.name }}</td>
+            
+            <td>{{ event.guard_name }}</td>
+            <td>{{ event.status }}</td>
+            <td>{{ event.created_at }}</td>
+            <td>
+              <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
+              <button (click)="deleteEvent(event.id)" class="btn btn-outline-danger btn-sm">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div *ngIf="events.length === 0">
+      <p>No Role Available.</p>
+    </div>
+    
+    <!-- Bootstrap modal -->
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog  modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-name" id="editEventModalLabel">Edit Role</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="modifyEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+              <div class="form-group">
+                <label for="name">Role Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  [(ngModel)]="roleData.name"
+                  name="name"
+                  placeholder="Enter a Role Name"
+                  required
+                />
+              </div>
+            
+              <div class="form-group">
+                <label for="permissions">Permissions</label>
+                <div class="form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    id="checkPermissionAll"
+                    [(ngModel)]="selectAllPermissions"
+                    (change)="toggleSelectAllPermissions()"
+                    name="checkPermissionAll"
+                  />
+                  <label class="form-check-label" for="checkPermissionAll">All</label>
+                </div>
+                <hr />
+                <div *ngFor="let group of permissionGroups; let i = index">
+                  <div class="row">
+                    <div class="col-3">
+                      <div class="form-check">
+                        <input
+                          type="checkbox"
+                          class="form-check-input"
+                          id="{{group.group_name}}Management"
+                          [(ngModel)]="group.selected"
+                          (change)="toggleGroupPermissions(group)"
+                          name="group_{{group.group_name}}"
+                        />
+                        <label class="form-check-label" for="{{group.group_name}}Management">{{ group.group_name }}</label>
+                      </div>
+                    </div>
+            
+                    <div class="col-9">
+                      <div *ngFor="let permission of group.permissions; let j = index">
+                        <div class="form-check">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            [(ngModel)]="permission.selected"
+                            [name]="'permission_' + group.group_name + '_' + permission.name"
+                            id="permission_{{group.group_name}}_{{permission.name}}"
+                          />
+                          <label class="form-check-label" for="permission_{{group.group_name}}_{{permission.name}}">
+                            {{ permission.name }}
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            
+              <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Update Role</button>
+            </form>
+            
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog  modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-name" id="addEventModalLabel">Add Role</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="saveEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+              <div class="form-group">
+                <label for="name">Role Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="name"
+                  [(ngModel)]="roleData.name"
+                  name="name"
+                  placeholder="Enter a Role Name"
+                  required
+                />
+              </div>
+            
+              <div class="form-group">
+                <label for="permissions">Permissions</label>
+                <div class="form-check">
+                  <input
+                    type="checkbox"
+                    class="form-check-input"
+                    id="checkPermissionAll"
+                    [(ngModel)]="selectAllPermissions"
+                    (change)="toggleSelectAllPermissions()"
+                    name="checkPermissionAll"
+                  />
+                  <label class="form-check-label" for="checkPermissionAll">All</label>
+                </div>
+                <hr />
+                <div *ngFor="let group of permissionGroups">
+                  <div class="row">
+                    <div class="col-3">
+                      <div class="form-check">
+                        <input
+                          type="checkbox"
+                          class="form-check-input"
+                          id="{{group.group_name}}Management"
+                          [(ngModel)]="group.selected"
+                          (change)="toggleGroupPermissions(group)"
+                          name="group_{{group.group_name}}"
+                        />
+                        <label class="form-check-label">{{ group.group_name }}</label>
+                      </div>
+                    </div>
+            
+                    <div class="col-9">
+                      <div *ngFor="let permission of group.permissions">
+                        <div class="form-check">
+                          <input
+                            type="checkbox"
+                            class="form-check-input"
+                            [(ngModel)]="permission.selected"
+                            [name]="'permission_' + permission.name"
+                          />
+                          <label class="form-check-label">{{ permission.name }}</label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            
+              <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Save Role</button>
+            </form>
+            
+            
+            
+              
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    
