@@ -159,8 +159,12 @@ Route::middleware(['cors'])->group(function () {
 // Admin Routes
 Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function () {
     Route::controller(RolesController::class)->group(function () {
-        Route::post('roleslist', 'index');
+        Route::post('roles-list', 'index');
+        Route::post('roles-store', 'store');
+        Route::post('roles-update/{id}','update');
+        Route::delete('roles-delete/{id}','delete');
         Route::post('all_permissions', 'all_permissions');
+        Route::get('roles-list-by-id/{id}', 'edit');
     });
     Route::controller(AdminsController::class)->group(function () {
         Route::post('adminList', 'index');
@@ -199,7 +203,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
       
     });
     Route::controller(ActandpoliciesController::class)->group(function () {
-        Route::post('acts-and-policies-list','data');
+        //Route::post('acts-and-policies-list','data');
         Route::get('acts-and-policies-list-by-id/{id}','data_by_id');
         Route::post('acts-and-policies-store', 'store');
         Route::post('acts-and-policies-update/{id}', 'update');
@@ -304,7 +308,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(ContactController::class)->group(function () {
-        Route::post('contact-list','data');
+       // Route::post('contact-list','data');
         Route::post('contact-store', 'store');
         Route::post('contact-update/{id}', 'update');
         Route::delete('contact-delete/{id}', 'delete');

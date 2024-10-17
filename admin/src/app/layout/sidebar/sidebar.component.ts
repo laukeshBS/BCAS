@@ -22,14 +22,14 @@ export class SidebarComponent implements OnInit {
 
     console.log('Fetching permissions...'); // Debug log
 
-    // this.permissionsService.fetchPermissions(10, 'en').subscribe(
-    //   response => {
-    //     console.log('Permissions fetched successfully:', response);
-    //   },
-    //   error => {
-    //     console.error('Error fetching permissions:', error);
-    //   }
-    // );
+    this.permissionsService.fetchPermissions(10, 'en').subscribe(
+      response => {
+        console.log('Permissions fetched successfully:', response);
+      },
+      error => {
+        console.error('Error fetching permissions:', error);
+      }
+    );
   }
 
   // Checks if the user has the given permission
