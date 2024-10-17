@@ -162,8 +162,12 @@ Route::middleware(['cors'])->group(function () {
 // Admin Routes
 Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function () {
     Route::controller(RolesController::class)->group(function () {
-        Route::post('roleslist', 'index');
+        Route::post('roles-list', 'index');
+        Route::post('roles-store', 'store');
+        Route::post('roles-update/{id}','update');
+        Route::delete('roles-delete/{id}','delete');
         Route::post('all_permissions', 'all_permissions');
+        Route::get('roles-list-by-id/{id}', 'edit');
     });
     Route::controller(AdminsController::class)->group(function () {
         Route::post('adminList', 'index');
@@ -175,6 +179,26 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::post('menu-store', 'store');
         Route::post('menu-update/{id}', 'update');
         Route::delete('menu-delete/{id}', 'delete');
+
+        Route::post('menu/importCSV', 'importCSV');
+    });
+    Route::controller(SliderController::class)->group(function(){
+      //  Route::post('slider-by-slug','slider_by_slug');
+        Route::post('slider-list','cms_data');
+        Route::get('slider-by-id/{id}','cms_data_by_id');
+        Route::post('slider-store','store');
+        Route::post('slider-update/{id}','update');
+        Route::delete('slider-delete/{id}','delete');
+      
+    });
+    Route::controller(SlideController::class)->group(function(){
+        Route::post('slide-list','cms_data');
+        Route::get('slide-by-id/{id}','cms_data_by_id');
+        Route::post('slide-store','store');
+        Route::post('slide-update/{id}','update');
+        Route::delete('slide-delete/{id}','delete');
+      
+
     });
     
     Route::controller(CateringCompanyController::class)->group(function(){
@@ -185,7 +209,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
       
     });
     Route::controller(ActandpoliciesController::class)->group(function () {
-        Route::post('acts-and-policies-list','data');
+        //Route::post('acts-and-policies-list','data');
         Route::get('acts-and-policies-list-by-id/{id}','data_by_id');
         Route::post('acts-and-policies-store', 'store');
         Route::post('acts-and-policies-update/{id}', 'update');
@@ -290,7 +314,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(ContactController::class)->group(function () {
-        Route::post('contact-list','data');
+       // Route::post('contact-list','data');
         Route::post('contact-store', 'store');
         Route::post('contact-update/{id}', 'update');
         Route::delete('contact-delete/{id}', 'delete');
@@ -307,7 +331,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
 
     Route::controller(RegionController::class)->group(function () {
         Route::post('region-list','data');
-        Route::post('region','region_list');
+       // Route::post('region','region_list');
         Route::post('region-store', 'store');
         Route::get('region-list-by-id/{id}','data_by_id');
         Route::post('region-update/{id}','update');
@@ -323,7 +347,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(PermittedProhibitedController::class)->group(function(){
-        Route::post('permitted-prohibited-list','index');
+        //Route::post('permitted-prohibited-list','index');
         Route::get('permitted-prohibited-list-by-id/{id}','data_by_id');
         Route::post('permitted-prohibited-store','store');
         Route::post('permitted-prohibited-update/{id}','update');
