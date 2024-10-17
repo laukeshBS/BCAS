@@ -32,7 +32,7 @@ class RolesController extends Controller
             return response()->json(['error' => 'Unauthorized to view roles'], 403);
         }
         //dd(Auth::guard('admin_api')->user());
-        $roles = Role::paginate(5);
+        $roles = Role::paginate(15);
         return response()->json(['roles' => $roles], 200);
     }
     public function all_permissions()
@@ -59,20 +59,55 @@ class RolesController extends Controller
         }
 
         $request->validate([
-            'name' => 'required|max:100|unique:roles'
+            'name' => ['required', 'max:100', 'unique:mysql_admin.roles,name'],
         ], [
-            'name.required' => 'Please provide a role name'
+            'name.required' => 'Please provide a role name',
+            'name.max' => 'Role name cannot exceed 100 characters',
+            'name.unique' => 'This role name already exists',
         ]);
 
-        $role = Role::create(['name' => $request->name, 'guard_name' => 'admin_api']);
+        $role = Role::create(['name' => $request->name, 'guard_name' => 'admin']);
 
         $permissions = $request->input('permissions');
+        //dd($permissions);
         if (!empty($permissions)) {
             $role->syncPermissions($permissions);
         }
 
         return response()->json(['message' => 'Role created successfully', 'role' => $role], 201);
     }
+    public function edit(int $id)
+    {
+        // Check if the user is authorized to edit roles
+        if (is_null($this->user) || !$this->user->can('role.edit')) {
+            return response()->json([
+                'message' => 'Sorry !! You are Unauthorized to edit any role !',
+                'status' => false
+            ], 403);
+        }
+    
+        // Fetch the role using its ID
+        $role = Role::findById($id, 'admin');
+    
+        // Fetch all permissions and group them
+        $all_permissions = Permission::all();
+        $permission_groups = User::getPermissionGroups();
+    
+        // Prepare the response data
+        $data = [
+            'role' => $role,
+            'all_permissions' => $all_permissions,
+            'permission_groups' => $permission_groups
+        ];
+    
+        // Return the response as JSON
+        return response()->json([
+            'data' => $data,
+            'message' => 'Role data retrieved successfully',
+            'status' => true
+        ], 200);
+    }
+    
 
     /**
      * Update the specified resource in storage.
@@ -88,7 +123,7 @@ class RolesController extends Controller
         }
 
         $request->validate([
-            'name' => 'required|max:100|unique:roles,name,' . $id
+            'name' => 'required|max:100|unique:mysql_admin.roles,name,' . $id
         ], [
             'name.required' => 'Please provide a role name'
         ]);

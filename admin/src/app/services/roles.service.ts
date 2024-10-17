@@ -1,19 +1,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { environment } from '../environments/environment';
+import { environment } from '../environments/environment'
 
 @Injectable({
   providedIn: 'root'
 })
-
-export class DivisionService {
-  
-  private apiUrl = environment.apiBaseUrl + 'division-list';
-  private getbyidapiUrl = environment.apiBaseUrl + 'division-list-by-id';
-  private storeApiUrl = environment.apiBaseUrl + 'division-store';
-  private updateApiUrl = environment.apiBaseUrl + 'division-update';
-  private deleteApiUrl = environment.apiBaseUrl + 'division-delete';
+export class RolesService {
+  private apiUrl = environment.apiBaseUrl + 'roles-list';
+  private all_permissions = environment.apiBaseUrl + 'all_permissions';
+  private getbyidapiUrl = environment.apiBaseUrl + 'roles-list-by-id';
+  private storeApiUrl = environment.apiBaseUrl + 'roles-store';
+  private updateApiUrl = environment.apiBaseUrl + 'roles-update';
+  private deleteApiUrl = environment.apiBaseUrl + 'roles-delete';
 
   constructor(private http: HttpClient) {}
 
@@ -56,5 +55,13 @@ export class DivisionService {
   // Add method to delete
   deleteEvent(id: number): Observable<any> {
     return this.http.delete<any>(`${this.deleteApiUrl}/${id}`, { headers: this.getHeaders2() });
+  }
+  getAllPermissions(): Observable<any> {
+   // return this.http.post(`${this.all_permissions}`, { headers: this.getHeaders() });
+    return this.http.post<any>(this.all_permissions,{ limit: 10, lang_code: 'en' }, { headers: this.getHeaders() });
+  }
+
+  createRole(roleData: any): Observable<any> {
+    return this.http.post(this.storeApiUrl, roleData, { headers: this.getHeaders() });
   }
 }

@@ -1,157 +1,161 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4 sidebar-brand">
-  <a href="#" class="brand-link">
-    <img src="assets/logo.png" alt="AdminLTE Logo" class="brand-image elevation-3" style="background: #fff;">
-    <span class="brand-text font-weight-light">BCAS</span>
-  </a>
-  <div class="sidebar">
-    <nav class="mt-2">
-      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-
-        <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
-          <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Dashboard</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('acts-policies.view')" class="nav-item">
-          <a [routerLink]="['/acts-and-policies']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Acts and Policies</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('circulars.view')" class="nav-item">
-          <a [routerLink]="['/circulars']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Circulars</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('events.view')" class="nav-item">
-          <a [routerLink]="['/events']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Events</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('forms.view')" class="nav-item">
-          <a [routerLink]="['/forms']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Forms</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('tenders.view')" class="nav-item">
-          <a [routerLink]="['/tenders']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Tenders</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('notices.view')" class="nav-item">
-          <a [routerLink]="['/notices']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Notices</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('vacancies.view')" class="nav-item">
-          <a [routerLink]="['/vacancies']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Vacancies</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('division.view')" class="nav-item">
-          <a [routerLink]="['/division']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Division</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('region.view')" class="nav-item">
-          <a [routerLink]="['/region']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Region</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('common-title.view')" class="nav-item">
-          <a [routerLink]="['/common-title']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Common Title</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('menu.view')" class="nav-item">
-          <a [routerLink]="['/menu']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Menu</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('slider.view')" class="nav-item">
-          <a [routerLink]="['/slider']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Slider</p>
-          </a>
-        </li>
-
-        <li *ngIf="hasPermission('slide.view')" class="nav-item">
-          <a [routerLink]="['/slide']" class="nav-link">
-            <i class="nav-icon fas fa-th"></i>
-            <p>Slide</p>
-          </a>
-        </li>
-
-        <!-- Roles & Permissions -->
-        <li *ngIf="hasAnyPermission(['role.create', 'role.view', 'role.edit', 'role.delete'])">
-          <a href="javascript:void(0)" aria-expanded="true">
+    <a href="#" class="brand-link">
+      <img src="assets/logo.png" alt="AdminLTE Logo" class="brand-image elevation-3" style="background: #fff;">
+      <span class="brand-text font-weight-light">BCAS</span>
+    </a>
+    <div class="sidebar">
+      <nav class="mt-2">
+        <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Dashboard
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/acts-and-policies']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Acts and Policies
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/circulars']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Circulars
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/events']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Events
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/forms']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Forms
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/tenders']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Tenders
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/notices']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Notices
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/vacancies']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Vacancies
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/division']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Division
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/region']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Region
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/common-title']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Common Title
+              </p>
+            </a>
+          </li>
+         
+          <li class="nav-item">
+            <a [routerLink]="['/slider']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Slider
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a [routerLink]="['/slide']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Slide
+              </p>
+            </a>
+          </li>
+           <!-- Roles & Permissions -->
+        <li class="nav-item" *ngIf="hasAnyPermission(['role.create', 'role.view', 'role.edit', 'role.delete'])">
+          <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
             <i class="fa fa-tasks"></i><span>Roles & Permissions</span>
           </a>
           <ul>
-            <li *ngIf="hasPermission('role.view')" [ngClass]="{ 'active': isActive('/admin/roles') }">
-              <a routerLink="/admin/roles">All Roles</a>
+            <li class="nav-item" *ngIf="hasPermission('role.view')" [ngClass]="{ 'active': isActive('/admin/roles') }">
+              <a class="nav-link" routerLink="/admin/roles">All Roles</a>
             </li>
-            <li *ngIf="hasPermission('role.create')" [ngClass]="{ 'active': isActive('/admin/roles/create') }">
+            <!-- <li *ngIf="hasPermission('role.create')" [ngClass]="{ 'active': isActive('/admin/roles/create') }">
               <a routerLink="/admin/roles/create">Create Role</a>
-            </li>
+            </li> -->
           </ul>
         </li>
 
         <!-- Admins -->
-        <li *ngIf="hasAnyPermission(['admin.create', 'admin.view', 'admin.edit', 'admin.delete'])">
+        <!-- <li *ngIf="hasAnyPermission(['admin.create', 'admin.view', 'admin.edit', 'admin.delete'])">
           <a href="javascript:void(0)" aria-expanded="true">
-            <i class="fa fa-user"></i><span>Admins</span>
+            <i class="fa fa-user"></i><span>Admins/Users</span>
           </a>
           <ul>
             <li *ngIf="hasPermission('admin.view')" [ngClass]="{ 'active': isActive('/admin/admins') }">
-              <a routerLink="/admin/admins">All Admins</a>
+              <a routerLink="/admin/admins">All Admins/Users</a>
             </li>
-            <li *ngIf="hasPermission('admin.create')" [ngClass]="{ 'active': isActive('/admin/admins/create') }">
-              <a routerLink="/admin/admins/create">Create Admin</a>
-            </li>
+           
           </ul>
-        </li>
+        </li> -->
         
         <!-- Menus -->
-        <li *ngIf="hasAnyPermission(['menu.create', 'menu.view', 'menu.edit', 'menu.delete'])">
-          <a href="javascript:void(0)" aria-expanded="true">
+        <li class="nav-item" *ngIf="hasAnyPermission(['menu.create', 'menu.view', 'menu.edit', 'menu.delete'])">
+          <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
             <i class="fa fa-user"></i><span>Menus</span>
           </a>
           <ul>
-            <li *ngIf="hasPermission('menu.view')" [ngClass]="{ 'active': isActive('/admin/menus') }">
-              <a routerLink="/admin/menus">All Menus</a>
+            <li class="nav-item" *ngIf="hasPermission('menu.view')" [ngClass]="{ 'active': isActive('/admin/menus') }">
+              <a class="nav-link" [routerLink]="['/menu']" >All Menus</a>
             </li>
-            <li *ngIf="hasPermission('menu.create')" [ngClass]="{ 'active': isActive('/admin/menus/create') }">
+            <!-- <li class="nav-item" *ngIf="hasPermission('menu.create')" [ngClass]="{ 'active': isActive('/admin/menus/create') }">
               <a routerLink="/admin/menus/create">Create Menu</a>
-            </li>
+            </li> -->
           </ul>
         </li>
 
         <!-- Divisions -->
-        <li *ngIf="hasAnyPermission(['course.create', 'course.view', 'course.edit', 'course.delete'])">
+        <!-- <li *ngIf="hasAnyPermission(['course.create', 'course.view', 'course.edit', 'course.delete'])">
           <a href="javascript:void(0)" aria-expanded="true">
             <i class="fa fa-building-o"></i><span>Divisions</span>
           </a>
@@ -163,8 +167,9 @@
               <a routerLink="/admin/courses/create">Create Course</a>
             </li>
           </ul>
-        </li>
-      </ul>
-    </nav>
-  </div>
-</aside>
+        </li> -->
+        </ul>
+      </nav>
+    </div>
+  </aside>
+  

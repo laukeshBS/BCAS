@@ -26,26 +26,21 @@ export class PermissionsService {
     return new HttpHeaders({
       'Authorization': `Bearer ${token || ''}`, // Use empty string if token is missing
       'Content-Type': 'application/json',
-      //'Cookie': 'XSRF-TOKEN=eyJpdiI6...; bcas_session=eyJpdiI6...; XSRF-TOKEN=eyJpdiI6...; bcas_session=eyJpdiI6...' // Include your cookies here if needed
+     
     });
   }
   fetchPermissions(limit: number, lang_code: string): Observable<any> {
     const body = { limit, lang_code }; // Use an object for the body as per your API requirements
-    const token = localStorage.getItem('token'); // Ensure you fetch the token from localStorage
-    // Set the headers
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token || ''}`, // Use empty string if token is missing
-      'Content-Type': 'application/json'
-    });
+   
   
     // console.log('Headers being sent:', headers.keys()); // Log the header keys
     // console.log('Request body:', body); // Log the request body
   
-    return this.http.post<any>(this.apiUrl,{ limit: 10, lang_code: 'en' }, { headers: headers }) // Send the body and headers
+    return this.http.post<any>(this.apiUrl,{ limit: 10, lang_code: 'en' }, { headers: this.getHeaders() }) // Send the body and headers
       .pipe(
         map((response: any) => {
           // Store permissions locally
-          this.userPermissions = response.permissions ? response.permissions.map((perm: any) => perm.name) : [];
+          this.userPermissions = response.all_permissions ? response.all_permissions.map((perm: any) => perm.name) : [];
           
           // Log userPermissions after setting them
           // console.log('User Permissions:', this.userPermissions);

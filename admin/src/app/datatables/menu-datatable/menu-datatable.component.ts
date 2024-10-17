@@ -188,6 +188,7 @@ export class MenuDatatableComponent {
      //console.log(this.selectedEvent);
     const formData = new FormData();
     formData.append('menu_type', this.selectedEvent.menu_type);
+    formData.append('content', this.selectedEvent.content);
     formData.append('language_id', this.selectedEvent.language_id);
     formData.append('menu_position', this.selectedEvent.menu_position);
     formData.append('menu_name', this.selectedEvent.menu_name);
@@ -232,6 +233,7 @@ export class MenuDatatableComponent {
 
     const formData = new FormData();
     formData.append('menu_type', this.selectedEvent.menu_type);
+    formData.append('content', this.selectedEvent.content);
     formData.append('language_id', this.selectedEvent.language_id);
     formData.append('menu_name', this.selectedEvent.menu_name);
     formData.append('page_order', this.selectedEvent.page_order);

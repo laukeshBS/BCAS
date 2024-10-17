@@ -15,8 +15,12 @@ import { MenuComponent } from './pages/menu/menu.component';
 import { SliderComponent } from './pages/slider/slider.component';
 import { SlideComponent } from './pages/slide/slide.component';
 import { NoAuthGuard } from './guards/no-auth.guard';
+
 import { DivisionGalleryComponent } from './pages/division-gallery/division-gallery.component';
 import { AdminDocumentComponent } from './pages/admin-document/admin-document.component';
+
+import { RolesComponent } from './pages/roles/roles.component';
+
 
 export const routes: Routes = [
     { path: 'acts-and-policies', component: ActsAndPoliciesComponent, canActivate: [AuthGuard]  },
@@ -30,6 +34,7 @@ export const routes: Routes = [
     { path: 'region', component: RegionComponent, canActivate: [AuthGuard]  },
     { path: 'common-title', component: CommonTitleComponent, canActivate: [AuthGuard]  },
     { path: 'menu', component: MenuComponent, canActivate: [AuthGuard]  },
+    { path: 'admin/roles', component: RolesComponent, canActivate: [AuthGuard]  },
     { path: 'slider', component: SliderComponent, canActivate: [AuthGuard]  },
     { path: 'slide', component: SlideComponent, canActivate: [AuthGuard]  },
     { path: 'division-gallery', component: DivisionGalleryComponent, canActivate: [AuthGuard]  },
