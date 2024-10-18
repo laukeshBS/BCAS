@@ -2,15 +2,75 @@
 
 namespace App\Http\Controllers\Cms\Division;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Session;
 use App\Models\Cms\Division\DivisionGallery;
+use GPBMetadata\Google\Api\Auth;
+
 class GalleryController extends Controller
 {
     public $user;
 
+    public function index(Request $request): View
+    {
+        if (is_null($this->user) || !$this->user->can('gallery.view')) {
+            abort(403, 'Sorry !! You are Unauthorized to view any Gallery !');
+        }
+       // $lists='';
+        $parentgallery="";
+            $title="Gallery List";
+            $approve_status=session()->get('status');
+            $sertitle=Session::get('Crtitle');
+            $approve_status=Session::get('status');
+            $lang_code=Session::get('lang_code');
+            $lists = DivisionGallery::whereNotNull('title');
+            //$lists = gallery::with(['galleryCategory', 'center']);
+          // dd( $lists);
+            if (!empty($sertitle)) {
+                $lists = DivisionGallery::whereNotNull('title');
+                $lists->where('title', 'LIKE', "%{$sertitle}%");
+            }
+            if (!empty($approve_status)) {
+               
+                $lists->where('status',$approve_status);
+            }
+            if (!empty($lang_code)) {
+               
+                $lists->where('lang_code',$lang_code);
+            }
+            $list = $lists->orderBy('position', 'ASC')->select('*')->paginate(10);
+           // dd($list);
+        return view('cms/division/gallery/index',compact(['list','title','parentgallery']));
+    }
+
     // API
     public function data(Request $request)
+    {
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $slide = DivisionGallery::select('*') ->paginate($perPage, ['*'], 'page', $page);
+        if ($slide->isNotEmpty()) {
+            $slide->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                if ($item->media) {
+                    $item->media = asset('public/'.$item->media);
+                }
+                return $item;
+            });
+        }
+        return response()->json([
+            'title' => 'List',
+            'data' => $slide->items(),
+            'total' => $slide->total(),
+            'current_page' => $slide->currentPage(),
+            'last_page' => $slide->lastPage(),
+            'per_page' => $slide->perPage(),
+        ]);
+    }
+    public function cms_data(Request $request)
     {
         $perPage = $request->input('limit');
         $page = $request->input('currentPage');
@@ -73,7 +133,6 @@ class GalleryController extends Controller
             'start_date' => 'required',
             'end_date' => 'required',
             'is_news' => 'required',
-            'created_by' => 'required',
             
         ]);
 
@@ -98,7 +157,7 @@ class GalleryController extends Controller
         $data->start_date = $validated['start_date'];
         $data->end_date = $validated['end_date'];
         $data->is_news = $validated['is_news'];
-        $data->created_by = $validated['created_by'];
+        $data->created_by = Auth::user()->id;
         $data->image = $filePath;
         
         $data->save();
@@ -111,7 +170,7 @@ class GalleryController extends Controller
             'title' => 'required|min:2|max:255',
             'slug' => 'required|min:2|max:255',
             'description' => 'nullable|max:500',
-            'image' => 'required|file|mimes:jpg,jpeg,png|max:20480',
+            'image' => 'nullable|file|mimes:jpg,jpeg,png|max:20480',
             'parent_id' => 'required',
             'division' => 'required',
             'position' => 'required',
@@ -120,7 +179,7 @@ class GalleryController extends Controller
             'start_date' => 'required',
             'end_date' => 'required',
             'is_news' => 'required',
-            'created_by' => 'required',
+            'created_by' => Auth::user()->id,
         ]);
         $data = DivisionGallery::find($id);
 
@@ -151,5 +210,4 @@ class GalleryController extends Controller
 
         return response()->json(['data' => $data, 'message' => 'Deleted successfully.'], 201);
     }
-    
 }

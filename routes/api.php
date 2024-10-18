@@ -13,6 +13,7 @@ use App\Http\Controllers\Cms\{
     Common\CommonTitleController, PermittedProhibitedController,
     AvsecTrainingCalendarController, QuarterlyReportOnlineFormsController,SecurityQuizController
 };
+use App\Http\Controllers\Cms\Division\GalleryController;
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\RolesController;
@@ -60,9 +61,11 @@ Route::middleware(['cors'])->group(function () {
     });
 
     Route::controller(Menus::class)->group(function () {
+        Route::post('menulist', 'index');
         Route::post('menu-list', 'menu_list');
         Route::post('menu/lang_slugs_wise', 'lang_slugs_wise');
         Route::post('menu/lang_pid_wise', 'lang_pid_wise');
+        Route::post('menu/importCSV', 'importCSV');
     });
 
     Route::controller(Common::class)->group(function () {
@@ -175,11 +178,12 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
       
     });
     Route::controller(menus::class)->group(function () {
-        Route::post('menulist', 'index');
+        Route::post('menulist', 'data');
         Route::get('menu-by-id/{id}', 'data_by_id');
         Route::post('menu-store', 'store');
         Route::post('menu-update/{id}', 'update');
         Route::delete('menu-delete/{id}', 'delete');
+
         Route::post('menu/importCSV', 'importCSV');
     });
     Route::controller(SliderController::class)->group(function(){
@@ -198,7 +202,9 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::post('slide-update/{id}','update');
         Route::delete('slide-delete/{id}','delete');
       
+
     });
+    
     Route::controller(CateringCompanyController::class)->group(function(){
         Route::get('catering-list-by-id/{id}','data_by_id');
         Route::any('catering-add','store');
@@ -369,4 +375,13 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::delete('slide-delete/{id}','delete');
       
     });
+    Route::controller(GalleryController::class)->group(function(){
+        Route::post('division-gallery-list','cms_data');
+        Route::get('division-gallery-by-id/{id}','cms_data_by_id');
+        Route::post('division-gallery-store','store');
+        Route::post('division-gallery-update/{id}','update');
+        Route::delete('division-gallery-delete/{id}','delete');
+      
+    });
+    
 });
