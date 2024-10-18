@@ -11,7 +11,7 @@ use App\Http\Controllers\Cms\{
     WorkingAirportsController, QuarterlyReportOnlineiiFormsController,
     CommonController as Common, LanguageController as Lang,
     Common\CommonTitleController, PermittedProhibitedController,
-    AvsecTrainingCalendarController, QuarterlyReportOnlineFormsController
+    AvsecTrainingCalendarController, QuarterlyReportOnlineFormsController,SecurityQuizController
 };
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
 use App\Http\Controllers\Admin\Auth\LoginController;
@@ -153,6 +153,10 @@ Route::middleware(['cors'])->group(function () {
     Route::controller(AirlinesController::class)->group(function () {
         Route::post('airline-list', 'airline_list');
         Route::post('airline-list-approved', 'airline_list_approved');
+    });
+    Route::controller(SecurityQuizController::class)->group(function () {
+        Route::post('quiz-list', 'quiz_list');
+      
     });
 });
 

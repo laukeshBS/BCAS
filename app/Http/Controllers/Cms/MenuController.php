@@ -1068,13 +1068,16 @@ class MenuController extends BaseController
             // Prepare data for insertion
             $insertData = [
                
-                'description' => isset($data['description']) ? preg_replace('/[^\x20-\x7E]/', '', $data['description']) : null,
-                'carry_on' => $data['carry_on'] ?? null,
-                'checked' => $data['checked'] ?? null,
+                'question' => isset($data['question']) ? preg_replace('/[^\x20-\x7E]/', '', $data['question']) : null,
+                'A' => $data['A'] ?? null,
+                'B' => $data['B'] ?? null,
+                'C' => $data['C'] ?? null,
+                'D' => $data['D'] ?? null,
+                'answer' => $data['answer'] ?? null,
                 'status' => $data['status'] ?? null,
                 'positions' => $data['positions'] ?? null,
                 'lang_code' => $data['lang_code'] ?? null,
-                'created_by' => !empty($data['created_by']) && is_numeric($data['created_by']) ? (int)$data['created_by'] : 1,
+               // 'created_by' => !empty($data['created_by']) && is_numeric($data['created_by']) ? (int)$data['created_by'] : 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
@@ -1089,7 +1092,7 @@ class MenuController extends BaseController
             //    print_r($insertData );
             //   echo"</pre>";
 
-                DB::table('permitted_prohibiteds')->insert($insertData);
+                DB::table('security_quizzes')->insert($insertData);
             } catch (\Exception $e) {
                 // Log or handle the error
               echo"<pre>";
