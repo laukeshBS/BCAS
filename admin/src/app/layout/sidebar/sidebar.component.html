@@ -14,7 +14,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['role.view'])">
+          <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.view'])">
             <a [routerLink]="['admin-doc']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -22,7 +22,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['role.view'])">
+          <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.update'])">
             <a [routerLink]="['admin-doc-categories']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
