@@ -8,77 +8,60 @@ import { map, catchError } from 'rxjs/operators';
   providedIn: 'root'
 })
 export class PermissionsService {
-  //private apiUrl = `${environment.apiBaseUrl}all_permissions`;
   private apiUrl = environment.apiBaseUrl + 'all_permissions';
-  private getbyidapiUrl = environment.apiBaseUrl + 'permissions-list-by-id';
-  private storeApiUrl = environment.apiBaseUrl + 'permissions-store';
-  private updateApiUrl = environment.apiBaseUrl + 'permissions-update';
-  private deleteApiUrl = environment.apiBaseUrl + 'permissions-delete';
-
   private userPermissions: string[] = [];
 
   constructor(private http: HttpClient) {}
 
   private getHeaders(): HttpHeaders {
- 
-    const token = localStorage.getItem('token'); 
-   // Ensure you fetch the token from localStorage
+    const token = localStorage.getItem('token');
     return new HttpHeaders({
-      'Authorization': `Bearer ${token || ''}`, // Use empty string if token is missing
+      'Authorization': `Bearer ${token || ''}`,
       'Content-Type': 'application/json',
-     
     });
   }
-  fetchPermissions(limit: number, lang_code: string): Observable<any> {
-    const body = { limit, lang_code }; // Use an object for the body as per your API requirements
-   
-  
-    return this.http.post<any>(this.apiUrl,{ limit: 10, lang_code: 'en' }, { headers: this.getHeaders() }) // Send the body and headers
+
+  // Consolidated fetchPermissions method
+  fetchPermissions(limit: number, langCode: string): Observable<any> {
+    const body = { limit, lang_code: langCode };
+    
+    return this.http.post<any>(this.apiUrl, body, { headers: this.getHeaders() })
       .pipe(
-        map((response: any) => {
-          // Store permissions locally
+        map(response => {
           this.userPermissions = response.all_permissions ? response.all_permissions.map((perm: any) => perm.name) : [];
-          
-          // Log userPermissions after setting them
-       //   console.log('User Permissions:', this.userPermissions);
           return response;
         }),
         catchError(error => {
-          console.error('Error fetching permissions:', error); // Log the error
-          return throwError(() => new Error('Error fetching permissions')); // Rethrow the error for further handling if needed
+          console.error('Error fetching permissions:', error); // Log the error for debugging
+          return throwError(() => new Error('Error fetching permissions'));
         })
       );
   }
 
-  // Fetch all permissions from the API and store them in the service
- 
-
   // Check if a user has a specific permission
   hasPermission(permission: string): boolean {
-    //console.log('userPermissions permission for:', this.userPermissions);
     return this.userPermissions.includes(permission);
   }
 
-  // Check if a user has at least one of the provided permissions
+  // Check if a user has any of the provided permissions
   hasAnyPermission(permissions: string[]): boolean {
-    //console.log('Checking any permission for:', permissions);
     return permissions.some(permission => this.hasPermission(permission));
   }
 
-  // Example methods for handling CRUD operations with permissions (if needed)
+  // CRUD operations for permissions
   getPermissionById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.getbyidapiUrl}/${id}`, { headers: this.getHeaders() });
+    return this.http.get<any>(`${environment.apiBaseUrl}permissions-list-by-id/${id}`, { headers: this.getHeaders() });
   }
 
   storePermission(permissionData: any): Observable<any> {
-    return this.http.post<any>(this.storeApiUrl, permissionData, { headers: this.getHeaders() });
+    return this.http.post<any>(environment.apiBaseUrl + 'permissions-store', permissionData, { headers: this.getHeaders() });
   }
 
   updatePermission(id: number, permissionData: any): Observable<any> {
-    return this.http.put<any>(`${this.updateApiUrl}/${id}`, permissionData, { headers: this.getHeaders() });
+    return this.http.put<any>(`${environment.apiBaseUrl}permissions-update/${id}`, permissionData, { headers: this.getHeaders() });
   }
 
   deletePermission(id: number): Observable<any> {
-    return this.http.delete<any>(`${this.deleteApiUrl}/${id}`, { headers: this.getHeaders() });
+    return this.http.delete<any>(`${environment.apiBaseUrl}permissions-delete/${id}`, { headers: this.getHeaders() });
   }
 }

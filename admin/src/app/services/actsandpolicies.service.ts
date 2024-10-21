@@ -34,8 +34,8 @@ export class ActsandpoliciesService {
   }
 
   // Get list of Acts and Plocies
-  allList(limit: number, lang_code: string): Observable<any> {
-    const body = { limit, lang_code };
+  allList(limit: number, lang_code: string, currentPage: number): Observable<any> {
+    const body = { limit, lang_code,currentPage };
     return this.http.post<any>(this.apiUrl, body, { headers: this.getHeaders() });
   }
 

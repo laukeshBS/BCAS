@@ -64,8 +64,9 @@
                   #status="ngModel"
                 >
                   <option value="" disabled>Select Status</option>
-                  <option value="1">Active</option>
-                  <option value="2">Inactive</option>
+                  <option value="1">Draft</option>
+                <option value="2">Pending</option>
+                <option value="3">Published</option>
                 </select>
                 <div *ngIf="status.invalid && (status.dirty || status.touched)" class="text-danger">
                   <div *ngIf="status.errors?.['required']">Status is required.</div>
@@ -118,8 +119,9 @@
                 <label for="status" class="form-label">Status</label>
                 <select id="status" class="form-select" name="status" [(ngModel)]="selectedEvent.status" required #status="ngModel">
                   <option value="">Select Status</option>
-                  <option value="1">Active</option>
-                  <option value="2">Inactive</option>
+                  <option value="1">Draft</option>
+                <option value="2">Pending</option>
+                <option value="3">Published</option>
                 </select>
                 <div *ngIf="status.invalid && (status.dirty || status.touched)" class="text-danger">
                   <div *ngIf="status.errors?.['required']">Status is required.</div>

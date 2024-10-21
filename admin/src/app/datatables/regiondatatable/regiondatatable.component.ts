@@ -42,10 +42,19 @@ export class RegiondatatableComponent {
       event.created_at = new Date(event.created_at).toLocaleDateString('en-GB');
       event.start_date = new Date(event.start_date).toLocaleDateString('en-GB');
       event.end_date = new Date(event.end_date).toLocaleDateString('en-GB');
-      if (event.status==1) {
-        event.status = 'Active';
-      }else{
-        event.status = 'Inactive';
+      switch (event.status) {
+        case 1:
+          event.status = 'Draft';
+          break;
+        case 2:
+          event.status = 'Pending';
+          break;
+        case 3:
+          event.status = 'Published';
+          break;
+        default:
+          event.status = '';
+          break;
       }
       if (event.document!='') {
         event.document = '<a href="'+event.document+'">'+event.title+' Document</a>';
@@ -64,26 +73,22 @@ export class RegiondatatableComponent {
   addEvent(): void {
     const modalElement = document.getElementById('addEventModal');
     if (modalElement) {
+      this.selectedEvent = {};
       const modal = new bootstrap.Modal(modalElement);
       modal.show();
     }
   }
   saveEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
-        !this.selectedEvent.start_date || !this.selectedEvent.end_date || !this.fileToUpload) {
+    if (!this.selectedEvent.name || !this.selectedEvent.status || !this.selectedEvent.lang_code) {
       console.error('Missing required fields');
       return;
     }
 
     const formData = new FormData();
-    formData.append('title', this.selectedEvent.title);
-    formData.append('description', this.selectedEvent.description);
+    formData.append('name', this.selectedEvent.name);
     formData.append('status', this.selectedEvent.status);
     formData.append('lang_code', this.selectedEvent.lang_code);
-    formData.append('start_date', this.selectedEvent.start_date);
-    formData.append('end_date', this.selectedEvent.end_date);
-    formData.append('document', this.fileToUpload, this.fileToUpload.name);
 
     this.regionService.storeEvent(formData).subscribe(
       (event: HttpEvent<any>) => {
@@ -97,23 +102,15 @@ export class RegiondatatableComponent {
   }
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
-        !this.selectedEvent.start_date || !this.selectedEvent.end_date) {
+    if (!this.selectedEvent.name || !this.selectedEvent.status || !this.selectedEvent.lang_code) {
       console.error('Missing required fields');
       return;
     }
 
     const formData = new FormData();
-    formData.append('title', this.selectedEvent.title);
-    formData.append('description', this.selectedEvent.description);
+    formData.append('name', this.selectedEvent.name);
     formData.append('status', this.selectedEvent.status);
     formData.append('lang_code', this.selectedEvent.lang_code);
-    formData.append('start_date', this.selectedEvent.start_date);
-    formData.append('end_date', this.selectedEvent.end_date);
-    // Append file only if it's present
-    if (this.fileToUpload) {
-      formData.append('document', this.fileToUpload, this.fileToUpload.name);
-    }
 
     this.regionService.updateEvent(this.selectedEvent.id, formData).subscribe(
       (event: HttpEvent<any>) => {

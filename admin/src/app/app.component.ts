@@ -29,16 +29,13 @@ export class AppComponent implements OnInit, OnDestroy {
       this.authService.loggedIn$.subscribe(isLoggedIn => {
         this.loggedIn$ = isLoggedIn; // Update logged-in state based on the BehaviorSubject
         this.loading = false; // Set loading to false once we have the login state
-        console.log(this.loggedIn$);
       })
     );
   }
- 
   logout() {
     this.authService.logout();
     // Reflect the logged-out state is handled via the BehaviorSubject in AuthService
   }
- 
   ngOnDestroy(): void {
     this.subscription.unsubscribe(); // Clean up subscriptions on destroy
   }

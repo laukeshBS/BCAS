@@ -69,22 +69,25 @@ class RegionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            'status' => 'required',
+            'name' => 'required|string|max:255',
+            'status' => 'required|string',
+            'lang_code' => 'required|string|max:10',
         ]);
 
         $region = new Region();
         $region->name = $validated['name'];
         $region->status = $validated['status'];
+        $region->lang_code = $validated['lang_code'];
         $region->save();
         
-        return response()->json($region);
+        return response()->json($region, 200);
     }
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            'status' => 'required',
+            'name' => 'required|string|max:255',
+            'status' => 'required|string',
+            'lang_code' => 'required|string|max:10',
         ]);
 
         $region = Region::find($id);
@@ -95,11 +98,10 @@ class RegionController extends Controller
             ], 400);
         }
 
-        $region->name = $validated['name'];
-        $region->status = $validated['status'];
+        $region->fill($validated);
         $region->save();
 
-        return response()->json($region);
+        return response()->json($region, 200);
     }
     public function delete($id)
     {
