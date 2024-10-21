@@ -103,7 +103,6 @@ class MenuController extends BaseController
             $this->updateMediaUrls($menu, $baseUrl);
         }
     }
-
     private function updateMediaUrls($menu, $baseUrl)
     {
         if ($menu->doc_upload) {
@@ -118,6 +117,62 @@ class MenuController extends BaseController
 
         foreach ($menu->children as $childMenu) {
             $this->updateMediaUrls($childMenu, $baseUrl);
+        }
+    }
+
+    public function data(Request $request)
+    {
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+        $menus = Menu::select(
+            'id',
+            'menu_type',
+            'menu_child_id',
+            'menu_position',
+            'language_id',
+            'menu_name',
+            'menu_url',
+            'menu_title',
+            'menu_keyword',
+            'menu_description',
+            'content',
+            'doc_upload',
+            'menu_links',
+            'page_order',
+            'current_version',
+            'welcomedescription',
+            'banner_img',
+            'img_upload'
+        )
+        ->orderBy('id', 'ASC')
+        ->paginate($perPage, ['*'], 'page', $page);
+    
+
+
+        if ($menus->isNotEmpty()) {
+            $menus->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                if ($item->doc_upload) {
+                    $item->doc_upload = asset('public/uploads/admin/cmsfiles/menus/' . $item->doc_upload) ;
+                }
+                if ($item->banner_img) {
+                    $item->banner_img = asset('public/uploads/admin/cmsfiles/menus/' . $item->banner_img) ;
+                }
+                if ($item->img_upload) {
+                    $item->img_upload = asset('public/uploads/admin/cmsfiles/menus/' . $item->img_upload) ;
+                }
+                return $item;
+            });
+            return response()->json([
+                'title' => 'Menu List',
+                'data' => $menus->items(), // Get items for the current page
+                'total' => $menus->total(), // Total number of items
+                'current_page' => $menus->currentPage(), // Current page number
+                'last_page' => $menus->lastPage(), // Last page number
+                'per_page' => $menus->perPage(), // Items per page
+            ]);
+        } else {
+            return $this->sendError('No menus found for the given language code.', 404);
         }
     }
     public function data_by_id($id)
@@ -1068,13 +1123,16 @@ class MenuController extends BaseController
             // Prepare data for insertion
             $insertData = [
                
-                'description' => isset($data['description']) ? preg_replace('/[^\x20-\x7E]/', '', $data['description']) : null,
-                'carry_on' => $data['carry_on'] ?? null,
-                'checked' => $data['checked'] ?? null,
+                'question' => isset($data['question']) ? preg_replace('/[^\x20-\x7E]/', '', $data['question']) : null,
+                'A' => $data['A'] ?? null,
+                'B' => $data['B'] ?? null,
+                'C' => $data['C'] ?? null,
+                'D' => $data['D'] ?? null,
+                'answer' => $data['answer'] ?? null,
                 'status' => $data['status'] ?? null,
                 'positions' => $data['positions'] ?? null,
                 'lang_code' => $data['lang_code'] ?? null,
-                'created_by' => !empty($data['created_by']) && is_numeric($data['created_by']) ? (int)$data['created_by'] : 1,
+               // 'created_by' => !empty($data['created_by']) && is_numeric($data['created_by']) ? (int)$data['created_by'] : 1,
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
@@ -1089,7 +1147,7 @@ class MenuController extends BaseController
             //    print_r($insertData );
             //   echo"</pre>";
 
-                DB::table('permitted_prohibiteds')->insert($insertData);
+                DB::table('security_quizzes')->insert($insertData);
             } catch (\Exception $e) {
                 // Log or handle the error
               echo"<pre>";

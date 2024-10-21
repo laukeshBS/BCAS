@@ -15,9 +15,17 @@ import { MenuComponent } from './pages/menu/menu.component';
 import { SliderComponent } from './pages/slider/slider.component';
 import { SlideComponent } from './pages/slide/slide.component';
 import { NoAuthGuard } from './guards/no-auth.guard';
+
+import { DivisionGalleryComponent } from './pages/division-gallery/division-gallery.component';
+import { AdminDocumentComponent } from './pages/admin-document/admin-document.component';
+
 import { RolesComponent } from './pages/roles/roles.component';
+import { AdminDocumentCategoryComponent } from './pages/admin-document-category/admin-document-category.component';
+import { DasboardComponent } from './pages/dasboard/dasboard.component';
+
 
 export const routes: Routes = [
+  { path: 'dashboard', component: DasboardComponent, canActivate: [AuthGuard]  },
     { path: 'acts-and-policies', component: ActsAndPoliciesComponent, canActivate: [AuthGuard]  },
     { path: 'circulars', component: CircularsComponent, canActivate: [AuthGuard]  },
     { path: 'events', component: EventsComponent, canActivate: [AuthGuard]  },
@@ -32,11 +40,14 @@ export const routes: Routes = [
     { path: 'admin/roles', component: RolesComponent, canActivate: [AuthGuard]  },
     { path: 'slider', component: SliderComponent, canActivate: [AuthGuard]  },
     { path: 'slide', component: SlideComponent, canActivate: [AuthGuard]  },
+    { path: 'division-gallery', component: DivisionGalleryComponent, canActivate: [AuthGuard]  },
+    { path: 'admin-doc', component: AdminDocumentComponent, canActivate: [AuthGuard]  },
+    { path: 'admin-doc-categories', component: AdminDocumentCategoryComponent, canActivate: [AuthGuard]  },
     { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard]  },
-    // { path: '**', redirectTo: '/login' }
-     {
-        path: 'restricted',
-        loadChildren: () => import('./restricted/restricted.module').then(m => m.RestrictedModule)
-      },
+    { path: '**', redirectTo: '/login' },
+    {
+      path: 'restricted',
+      loadChildren: () => import('./restricted/restricted.module').then(m => m.RestrictedModule)
+    },
 ];
 

@@ -42,10 +42,19 @@ export class FormsdatatableComponent {
       event.created_at = new Date(event.created_at).toLocaleDateString('en-GB');
       event.start_date = new Date(event.start_date).toLocaleDateString('en-GB');
       event.end_date = new Date(event.end_date).toLocaleDateString('en-GB');
-      if (event.status==1) {
-        event.status = 'Active';
-      }else{
-        event.status = 'Inactive';
+      switch (event.status) {
+        case 1:
+          event.status = 'Draft';
+          break;
+        case 2:
+          event.status = 'Pending';
+          break;
+        case 3:
+          event.status = 'Published';
+          break;
+        default:
+          event.status = '';
+          break;
       }
       if (event.document!='') {
         event.document = '<a href="'+event.document+'">'+event.title+' Document</a>';
@@ -65,6 +74,7 @@ export class FormsdatatableComponent {
   addEvent(): void {
     const modalElement = document.getElementById('addEventModal');
     if (modalElement) {
+      this.selectedEvent = {};
       const modal = new bootstrap.Modal(modalElement);
       modal.show();
     }

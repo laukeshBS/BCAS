@@ -42,8 +42,8 @@ class VacancyController extends Controller
         $data = $query->get();
 
         $data->transform(function ($item) {
-            $item->start_date = date('d-m-Y', strtotime($item->start_date));
-            $item->end_date = date('d-m-Y', strtotime($item->end_date));
+            // $item->start_date = date('d-m-Y', strtotime($item->start_date));
+            // $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             $item->document = asset('public/documents/' . $item->document) ;
             return $item;

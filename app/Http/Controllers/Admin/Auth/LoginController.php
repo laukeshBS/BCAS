@@ -67,6 +67,8 @@ class LoginController extends Controller
             $user->api_token = $token; // If using api_token column
             $user->save();
 
+            $user->getRoleNames();
+
             return response()->json([
                 'success' => true,
                 'message' => 'Successfully logged in!',
