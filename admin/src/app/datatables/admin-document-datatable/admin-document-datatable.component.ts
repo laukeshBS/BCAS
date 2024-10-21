@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { AdminDocumentService } from '../../services/admin-document.service';  // Import the service
+import { PermissionsService } from '../../services/permissions.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
@@ -36,7 +37,7 @@ export class AdminDocumentDatatableComponent {
   selectedRoleIds: any[] = [];
   
 
-  constructor(private AdminDocumentService: AdminDocumentService) {}
+  constructor(private AdminDocumentService: AdminDocumentService, private permissionsService: PermissionsService) {}
 
   ngOnInit(): void {
     this.loadroles();
@@ -266,7 +267,7 @@ export class AdminDocumentDatatableComponent {
 
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.document_category_id || !this.selectedEvent.doc_name || !this.selectedEvent.doc_type || !this.selectedEvent.status || !this.selectedEvent.position || !this.selectedEvent.start_date || !this.selectedEvent.end_date || !this.fileToUpload)  {
+    if (!this.selectedEvent.document_category_id || !this.selectedEvent.doc_name || !this.selectedEvent.doc_type || !this.selectedEvent.status || !this.selectedEvent.position || !this.selectedEvent.start_date || !this.selectedEvent.end_date)  {
       console.error('Missing required fields');
       return;
     }
@@ -426,7 +427,16 @@ export class AdminDocumentDatatableComponent {
         alert('No valid role IDs found. Please contact support.');
     }
   }
+  
+// Checks if the user has the given permission
+hasPermission(permission: string): boolean {
+  return this.permissionsService.hasPermission(permission);
+}
 
+// Checks if the user has any of the given permissions
+hasAnyPermission(permissions: string[]): boolean {
+  return this.permissionsService.hasAnyPermission(permissions);
+}
 
 
   

@@ -37,14 +37,35 @@ class RolesController extends Controller
         return response()->json(['roles' => $roles], 200);
     }
     public function all_permissions()
-    {
-        if (is_null($this->user)) {
-            return response()->json(['error' => 'Unauthorized to view roles'], 403);
-        }
+{
+    if (is_null($this->user)) {
+        return response()->json(['error' => 'Unauthorized to view roles'], 403);
+    }
+
+    // Check if the user is the super admin
+    if ($this->user->id == 1) {
+        // Get all admins with their roles and permissions
+        $admins = Admin::with('roles.permissions')->get();
+        
+        // Collect permissions from all admins
+        $permissions = $admins->flatMap(function ($admin) {
+            return $admin->roles->flatMap->permissions;
+        });
+    } else {
+        // Get the specific admin
         $user_permissions = Admin::with('roles.permissions')->find($this->user->id);
 
-        return response()->json(['all_permissions' => $user_permissions->roles[0]->permissions], 200);
+        // Check if the user has roles
+        if ($user_permissions && $user_permissions->roles->isNotEmpty()) {
+            $permissions = $user_permissions->roles->flatMap->permissions;
+        } else {
+            $permissions = [];
+        }
     }
+
+    return response()->json(['all_permissions' => $permissions], 200);
+}
+
 
     /**
      * Store a newly created resource in storage.
