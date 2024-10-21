@@ -99,8 +99,9 @@
                 #status="ngModel"
               >
                 <option value="" disabled>Select Status</option>
-                <option value="1">Active</option>
-                <option value="2">Inactive</option>
+                <option value="1">Draft</option>
+                <option value="2">Pending</option>
+                <option value="3">Published</option>
               </select>
               <div *ngIf="status.invalid && (status.dirty || status.touched)" class="text-danger">
                 <div *ngIf="status.errors?.['required']">Status is required.</div>
@@ -109,13 +110,13 @@
           
             <div class="mb-3">
               <label for="lang_code" class="form-label">Language</label>
-              <select id="lang_code" class="form-select" [(ngModel)]="selectedEvent.lang_code" name="lang_code" required #langCode="ngModel" >
+              <select id="lang_code" class="form-select" [(ngModel)]="selectedEvent.lang_code" name="lang_code" required #lang_code="ngModel" >
                 <option value="" disabled>Select Language</option>
                 <option value="en">English</option>
                 <option value="hi">Hindi</option>
               </select>
-              <div *ngIf="langCode.invalid && (langCode.dirty || langCode.touched)" class="text-danger">
-                <div *ngIf="langCode.errors?.['required']">Language is required.</div>
+              <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
+                <div *ngIf="lang_code.errors?.['required']">Language is required.</div>
               </div>
             </div>
 
@@ -137,24 +138,25 @@
           <form (ngSubmit)="saveEvent()" #eventForm="ngForm" enctype="multipart/form-data">
             <div class="mb-3">
               <label for="title" class="form-label">Title</label>
-              <input type="text" id="title" class="form-control" name="title" required>
+              <input type="text" id="title" class="form-control" name="title" [(ngModel)]="selectedEvent.title" required #title="ngModel">
               <div *ngIf="title.invalid && (title.dirty || title.touched)" class="text-danger">
                 <div *ngIf="title.errors?.['required']">Title is required.</div>
               </div>
             </div>
             <div class="mb-3">
               <label for="slugs" class="form-label">Slug</label>
-              <input type="text" id="slugs" class="form-control" name="slugs" required>
+              <input type="text" id="slugs" class="form-control" name="slugs" [(ngModel)]="selectedEvent.slugs" required #slugs="ngModel">
               <div *ngIf="slugs.invalid && (slugs.dirty || slugs.touched)" class="text-danger">
                 <div *ngIf="slugs.errors?.['required']">slug is required.</div>
               </div>
             </div>
             <div class="mb-3">
               <label for="status" class="form-label">Status</label>
-              <select id="status" class="form-select" name="status" required >
+              <select id="status" class="form-select" name="status" [(ngModel)]="selectedEvent.status" required #status="ngModel" >
                 <option value="">Select Status</option>
-                <option value="1">Active</option>
-                <option value="2">Inactive</option>
+                <option value="1">Draft</option>
+                <option value="2">Pending</option>
+                <option value="3">Published</option>
               </select>
               <div *ngIf="status.invalid && (status.dirty || status.touched)" class="text-danger">
                 <div *ngIf="status.errors?.['required']">Status is required.</div>
@@ -162,13 +164,13 @@
             </div>
             <div class="mb-3">
               <label for="lang_code" class="form-label">Language</label>
-              <select id="lang_code" class="form-select" name="lang_code" required>
+              <select id="lang_code" class="form-select" name="lang_code" [(ngModel)]="selectedEvent.lang_code" required #lang_code="ngModel">
                 <option value="" disabled>Select Language</option>
                 <option value="en">English</option>
                 <option value="hi">Hindi</option>
               </select>
-              <div *ngIf="langCode.invalid && (langCode.dirty || langCode.touched)" class="text-danger">
-                <div *ngIf="langCode.errors?.['required']">Language is required.</div>
+              <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
+                <div *ngIf="lang_code.errors?.['required']">Language is required.</div>
               </div>
             </div>
             <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Save Changes</button>

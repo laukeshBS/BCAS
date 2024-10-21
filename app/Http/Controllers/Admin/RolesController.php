@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Admin\User;
+use App\Models\Admin\Admin;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Role;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Spatie\Permission\Models\Permission;
 
 class RolesController extends Controller
@@ -37,13 +38,12 @@ class RolesController extends Controller
     }
     public function all_permissions()
     {
-        if (is_null($this->user) || !$this->user->can('role.view')) {
+        if (is_null($this->user)) {
             return response()->json(['error' => 'Unauthorized to view roles'], 403);
         }
-        //dd(Auth::guard('admin_api')->user());
-        $all_permissions = Permission::all();
-       
-        return response()->json(['all_permissions' => $all_permissions], 200);
+        $user_permissions = Admin::with('roles.permissions')->find($this->user->id);
+
+        return response()->json(['all_permissions' => $user_permissions->roles[0]->permissions], 200);
     }
 
     /**
@@ -169,4 +169,10 @@ class RolesController extends Controller
 
         return response()->json(['message' => 'Role deleted successfully'], 200);
     }
+    public function role_list()
+    {
+        $roles = Role::pluck('name','id');
+        return response()->json(['data' => $roles], 200);
+    }
+
 }

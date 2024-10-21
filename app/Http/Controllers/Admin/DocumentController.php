@@ -8,6 +8,7 @@ use GPBMetadata\Google\Api\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Crypt;
+use App\Models\Admin\DocumentCategory;
 use Illuminate\Support\Facades\Session;
 
 class DocumentController extends Controller
@@ -21,26 +22,44 @@ class DocumentController extends Controller
     // API
     public function data(Request $request)
     {
+        $request->validate([
+            'limit' => 'required|integer',
+            'currentPage' => 'required|integer',
+            'roleIds' => 'array', // Accept an array of role IDs
+        ]);
+
         $perPage = $request->input('limit');
         $page = $request->input('currentPage');
+        $roleIds = $request->input('roleIds'); // Get the array of role IDs
 
-        $slide = Document::select('*') ->paginate($perPage, ['*'], 'page', $page);
-        if ($slide->isNotEmpty()) {
-            $slide->transform(function ($item) {
+        $query = Document::query();
+
+        // If role IDs are provided, filter the documents
+        if ($roleIds && count($roleIds) > 0) {
+            $query->whereHas('roles', function ($q) use ($roleIds) {
+                $q->whereIn('roles.id', $roleIds);
+            });
+        }
+
+        $data = $query->select('*')->paginate($perPage, ['*'], 'page', $page);
+
+        if ($data->isNotEmpty()) {
+            $data->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                
                 return $item;
             });
         }
+
         return response()->json([
             'title' => 'List',
-            'data' => $slide->items(),
-            'total' => $slide->total(),
-            'current_page' => $slide->currentPage(),
-            'last_page' => $slide->lastPage(),
-            'per_page' => $slide->perPage(),
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'per_page' => $data->perPage(),
         ]);
     }
+    
     public function data_by_id($id)
     {
         $validatedId = filter_var($id, FILTER_VALIDATE_INT);
@@ -56,6 +75,9 @@ class DocumentController extends Controller
             ], 404);
         }
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
+
+        $roleIds = $data->roles->pluck('id');
+        $data->roleIds = $roleIds;
 
         return response()->json($data);
     }
@@ -166,5 +188,6 @@ class DocumentController extends Controller
 
         return response()->file($fullPath);
     }
+    
 
 }

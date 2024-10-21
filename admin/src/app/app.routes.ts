@@ -20,9 +20,12 @@ import { DivisionGalleryComponent } from './pages/division-gallery/division-gall
 import { AdminDocumentComponent } from './pages/admin-document/admin-document.component';
 
 import { RolesComponent } from './pages/roles/roles.component';
+import { AdminDocumentCategoryComponent } from './pages/admin-document-category/admin-document-category.component';
+import { DasboardComponent } from './pages/dasboard/dasboard.component';
 
 
 export const routes: Routes = [
+  { path: 'dashboard', component: DasboardComponent, canActivate: [AuthGuard]  },
     { path: 'acts-and-policies', component: ActsAndPoliciesComponent, canActivate: [AuthGuard]  },
     { path: 'circulars', component: CircularsComponent, canActivate: [AuthGuard]  },
     { path: 'events', component: EventsComponent, canActivate: [AuthGuard]  },
@@ -38,9 +41,10 @@ export const routes: Routes = [
     { path: 'slider', component: SliderComponent, canActivate: [AuthGuard]  },
     { path: 'slide', component: SlideComponent, canActivate: [AuthGuard]  },
     { path: 'division-gallery', component: DivisionGalleryComponent, canActivate: [AuthGuard]  },
-    { path: 'admin-document', component: AdminDocumentComponent, canActivate: [AuthGuard]  },
+    { path: 'admin-doc', component: AdminDocumentComponent, canActivate: [AuthGuard]  },
+    { path: 'admin-doc-categories', component: AdminDocumentCategoryComponent, canActivate: [AuthGuard]  },
     { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard]  },
-    // { path: '**', redirectTo: '/login' }
+    { path: '**', redirectTo: '/login' },
     {
       path: 'restricted',
       loadChildren: () => import('./restricted/restricted.module').then(m => m.RestrictedModule)

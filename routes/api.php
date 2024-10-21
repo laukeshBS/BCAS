@@ -19,6 +19,8 @@ use App\Http\Controllers\Admin\Auth\LoginController;
 use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\AdminsController;
 use App\Http\Controllers\Admin\DocumentController;
+use App\Http\Controllers\Admin\DocumentCategoryController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -169,6 +171,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::delete('roles-delete/{id}','delete');
         Route::post('all_permissions', 'all_permissions');
         Route::get('roles-list-by-id/{id}', 'edit');
+        Route::get('roles', 'role_list');
     });
     Route::controller(AdminsController::class)->group(function () {
         Route::post('adminList', 'index');
@@ -302,6 +305,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
 
     Route::controller(FormController::class)->group(function () {
         Route::post('form-list','data');
+        Route::get('form-list-by-id/{id}','data_by_id');
         Route::post('form-store', 'store');
         Route::post('form-update/{id}', 'update');
         Route::delete('form-delete/{id}', 'delete');
@@ -309,6 +313,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
 
     Route::controller(VacancyController::class)->group(function () {
         Route::post('vacancy-list','data');
+        Route::get('vacancy-list-by-id/{id}','data_by_id');
         Route::post('vacancy-store', 'store');
         Route::post('vacancy-update/{id}', 'update');
         Route::delete('vacancy-delete/{id}', 'delete');
@@ -381,6 +386,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
       
     });
     Route::controller(DocumentController::class)->group(function(){
+        
         Route::post('admin-document-list','data');
         Route::get('admin-document-by-id/{id}','data_by_id');
         Route::post('admin-document-store','store');
@@ -388,5 +394,15 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::delete('admin-document-delete/{id}','delete');
         Route::post('admin-document','show_Document');
     });
+    Route::controller(DocumentCategoryController::class)->group(function(){
+        
+        Route::post('admin-document-category-list','data');
+        Route::get('admin-document-category-by-id/{id}','data_by_id');
+        Route::post('admin-document-category-store','store');
+        Route::post('admin-document-category-update/{id}','update');
+        Route::delete('admin-document-category-delete/{id}','delete');
+        Route::get('admin-document-category','document_categories');
+    });
     
 });
+

@@ -55,7 +55,7 @@
   </nav>
 
 <div *ngIf="events.length === 0">
-    <p>No Acts and Policies Available.</p>
+    <p>No Document Available.</p>
 </div>
 
 <!-- Bootstrap modal -->
@@ -63,7 +63,7 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="editEventModalLabel">Edit Act and Policy</h5>
+                <h5 class="modal-title" id="editEventModalLabel">Edit Document</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -81,6 +81,7 @@
                             <div *ngIf="document_category_id.errors?.['required']">Category is required.</div>
                         </div>
                     </div>
+                    <div id="rolesEditContainer" class="mb-3"></div>
                     <div class="mb-3">
                         <label for="doc_name" class="form-label">Title</label>
                         <input type="text" id="doc_name" class="form-control" [(ngModel)]="selectedEvent.doc_name"
@@ -147,7 +148,7 @@
                     <div class="mb-3">
                         <label for="doc" class="form-label">Upload Document</label>
                         <input type="file" id="doc" name="doc" class="form-control"
-                            (change)="oneditFileChange($event)" />
+                            (change)="oneditFileChange($event)" accept=".pdf" />
                         <div *ngIf="selectedFileError" class="text-danger">
                             <div>{{ selectedFileError }}</div>
                         </div>
@@ -164,15 +165,15 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="addEventModalLabel">add Act and Policy</h5>
+                <h5 class="modal-title" id="addEventModalLabel">Add Document</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form (ngSubmit)="saveEvent()" #eventForm="ngForm" enctype="multipart/form-data">
                     <div class="mb-3">
                         <label for="document_category_id" class="form-label">Category Id</label>
-                        <select id="document_category_id" class="form-select" [(ngModel)]="selectedEvent.document_category_id" name="document_category_id"
-                            required #document_category_id="ngModel">
+                        <select id="document_category" class="form-select" [(ngModel)]="selectedEvent.document_category_id" name="document_category_id"
+                            required #document_category="ngModel">
                             <option value="" disabled>Select Category</option>
                             <option value="1">Category 1</option>
                             <option value="2">Category 2</option>
@@ -182,6 +183,7 @@
                             <div *ngIf="document_category_id.errors?.['required']">Category is required.</div>
                         </div>
                     </div>
+                    <div id="rolesContainer" class="mb-3"></div>
                     <div class="mb-3">
                         <label for="doc_name" class="form-label">Title</label>
                         <input type="text" id="doc_name" class="form-control" name="doc_name"
@@ -197,11 +199,11 @@
                     </div>
                     <div class="mb-3">
                         <label for="status" class="form-label">Status</label>
-                        <select id="status" class="form-select" name="status" [(ngModel)]="selectedEvent.status"
-                            required #status="ngModel">
-                            <option value="">Select Status</option>
-                            <option value="1">Active</option>
-                            <option value="2">Inactive</option>
+                        <select id="status" class="form-select" name="status" [(ngModel)]="selectedEvent.status" required #status="ngModel">
+                            <option value="" disabled>Select Status</option>
+                            <option value="1">Draft</option>
+                            <option value="2">Pending</option>
+                            <option value="3">Pulished</option>
                         </select>
                         <div *ngIf="status.invalid && (status.dirty || status.touched)" class="text-danger">
                             <div *ngIf="status.errors?.['required']">Status is required.</div>
@@ -242,7 +244,7 @@
                     <div class="mb-3">
                         <label for="document" class="form-label">Upload Document</label>
                         <input type="file" id="document" name="document" class="form-control"
-                            (change)="onFileChange($event)">
+                            (change)="onFileChange($event)" accept=".pdf" >
                         <div *ngIf="!fileToUpload" class="text-danger">
                             Document is required.
                         </div>

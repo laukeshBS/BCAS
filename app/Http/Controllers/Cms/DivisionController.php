@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Cms;
 
 use App\Models\Admin;
+use App\Models\Cms\Division;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
-use App\Models\Cms\Division;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Permission;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DivisionController extends Controller
 {
@@ -25,14 +25,24 @@ class DivisionController extends Controller
     // Division
     public function data(Request $request)
     {
-        $data = Division::get();
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
 
-        $data->transform(function ($item) {
-            $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            return $item;
-        });
-
-        return response()->json($data);
+        $slide = Division::select('*') ->paginate($perPage, ['*'], 'page', $page);
+        if ($slide->isNotEmpty()) {
+            $slide->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                return $item;
+            });
+        }
+        return response()->json([
+            'title' => 'List',
+            'data' => $slide->items(), 
+            'total' => $slide->total(), 
+            'current_page' => $slide->currentPage(), 
+            'last_page' => $slide->lastPage(), 
+            'per_page' => $slide->perPage(), 
+        ]);
     }
     public function data_by_id($id)
     {
@@ -57,38 +67,51 @@ class DivisionController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            'status' => 'required',
+            'name' => 'required|string|max:255',
+            'status' => 'required|string',
+            'lang_code' => 'required|string|max:10',
+            'phone' => 'required|string|max:15',
+            'email' => 'required|email|max:255',
+            'address' => 'nullable|string|max:255',
+            'fax' => 'nullable|string|max:15',
+            'epabx' => 'nullable|string|max:15',
         ]);
 
-        $division = new Division();
-        $division->name = $validated['name'];
-        $division->status = $validated['status'];
-        $division->save();
-        
-        return response()->json($division);
+        try {
+            $division = Division::create($validated);
+
+            return response()->json($division, 201); // 201 Created
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Unable to create division'], 500);
+        }
     }
+
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            'status' => 'required',
+            'name' => 'required|string|max:255',
+            'status' => 'required|string',
+            'lang_code' => 'required|string|max:10',
+            'phone' => 'required|string|max:15',
+            'email' => 'required|email|max:255',
+            'address' => 'nullable|string|max:255',
+            'fax' => 'nullable|string|max:15',
+            'epabx' => 'nullable|string|max:15',
         ]);
 
-        $division = Division::find($id);
+        try {
+            $division = Division::findOrFail($id); // Find the division or fail
 
-        if (!$division) {
-            return response()->json([
-                'error' => 'Data Not Found.'
-            ], 400);
+            $division->update($validated); // Mass assignment for update
+
+            return response()->json($division, 200); // 200 OK
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Division not found'], 404); // 404 Not Found
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Unable to update division'], 500); // 500 Internal Server Error
         }
-
-        $division->name = $validated['name'];
-        $division->status = $validated['status'];
-        $division->save();
-
-        return response()->json($division);
     }
+
     public function delete($id)
     {
         $division = Division::find($id);

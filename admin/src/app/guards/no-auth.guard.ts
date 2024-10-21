@@ -16,8 +16,6 @@ export class NoAuthGuard implements CanActivate {
       take(1),
       map(isLoggedIn => {
         if (isLoggedIn) {
-          // User is logged in, redirect to the home or dashboard page
-          this.router.navigate(['/acts-and-policies']); // Adjust the path as needed
           return false; // Deny access to the login route
         } else {
           return true; // Allow access to the login route

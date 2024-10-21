@@ -6,15 +6,31 @@
     <div class="sidebar">
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <li class="nav-item">
-            <a href="#" class="nav-link">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+            <a [routerLink]="['/dashboard']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
                 Dashboard
               </p>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['role.view'])">
+            <a [routerLink]="['admin-doc']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Admin Documents
+              </p>
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="hasAnyPermission(['role.view'])">
+            <a [routerLink]="['admin-doc-categories']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Admin Document Categories
+              </p>
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/acts-and-policies']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -22,7 +38,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/circulars']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -30,7 +46,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/events']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -38,7 +54,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/forms']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -46,7 +62,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/tenders']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -54,7 +70,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/notices']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -62,7 +78,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/vacancies']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -70,7 +86,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/division']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -78,7 +94,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/region']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -86,7 +102,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/common-title']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -95,7 +111,7 @@
             </a>
           </li>
          
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/slider']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
@@ -103,7 +119,7 @@
               </p>
             </a>
           </li>
-          <li class="nav-item">
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/slide']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>

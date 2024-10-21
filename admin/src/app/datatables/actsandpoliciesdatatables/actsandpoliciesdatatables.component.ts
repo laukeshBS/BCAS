@@ -29,11 +29,16 @@ export class ActsandpoliciesdatatablesComponent {
   }
 
   loading: boolean = false;
+  currentPage: number = 1;
+  totalItems: number = 0;
+  lastPage: number = 0;
 
   loadList(): void {
     this.loading = true; // Start loading
-    this.actsAndPoliciesService.allList(this.limit, this.lang_code).subscribe(data => {
-      this.events = data;
+    this.actsAndPoliciesService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
+      this.events = data.data;
+      this.totalItems = data.total; // Assuming the API returns total items
+      this.lastPage = Math.ceil(this.totalItems / this.limit);
       this.formatEventDates();
       this.loading = false; // Stop loading
     }, error => {
@@ -41,16 +46,37 @@ export class ActsandpoliciesdatatablesComponent {
       this.loading = false; // Stop loading on error
     });
   }
+  // Change page method
+  changePage(page: number): void {
+    console.log('Changing to page:', page); // Debugging line
+    if (page < 1 || page > this.lastPage) return; // Prevent out of bounds
+    this.currentPage = page;
+    this.loadList(); // Reload data
+  }
+
+  // Total pages calculation
+  totalPages(): number {
+    return Math.ceil(this.totalItems / this.limit);
+  }
 
   formatEventDates(): void {
     this.events.forEach(event => {
       event.created_at = new Date(event.created_at).toLocaleDateString('en-GB');
       event.start_date = new Date(event.start_date).toLocaleDateString('en-GB');
       event.end_date = new Date(event.end_date).toLocaleDateString('en-GB');
-      if (event.status==1) {
-        event.status = 'Active';
-      }else{
-        event.status = 'Inactive';
+      switch (event.status) {
+        case 1:
+          event.status = 'Draft';
+          break;
+        case 2:
+          event.status = 'Pending';
+          break;
+        case 3:
+          event.status = 'Published';
+          break;
+        default:
+          event.status = '';
+          break;
       }
       if (event.document!='') {
         event.document = '<a href="'+event.document+'">'+event.title+' Document</a>';
@@ -71,7 +97,7 @@ export class ActsandpoliciesdatatablesComponent {
   addEvent(): void {
     const modalElement = document.getElementById('addEventModal');
     if (modalElement) {
-      this.selectedEvent = '';
+      this.selectedEvent = {};
       const modal = new bootstrap.Modal(modalElement);
       modal.show();
     }

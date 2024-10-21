@@ -22,6 +22,11 @@ export class DivisiondatatableComponent {
   selectedFile: any;
   selectedFileError: string | null = null; // Initialized with null
 
+  loading: boolean = false;
+  currentPage: number = 1;
+  totalItems: number = 0;
+  lastPage: number = 0;
+
   constructor(private divisionService: DivisionService) {}
 
   ngOnInit(): void {
@@ -31,10 +36,29 @@ export class DivisiondatatableComponent {
   
 
   loadList(): void {
-    this.divisionService.allList(this.limit, this.lang_code).subscribe(data => {
-      this.events = data;
-      this.formatEventDates(); // Optional: Format dates if needed
+    this.loading = true; // Start loading
+    this.divisionService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
+      this.events = data.data;
+      this.totalItems = data.total; // Assuming the API returns total items
+      this.lastPage = Math.ceil(this.totalItems / this.limit);
+      this.formatEventDates();
+      this.loading = false; // Stop loading
+    }, error => {
+      console.error('Error loading events:', error);
+      this.loading = false; // Stop loading on error
     });
+  }
+  // Change page method
+  changePage(page: number): void {
+    console.log('Changing to page:', page); // Debugging line
+    if (page < 1 || page > this.lastPage) return; // Prevent out of bounds
+    this.currentPage = page;
+    this.loadList(); // Reload data
+  }
+
+  // Total pages calculation
+  totalPages(): number {
+    return Math.ceil(this.totalItems / this.limit);
   }
 
   formatEventDates(): void {
@@ -42,10 +66,19 @@ export class DivisiondatatableComponent {
       event.created_at = new Date(event.created_at).toLocaleDateString('en-GB');
       event.start_date = new Date(event.start_date).toLocaleDateString('en-GB');
       event.end_date = new Date(event.end_date).toLocaleDateString('en-GB');
-      if (event.status==1) {
-        event.status = 'Active';
-      }else{
-        event.status = 'Inactive';
+      switch (event.status) {
+        case 1:
+          event.status = 'Draft';
+          break;
+        case 2:
+          event.status = 'Pending';
+          break;
+        case 3:
+          event.status = 'Published';
+          break;
+        default:
+          event.status = '';
+          break;
       }
       if (event.document!='') {
         event.document = '<a href="'+event.document+'">'+event.title+' Document</a>';
@@ -64,26 +97,29 @@ export class DivisiondatatableComponent {
   addEvent(): void {
     const modalElement = document.getElementById('addEventModal');
     if (modalElement) {
+      this.selectedEvent = {};
       const modal = new bootstrap.Modal(modalElement);
       modal.show();
     }
   }
   saveEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
-        !this.selectedEvent.start_date || !this.selectedEvent.end_date || !this.fileToUpload) {
+    if (!this.selectedEvent.name || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
+        !this.selectedEvent.phone || !this.selectedEvent.email) {
       console.error('Missing required fields');
       return;
     }
 
     const formData = new FormData();
-    formData.append('title', this.selectedEvent.title);
+    formData.append('name', this.selectedEvent.name);
     formData.append('description', this.selectedEvent.description);
     formData.append('status', this.selectedEvent.status);
     formData.append('lang_code', this.selectedEvent.lang_code);
-    formData.append('start_date', this.selectedEvent.start_date);
-    formData.append('end_date', this.selectedEvent.end_date);
-    formData.append('document', this.fileToUpload, this.fileToUpload.name);
+    formData.append('phone', this.selectedEvent.phone);
+    formData.append('email', this.selectedEvent.email);
+    formData.append('address', this.selectedEvent.address);
+    formData.append('fax', this.selectedEvent.fax);
+    formData.append('epabx', this.selectedEvent.epabx);
 
     this.divisionService.storeEvent(formData).subscribe(
       (event: HttpEvent<any>) => {
@@ -97,23 +133,23 @@ export class DivisiondatatableComponent {
   }
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
-        !this.selectedEvent.start_date || !this.selectedEvent.end_date) {
+    if (!this.selectedEvent.name || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
+      !this.selectedEvent.phone || !this.selectedEvent.email) {
       console.error('Missing required fields');
       return;
     }
 
     const formData = new FormData();
-    formData.append('title', this.selectedEvent.title);
+    formData.append('name', this.selectedEvent.name);
     formData.append('description', this.selectedEvent.description);
     formData.append('status', this.selectedEvent.status);
     formData.append('lang_code', this.selectedEvent.lang_code);
-    formData.append('start_date', this.selectedEvent.start_date);
-    formData.append('end_date', this.selectedEvent.end_date);
-    // Append file only if it's present
-    if (this.fileToUpload) {
-      formData.append('document', this.fileToUpload, this.fileToUpload.name);
-    }
+    formData.append('phone', this.selectedEvent.phone);
+    formData.append('email', this.selectedEvent.email);
+    formData.append('address', this.selectedEvent.address);
+    formData.append('fax', this.selectedEvent.fax);
+    formData.append('epabx', this.selectedEvent.epabx);
+    
 
     this.divisionService.updateEvent(this.selectedEvent.id, formData).subscribe(
       (event: HttpEvent<any>) => {

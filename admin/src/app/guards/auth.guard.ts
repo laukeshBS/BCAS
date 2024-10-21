@@ -19,7 +19,6 @@ export class AuthGuard implements CanActivate {
         if (isLoggedIn) {
           return true; // User is logged in, allow access
         } else {
-          // Redirect to login page with the attempted URL as a query parameter
           return false; // User is not logged in, deny access
         }
       })
