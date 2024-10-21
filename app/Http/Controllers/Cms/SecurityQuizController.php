@@ -35,14 +35,28 @@ class SecurityQuizController  extends Controller
         return response()->json($data);
     }
     public function quiz_list(Request $request)
-    {
-       
-        $data = SecurityQuiz::inRandomOrder()->limit(10)->get();
+{
+    // Fetching the quiz data from the database
+    $data = SecurityQuiz::inRandomOrder()->limit(10)->get();
 
-       
+    // Transforming the data to match the desired format
+    $formattedData = $data->map(function($quiz) {
+        return [
+            'question' => $quiz->question,
+            'options' => [
+                $quiz->A,
+                $quiz->B,
+                $quiz->C,
+                $quiz->D
+            ],
+            'answer' => $quiz->answer // In this case 'A', 'B', 'C', or 'D'
+        ];
+    });
 
-        return response()->json($data);
-    }
+    // Returning the formatted data as JSON
+    return response()->json($formattedData);
+}
+
     public function data_by_id($id)
     {
         $validatedId = filter_var($id, FILTER_VALIDATE_INT);
