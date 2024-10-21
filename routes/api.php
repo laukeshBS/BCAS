@@ -9,7 +9,7 @@ use App\Http\Controllers\Cms\{
     DivisionController, OpsSecurityController, OpsiSecurityController,
     MenuController as Menus, ActandpoliciesController, CateringCompanyController,
     WorkingAirportsController, QuarterlyReportOnlineiiFormsController,
-    CommonController as Common, LanguageController as Lang,
+    CommonController as Common, LanguageController as Lang,OrganizationStructureController,
     Common\CommonTitleController, PermittedProhibitedController,QuizResultController,
     AvsecTrainingCalendarController, QuarterlyReportOnlineFormsController,SecurityQuizController
 };
@@ -73,6 +73,9 @@ Route::middleware(['cors'])->group(function () {
 
     Route::controller(Common::class)->group(function () {
         Route::post('common_title', 'index');
+    });
+    Route::controller(OrganizationStructureController::class)->group(function () {
+        Route::post('organization-list', 'organization_list');
     });
 
     Route::controller(VisitorController::class)->group(function () {

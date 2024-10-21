@@ -34,7 +34,7 @@ class OrganizationStructureController  extends Controller
 
         return response()->json($data);
     }
-    public function region_list(Request $request)
+    public function organization_list(Request $request)
     {
         $lang_code = $request->input('lang_code');
         $data = OrganizationStructure::where('lang_code', $lang_code)->get();
