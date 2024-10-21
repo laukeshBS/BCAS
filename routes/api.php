@@ -9,9 +9,9 @@ use App\Http\Controllers\Cms\{
     DivisionController, OpsSecurityController, OpsiSecurityController,
     MenuController as Menus, ActandpoliciesController, CateringCompanyController,
     WorkingAirportsController, QuarterlyReportOnlineiiFormsController,
-    CommonController as Common, LanguageController as Lang,
-    Common\CommonTitleController, PermittedProhibitedController,
-    AvsecTrainingCalendarController, QuarterlyReportOnlineFormsController
+    CommonController as Common, LanguageController as Lang,OrganizationStructureController,
+    Common\CommonTitleController, PermittedProhibitedController,QuizResultController,
+    AvsecTrainingCalendarController, QuarterlyReportOnlineFormsController,SecurityQuizController
 };
 use App\Http\Controllers\Cms\Division\GalleryController;
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
@@ -54,6 +54,9 @@ Route::middleware(['cors', 'throttle:60,1'])->group(function () {
     Route::controller(QuarterlyReportOnlineiiFormsController::class)->group(function () {
         Route::post('quarterly-report2-online', 'store');
     });
+    Route::controller(QuizResultController::class)->group(function () {
+        Route::any('quiz-results', 'store');
+     });
 });
 
 Route::middleware(['cors'])->group(function () {
@@ -73,6 +76,9 @@ Route::middleware(['cors'])->group(function () {
 
     Route::controller(Common::class)->group(function () {
         Route::post('common_title', 'index');
+    });
+    Route::controller(OrganizationStructureController::class)->group(function () {
+        Route::post('organization-list', 'organization_list');
     });
 
     Route::controller(VisitorController::class)->group(function () {
@@ -160,6 +166,12 @@ Route::middleware(['cors'])->group(function () {
         Route::post('airline-list', 'airline_list');
         Route::post('airline-list-approved', 'airline_list_approved');
     });
+    Route::controller(SecurityQuizController::class)->group(function () {
+        Route::post('quiz-list', 'quiz_list');
+        Route::post('quiz-results', 'store');
+        
+    });
+   
 });
 
 // Admin Routes
@@ -312,8 +324,9 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(VacancyController::class)->group(function () {
-        Route::post('vacancy-list','data');
+        
         Route::get('vacancy-list-by-id/{id}','data_by_id');
+
         Route::post('vacancy-store', 'store');
         Route::post('vacancy-update/{id}', 'update');
         Route::delete('vacancy-delete/{id}', 'delete');
