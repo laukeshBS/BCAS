@@ -48,7 +48,7 @@ export class AuthService {
       if (response?.data?.access_token) {
         this.storeUserData(response.data.access_token, response.data.user);
         this.loggedInSubject.next(true);
-        this.router.navigate(['dashboard']);
+        this.router.navigate(['acts-and-policies']);
       } else {
         console.error('Login failed: No token returned or invalid response');
       }
@@ -75,7 +75,7 @@ export class AuthService {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     this.loggedInSubject.next(false);
-    this.router.navigate(['login']);
+    this.router.navigate(['/login']);
   }
 
   getToken(): string | null {

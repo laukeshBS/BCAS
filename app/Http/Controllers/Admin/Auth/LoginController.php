@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Crypt;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
@@ -61,13 +62,13 @@ class LoginController extends Controller
 
         $user = Admin::where('email', $request->email)->first();
 
+        // $decryptedPassword = Crypt::decryptString($request->password);
+
         if ($user && Hash::check($request->password, $user->password)) {
             $token = $user->createToken('bcas_cms')->plainTextToken;
 
             $user->api_token = $token; // If using api_token column
             $user->save();
-
-            $user->getRoleNames();
 
             return response()->json([
                 'success' => true,

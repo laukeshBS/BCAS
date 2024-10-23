@@ -1,0 +1,297 @@
+<div *ngIf="events.length > 0" style="overflow-x: auto">
+    <button (click)="addEvent()" class="btn btn-outline-primary btn-sm">Add</button>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Rank</th>
+            <th>Phone</th>
+            <th>email</th>
+            <th>type</th>
+            <th>Division</th>
+            <th>Region</th>
+            <th>Position</th>
+            <th>Status</th>
+            <th>Language</th>
+            <th>Published Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events">
+            <td>{{ event.name }}</td>
+            <td>{{ event.rank }}</td>
+            <td>{{ event.phone }}</td>
+            <td>{{ event.email }}</td>
+            <td>{{ event.type }}</td>
+            <td>{{ event.division_id }}</td>
+            <td>{{ event.region_id }}</td>
+            <td>{{ event.positions }}</td>
+            <td>{{ event.status }}</td>
+            <td>{{ event.lang_code }}</td>
+            <td>{{ event.created_at }}</td>
+            <td>
+              <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
+              <button (click)="deleteEvent(event.id)" class="btn btn-outline-danger btn-sm">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div *ngIf="events.length === 0">
+      <p>Loading.</p>
+    </div>
+    <nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+      <ul class="pagination">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="changePage(currentPage - 1)" [attr.aria-disabled]="currentPage === 1">Previous</a>
+        </li>
+        
+        <li *ngFor="let page of [].constructor(lastPage); let i = index" class="page-item" [class.active]="i + 1 === currentPage">
+          <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+        </li>
+        
+        <li class="page-item" [class.disabled]="currentPage === lastPage">
+          <a class="page-link" (click)="changePage(currentPage + 1)" [attr.aria-disabled]="currentPage === lastPage">Next</a>
+        </li>
+      </ul>
+    </nav>
+    
+    <!-- Bootstrap modal -->
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="min-width: 900px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editEventModalLabel">Edit Contact</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="modifyEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="name" class="form-label">Name</label>
+                      <input 
+                        type="text" 
+                        id="name" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.name" 
+                        name="name" 
+                        required 
+                        #name="ngModel"
+                      />
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Name is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="rank" class="form-label">Rank</label>
+                      <input type="text" id="rank" class="form-control" [(ngModel)]="selectedEvent.rank" name="rank" required #rank="ngModel" />
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Rank is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="phone" class="form-label">Phone</label>
+                      <input type="phone" id="phone" class="form-control" [(ngModel)]="selectedEvent.phone" name="phone" required #phone="ngModel" />
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Phone is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="email" class="form-label">Email</label>
+                      <input type="text" id="email" class="form-control" [(ngModel)]="selectedEvent.email" name="email" required #email="ngModel" />
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Email is required.</div>
+                      </div>
+                    </div>
+                  </div>
+              
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="type" class="form-label">Type</label>
+                      <input type="number" id="type" class="form-control" [(ngModel)]="selectedEvent.type" name="type" required #type="ngModel" min="0" />
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Type is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="division_id" class="form-label">Division Id</label>
+                      <input type="number" id="division_id" class="form-control" [(ngModel)]="selectedEvent.division_id" name="division_id" required #division_id="ngModel" min="0" />
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Division Id is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="region_id" class="form-label">Region Id</label>
+                      <input type="number" id="region_id" class="form-control" [(ngModel)]="selectedEvent.region_id" name="region_id" required #region_id="ngModel" min="0" />
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Region Id is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="positions" class="form-label">Position</label>
+                      <input type="number" id="positions" class="form-control" [(ngModel)]="selectedEvent.positions" name="positions" required #positions="ngModel" />
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Position is required.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              
+                <div class="mb-3">
+                  <label for="status" class="form-label">Status</label>
+                  <select 
+                    id="status" 
+                    class="form-select" 
+                    [(ngModel)]="selectedEvent.status" 
+                    name="status" 
+                    required
+                    #status="ngModel"
+                  >
+                    <option value="" disabled>Select Status</option>
+                    <option value="1">Draft</option>
+                    <option value="2">Pending</option>
+                    <option value="3">Published</option>
+                  </select>
+                  <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                    <div *ngIf="selectedEvent.errors?.['required']">Status is required.</div>
+                  </div>
+                </div>
+              
+                <div class="mb-3">
+                  <label for="lang_code" class="form-label">Language</label>
+                  <select id="lang_code" class="form-select" [(ngModel)]="selectedEvent.lang_code" name="lang_code" required #lang_code="ngModel">
+                    <option value="" disabled>Select Language</option>
+                    <option value="en">English</option>
+                    <option value="hi">Hindi</option>
+                  </select>
+                  <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                    <div *ngIf="selectedEvent.errors?.['required']">Language is required.</div>
+                  </div>
+                </div>
+              
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="min-width: 900px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addEventModalLabel">add Contact</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="saveEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+                <div class="row">
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="name" class="form-label">Name</label>
+                      <input type="text" id="name" class="form-control" name="name" [(ngModel)]="selectedEvent.name" required #name="ngModel">
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Name is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="rank" class="form-label">Rank</label>
+                      <input type="text" id="rank" class="form-control" name="rank" [(ngModel)]="selectedEvent.rank" required #rank="ngModel">
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Rank is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="phone" class="form-label">Phone</label>
+                      <input type="phone" id="phone" class="form-control" name="phone" [(ngModel)]="selectedEvent.phone" required #phone="ngModel">
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Phone is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="email" class="form-label">Email</label>
+                      <input type="text" id="email" class="form-control" name="email" [(ngModel)]="selectedEvent.email" required #email="ngModel">
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Email is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="status" class="form-label">Status</label>
+                      <select id="status" class="form-select" name="status" [(ngModel)]="selectedEvent.status" required #status="ngModel">
+                        <option value="">Select Status</option>
+                        <option value="1">Draft</option>
+                        <option value="2">Pending</option>
+                        <option value="3">Published</option>
+                      </select>
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Status is required.</div>
+                      </div>
+                    </div>
+                  </div>
+              
+                  <div class="col-md-6">
+                    <div class="mb-3">
+                      <label for="type" class="form-label">Type</label>
+                      <input type="number" id="type" class="form-control" name="type" [(ngModel)]="selectedEvent.type" required #type="ngModel" min="0">
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Type is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="division_id" class="form-label">Division Id</label>
+                      <input type="number" id="division_id" class="form-control" name="division_id" [(ngModel)]="selectedEvent.division_id" required #division_id="ngModel" min="0">
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Division Id is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="region_id" class="form-label">Region Id</label>
+                      <input type="number" id="region_id" class="form-control" name="region_id" [(ngModel)]="selectedEvent.region_id" required #region_id="ngModel" min="0">
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Region Id is required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="positions" class="form-label">Positions</label>
+                      <input type="number" id="positions" class="form-control" name="positions" [(ngModel)]="selectedEvent.positions" required #positions="ngModel">
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Positions are required.</div>
+                      </div>
+                    </div>
+              
+                    <div class="mb-3">
+                      <label for="lang_code" class="form-label">Language</label>
+                      <select id="lang_code" class="form-select" name="lang_code" [(ngModel)]="selectedEvent.lang_code" required #lang_code="ngModel">
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                      </select>
+                      <div *ngIf="selectedEvent.invalid && (selectedEvent.dirty || selectedEvent.touched)" class="text-danger">
+                        <div *ngIf="selectedEvent.errors?.['required']">Language is required.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              
+                <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Save Changes</button>
+              </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    
