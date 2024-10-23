@@ -11,10 +11,10 @@ class Region extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name','status',
+        'name','status','position',
     ];
     public function contacts()
     {
-        return $this->hasMany(Contact::class, 'region_id');
+        return $this->hasMany(Contact::class, 'region_id')->orderBy('positions');
     }
 }
