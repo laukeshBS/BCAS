@@ -48,10 +48,11 @@ public function airline_list_approved(Request $request)
     // Filter parameters
     $date_of_approval = $request->input('date_of_approval');
     $air_type = $request->input('air_type');
-
+    $station_name = $request->input('station_name');
     // Query to fetch approved airlines based on the provided filters
     $airlines = Airline::select('*')
     ->where('status', 'APPROVED')
+    ->where('station_name', 'like', "%{$station_name}%")
     ->where('air_type', 'like', "%{$air_type}%") // Using like for partial match
     ->when($date_of_approval, function ($query, $date_of_approval) {
         return $query->whereRaw('YEAR(date_of_approval) = ?', [$date_of_approval]);

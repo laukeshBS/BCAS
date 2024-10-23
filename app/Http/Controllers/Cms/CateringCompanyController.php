@@ -53,7 +53,7 @@ public function catering_list_approved(Request $request)
     $catering = CateringCompany::select('*')
     ->where('status', 'APPROVED')
     ->when($airport_name, function ($query, $airport_name) {
-        return $query->where('airport_name', $airport_name);
+        return $query->where('entity_name', $airport_name);
     })
     ->when($regional_office, function ($query, $regional_office) {
         return $query->where('regional_office', $regional_office);

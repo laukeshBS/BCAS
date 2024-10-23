@@ -190,7 +190,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
       
     });
     Route::controller(menus::class)->group(function () {
-        Route::post('menulist', 'data');
+        Route::post('menulist', 'index');
         Route::get('menu-by-id/{id}', 'data_by_id');
         Route::post('menu-store', 'store');
         Route::post('menu-update/{id}', 'update');

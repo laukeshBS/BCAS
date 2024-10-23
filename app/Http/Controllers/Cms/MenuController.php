@@ -326,7 +326,7 @@ class MenuController extends BaseController
     public function delete($id)
     {
         $actandpolicy = Menu::find($id);
-
+         echo "Helloo Deleted";
         if (!$actandpolicy) {
             return response()->json([
                 'error' => 'Not Found.'
