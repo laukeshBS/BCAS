@@ -40,6 +40,8 @@ class ContactController extends Controller
             $query = Division::with('contacts')->where('lang_code', $lang_code);
             if ($division_id) {
                 $query->where('id', $division_id);
+            }else{
+                $query->orderBy('position');
             }
             $data = $query->get();
         } else if ($type == 2) {

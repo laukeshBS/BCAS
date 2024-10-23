@@ -11,10 +11,10 @@ class Division extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name','status','lang_code','phone','email','address','fax','epabx',
+        'name','status','lang_code','phone','email','address','fax','epabx','position',
     ];
     public function contacts()
     {
-        return $this->hasMany(Contact::class, 'division_id');
+        return $this->hasMany(Contact::class, 'division_id')->orderBy('positions');
     }
 }
