@@ -122,7 +122,7 @@ Route::middleware(['cors'])->group(function () {
     });
 
     Route::controller(ContactController::class)->group(function () {
-        Route::post('contact-list', 'data');
+        Route::post('contact-list', 'index');
     });
 
     Route::controller(VacancyController::class)->group(function () {
@@ -180,7 +180,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::post('roles-list', 'index');
         Route::post('roles-store', 'store');
         Route::post('roles-update/{id}','update');
-        Route::delete('roles-delete/{id}','delete');
+        Route::delete('roles-delete/{id}','destroy');
         Route::post('all_permissions', 'all_permissions');
         Route::get('roles-list-by-id/{id}', 'edit');
         Route::get('roles', 'role_list');
@@ -333,7 +333,8 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(ContactController::class)->group(function () {
-       // Route::post('contact-list','data');
+       Route::post('contacts-list','data');
+       Route::get('contact-list-by-id/{id}','data_by_id');
         Route::post('contact-store', 'store');
         Route::post('contact-update/{id}', 'update');
         Route::delete('contact-delete/{id}', 'delete');
