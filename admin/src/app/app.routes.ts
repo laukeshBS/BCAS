@@ -22,6 +22,7 @@ import { AdminDocumentComponent } from './pages/admin-document/admin-document.co
 import { RolesComponent } from './pages/roles/roles.component';
 import { AdminDocumentCategoryComponent } from './pages/admin-document-category/admin-document-category.component';
 import { DasboardComponent } from './pages/dasboard/dasboard.component';
+import { ContactComponent } from './pages/contact/contact.component';
 
 
 export const routes: Routes = [
@@ -40,6 +41,7 @@ export const routes: Routes = [
     { path: 'admin/roles', component: RolesComponent, canActivate: [AuthGuard]  },
     { path: 'slider', component: SliderComponent, canActivate: [AuthGuard]  },
     { path: 'slide', component: SlideComponent, canActivate: [AuthGuard]  },
+    { path: 'contact', component: ContactComponent, canActivate: [AuthGuard]  },
     { path: 'division-gallery', component: DivisionGalleryComponent, canActivate: [AuthGuard]  },
     { path: 'admin-doc', component: AdminDocumentComponent, canActivate: [AuthGuard]  },
     { path: 'admin-doc-categories', component: AdminDocumentCategoryComponent, canActivate: [AuthGuard]  },

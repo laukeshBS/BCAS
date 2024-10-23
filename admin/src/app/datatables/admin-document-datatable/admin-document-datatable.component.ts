@@ -229,11 +229,22 @@ export class AdminDocumentDatatableComponent {
 
   saveEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.doc_name || !this.selectedEvent.doc_type || !this.selectedEvent.status || !this.selectedEvent.position || !this.selectedEvent.start_date || !this.selectedEvent.end_date) {
-      console.log('Missing required fields');
+    const requiredFields = [
+      'doc_name',
+      'doc_type',
+      'status',
+      'position',
+      'start_date',
+      'end_date',
+    ];
+
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+  
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
-
+  
     const formData = new FormData();
     formData.append('document_category_id', this.selectedEvent.document_category_id);
     formData.append('doc_name', this.selectedEvent.doc_name);
@@ -243,32 +254,57 @@ export class AdminDocumentDatatableComponent {
     formData.append('position', this.selectedEvent.position);
     formData.append('start_date', this.selectedEvent.start_date);
     formData.append('end_date', this.selectedEvent.end_date);
-
+  
     // Append selected roles to formData
     this.selectedRoleIds.forEach((roleId: string | Blob) => {
       formData.append('roles[]', roleId); // Use roles[] for array input
     });
-
-    // Append file only if it's present
+  
+    // Validate and append file only if it's present
     if (this.fileToUpload) {
+      const validFileTypes = ['application/pdf']; // Example types
+      const maxFileSize = 5 * 1024 * 1024; // 5MB
+  
+      if (!validFileTypes.includes(this.fileToUpload.type)) {
+        alert('Invalid file type');
+        return;
+      }
+      if (this.fileToUpload.size > maxFileSize) {
+        alert('File size exceeds the limit of 5MB');
+        return;
+      }
+      
       formData.append('doc', this.fileToUpload, this.fileToUpload.name);
     }
-
+  
     this.AdminDocumentService.storeEvent(formData).subscribe(
       (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
-          this.closeAddModal(); // Close the modal or form
+        this.loadList(); // Refresh the list of events
+        this.closeAddModal(); // Close the modal or form
       },
       error => {
-        console.error('Error saving event', error);
+        alert('Error saving event: '+error.message || error);
+        // Optionally, display an error message to the user
       }
     );
   }
+  
 
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.document_category_id || !this.selectedEvent.doc_name || !this.selectedEvent.doc_type || !this.selectedEvent.status || !this.selectedEvent.position || !this.selectedEvent.start_date || !this.selectedEvent.end_date)  {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'doc_name',
+      'doc_type',
+      'status',
+      'position',
+      'start_date',
+      'end_date',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+  
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -289,6 +325,18 @@ export class AdminDocumentDatatableComponent {
 
     // Append file only if it's present
     if (this.fileToUpload) {
+      const validFileTypes = ['application/pdf']; // Example types
+      const maxFileSize = 5 * 1024 * 1024; // 5MB
+  
+      if (!validFileTypes.includes(this.fileToUpload.type)) {
+        alert('Invalid file type');
+        return;
+      }
+      if (this.fileToUpload.size > maxFileSize) {
+        alert('File size exceeds the limit of 5MB');
+        return;
+      }
+      
       formData.append('doc', this.fileToUpload, this.fileToUpload.name);
     }
 
