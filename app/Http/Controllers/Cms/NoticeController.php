@@ -94,6 +94,31 @@ class NoticeController extends Controller
 
         return response()->json($data);
     }
+    public function cms_data(Request $request)
+    {
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $slider = Notice::select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        if ($slider->isNotEmpty()) {
+            $slider->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                if ($item->document) {
+                    $item->document = asset('public/documents/'.$item->document);
+                }
+                return $item;
+            });
+        }
+
+            return response()->json([
+                'title' => 'Tender List',
+                'data' => $slider->items(),
+                'total' => $slider->total(),
+                'current_page' => $slider->currentPage(),
+                'last_page' => $slider->lastPage(),
+                'per_page' => $slider->perPage(),
+            ]);
+    }
     public function data_by_id($id)
     {
         // Validate the ID
@@ -125,11 +150,12 @@ class NoticeController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
-            'description' => 'max:500',
+            'description' => 'nullable|max:500',
             'status' => 'required',
             'lang_code' => 'required',
             'start_date' => 'required',
             'end_date' => 'required',
+            'important' => 'required',
             'document' => 'required|file|mimes:pdf|max:2048',
         ]);
 
@@ -142,69 +168,70 @@ class NoticeController extends Controller
         }
 
         // Create a new Act and Policy instance
-        $actandpolicy = new Notice();
-        $actandpolicy->title = $validated['title'];
-        $actandpolicy->description = $validated['description'];
-        $actandpolicy->status = $validated['status'];
-        $actandpolicy->lang_code = $validated['lang_code'];
-        $actandpolicy->start_date = $validated['start_date'];
-        $actandpolicy->end_date = $validated['end_date'];
-        $actandpolicy->document = $filePath; // Store file path in the database
-        $actandpolicy->save();
+        $notice = new Notice();
+        $notice->title = $validated['title'];
+        $notice->description = $validated['description'];
+        $notice->status = $validated['status'];
+        $notice->lang_code = $validated['lang_code'];
+        $notice->start_date = $validated['start_date'];
+        $notice->end_date = $validated['end_date'];
+        $notice->important = $validated['important'];
+        $notice->document = $filePath; // Store file path in the database
+        $notice->save();
         
         // Return the data as JSON
-        return response()->json($actandpolicy);
+        return response()->json($notice);
     }
 
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
-            'description' => 'max:500',
+            'description' => 'nullable|max:500',
             'status' => 'required',
-            'document' => 'file|mimes:pdf|max:2048',
+            'lang_code' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'important' => 'required',
+            'document' => 'nullable|file|mimes:pdf|max:2048',
         ]);
 
-        $actandpolicy = Notice::find($id);
+        $notice = Notice::find($id);
 
-        if (!$actandpolicy) {
-            return response()->json([
-                'error' => 'Not Found.'
-            ], 400);
+        if (!$notice) {
+            return response()->json(['error' => 'Not Found.'], 404);
         }
-
-        $actandpolicy->title = $request->input('title');
-        $actandpolicy->description = $request->input('description');
-        $actandpolicy->status = $request->input('status');
 
         if ($request->hasFile('document')) {
             $docUpload = $request->file('document');
             $docPath = time() . '_' . $docUpload->getClientOriginalName();
             $docUpload->move(public_path('documents/notices/'), $docPath);
-            $actandpolicy->document  = 'notices/'.$docPath;
+            $validated['document'] = 'notices/' . $docPath;
         }
+        // Use fill to update attributes
+        $notice->fill($validated);
 
-        $actandpolicy->save();
+        $notice->save();
 
-        // Return the data as JSON
-        return response()->json($actandpolicy);
+        return response()->json($validated);
     }
+
 
     public function delete($id)
     {
-        // Find the actandpolicy by id
-        $actandpolicy = Notice::find($id);
+        // Find the notice by id
+        $notice = Notice::find($id);
 
-        if (!$actandpolicy) {
+        if (!$notice) {
             return response()->json([
                 'error' => 'Not Found.'
             ], 400);
         }
 
-        // Delete the actandpolicy
-        $actandpolicy->delete();
+        // Delete the notice
+        $notice->delete();
 
         // Return the data as JSON
-        return response()->json($actandpolicy);
+        return response()->json($notice);
     }
 }

@@ -83,6 +83,31 @@ class CircularController extends Controller
 
         return response()->json($data);
     }
+    public function cms_data(Request $request)
+    {
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $slider = Circular::select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        if ($slider->isNotEmpty()) {
+            $slider->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                if ($item->document) {
+                    $item->document = asset('public/documents/'.$item->document);
+                }
+                return $item;
+            });
+        }
+
+            return response()->json([
+                'title' => 'Tender List',
+                'data' => $slider->items(),
+                'total' => $slider->total(),
+                'current_page' => $slider->currentPage(),
+                'last_page' => $slider->lastPage(),
+                'per_page' => $slider->perPage(),
+            ]);
+    }
     public function data_by_id($id)
     {
         // Validate the ID
@@ -129,70 +154,78 @@ class CircularController extends Controller
         }
 
         // Create a new Act and Policy instance
-        $actandpolicy = new Circular();
-        $actandpolicy->title = $validated['title'];
-        $actandpolicy->description = $validated['description'];
-        $actandpolicy->status = $validated['status'];
-        $actandpolicy->lang_code = $validated['lang_code'];
-        $actandpolicy->start_date = $validated['start_date'];
-        $actandpolicy->end_date = $validated['end_date'];
-        $actandpolicy->document = $filePath; // Store file path in the database
-        $actandpolicy->save();
+        $circulars = new Circular();
+        $circulars->title = $validated['title'];
+        $circulars->description = $validated['description'];
+        $circulars->status = $validated['status'];
+        $circulars->lang_code = $validated['lang_code'];
+        $circulars->start_date = $validated['start_date'];
+        $circulars->end_date = $validated['end_date'];
+        $circulars->document = $filePath; // Store file path in the database
+        $circulars->save();
         
         // Return the data as JSON
-        return response()->json($actandpolicy);
+        return response()->json($circulars);
     }
 
     public function update(Request $request, $id)
-    {
-        $validated = $request->validate([
-            'title' => 'required|max:255',
-            'description' => 'max:500',
-            'status' => 'required',
-            'document' => 'file|mimes:pdf|max:2048',
-        ]);
+{
+    $validated = $request->validate([
+        'title' => 'required|max:255',
+        'description' => 'max:500',
+        'status' => 'required',
+        'lang_code' => 'required',
+        'start_date' => 'required|date_format:Y-m-d',
+        'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
+        'document' => 'nullable|file|mimes:pdf|max:2048',
+    ]);
 
-        $actandpolicy = Circular::find($id);
+    $circulars = Circular::find($id);
 
-        if (!$actandpolicy) {
-            return response()->json([
-                'error' => 'Not Found.'
-            ], 400);
-        }
-
-        $actandpolicy->title = $request->input('title');
-        $actandpolicy->description = $request->input('description');
-        $actandpolicy->status = $request->input('status');
-
-        if ($request->hasFile('document')) {
-            $docUpload = $request->file('document');
-            $docPath = time() . '_' . $docUpload->getClientOriginalName();
-            $docUpload->move(public_path('documents/circulars/'), $docPath);
-            $actandpolicy->document = 'circulars/'.$docPath;
-        }
-
-        $actandpolicy->save();
-
-        // Return the data as JSON
-        return response()->json($actandpolicy);
+    if (!$circulars) {
+        return response()->json([
+            'error' => 'Not Found.'
+        ], 404);
     }
+
+    $circulars->title = $request->input('title');
+    $circulars->description = $request->input('description');
+    $circulars->status = $request->input('status');
+    $circulars->lang_code = $request->input('lang_code');
+    $circulars->start_date = $request->input('start_date');
+    $circulars->end_date = $request->input('end_date');
+
+    if ($request->hasFile('document')) {
+        $docUpload = $request->file('document');
+        $docPath = time() . '_' . $docUpload->getClientOriginalName();
+        $docUpload->move(public_path('documents/circulars/'), $docPath);
+        $filePath = 'circulars/'.$docPath;
+        $circulars->document = $filePath;
+    }
+
+    $circulars->save();
+
+    // Return the updated Circular as JSON
+    return response()->json($circulars);
+}
+
 
     public function delete($id)
     {
-        // Find the actandpolicy by id
-        $actandpolicy = Circular::find($id);
+        // Find the circulars by id
+        $circulars = Circular::find($id);
 
-        if (!$actandpolicy) {
+        if (!$circulars) {
             return response()->json([
                 'error' => 'Not Found.'
             ], 400);
         }
 
-        // Delete the actandpolicy
-        $actandpolicy->delete();
+        // Delete the circulars
+        $circulars->delete();
 
         // Return the data as JSON
-        return response()->json($actandpolicy);
+        return response()->json($circulars);
     }
 
 }

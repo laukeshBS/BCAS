@@ -274,7 +274,9 @@ export class AdminDocumentDatatableComponent {
         return;
       }
       
-      formData.append('doc', this.fileToUpload, this.fileToUpload.name);
+      const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_'); // Replace spaces with underscores
+        
+      formData.append('document', this.fileToUpload, sanitizedFileName);
     }
   
     this.AdminDocumentService.storeEvent(formData).subscribe(
@@ -337,7 +339,9 @@ export class AdminDocumentDatatableComponent {
         return;
       }
       
-      formData.append('doc', this.fileToUpload, this.fileToUpload.name);
+      const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_'); // Replace spaces with underscores
+        
+      formData.append('document', this.fileToUpload, sanitizedFileName);
     }
 
     this.AdminDocumentService.updateEvent(this.selectedEvent.id, formData).subscribe(

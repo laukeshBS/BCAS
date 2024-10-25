@@ -17,7 +17,7 @@ export class ActsandpoliciesdatatablesComponent {
   events: any[] = [];
   selectedEvent: any = {};
   fileToUpload: File | null = null;
-  limit = 5; 
+  limit = 10; 
   lang_code = 'en'; 
   selectedFile: any;
   selectedFileError: string | null = null; // Initialized with null
@@ -105,9 +105,21 @@ export class ActsandpoliciesdatatablesComponent {
 
   saveEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
-        !this.selectedEvent.start_date || !this.selectedEvent.end_date || !this.fileToUpload) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'title',
+      'lang_code',
+      'status',
+      'start_date',
+      'end_date',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+    if (!this.fileToUpload) {
+      missingFields.push('document');
+    }
+  
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -118,7 +130,24 @@ export class ActsandpoliciesdatatablesComponent {
     formData.append('lang_code', this.selectedEvent.lang_code);
     formData.append('start_date', this.selectedEvent.start_date);
     formData.append('end_date', this.selectedEvent.end_date);
-    formData.append('document', this.fileToUpload, this.fileToUpload.name);
+    // Append file only if it's present
+    if (this.fileToUpload) {
+      const validFileTypes = ['application/pdf']; // Example types
+      const maxFileSize = 5 * 1024 * 1024; // 5MB
+  
+      if (!validFileTypes.includes(this.fileToUpload.type)) {
+        alert('Invalid file type');
+        return;
+      }
+      if (this.fileToUpload.size > maxFileSize) {
+        alert('File size exceeds the limit of 5MB');
+        return;
+      }
+      
+      const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_'); // Replace spaces with underscores
+        
+      formData.append('document', this.fileToUpload, sanitizedFileName);
+    }
 
     this.actsAndPoliciesService.storeEvent(formData).subscribe(
       (event: HttpEvent<any>) => {
@@ -133,9 +162,18 @@ export class ActsandpoliciesdatatablesComponent {
 
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
-        !this.selectedEvent.start_date || !this.selectedEvent.end_date) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'title',
+      'lang_code',
+      'status',
+      'start_date',
+      'end_date',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+    
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -148,7 +186,21 @@ export class ActsandpoliciesdatatablesComponent {
     formData.append('end_date', this.selectedEvent.end_date);
     // Append file only if it's present
     if (this.fileToUpload) {
-      formData.append('document', this.fileToUpload, this.fileToUpload.name);
+      const validFileTypes = ['application/pdf']; // Example types
+      const maxFileSize = 5 * 1024 * 1024; // 5MB
+  
+      if (!validFileTypes.includes(this.fileToUpload.type)) {
+        alert('Invalid file type');
+        return;
+      }
+      if (this.fileToUpload.size > maxFileSize) {
+        alert('File size exceeds the limit of 5MB');
+        return;
+      }
+      
+      const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_'); // Replace spaces with underscores
+        
+      formData.append('document', this.fileToUpload, sanitizedFileName);
     }
 
     this.actsAndPoliciesService.updateEvent(this.selectedEvent.id, formData).subscribe(

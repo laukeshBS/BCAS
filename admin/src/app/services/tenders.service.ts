@@ -8,7 +8,7 @@ import { environment } from '../environments/environment';
 })
 export class TendersService {
 
-  private apiUrl = environment.apiBaseUrl + 'tender-list';
+  private apiUrl = environment.apiBaseUrl + 'tenders-list';
   private getbyidapiUrl = environment.apiBaseUrl + 'tender-list-by-id';
   private storeApiUrl = environment.apiBaseUrl + 'tender-store';
   private updateApiUrl = environment.apiBaseUrl + 'tender-update';
@@ -32,8 +32,8 @@ export class TendersService {
   }
 
   // Get list of tenders
-  allList(limit: number, lang_code: string): Observable<any> {
-    const body = { limit, lang_code };
+  allList(limit: number, lang_code: string,currentPage : number): Observable<any> {
+    const body = { limit, lang_code,currentPage };
     return this.http.post<any>(this.apiUrl, body, { headers: this.getHeaders() });
   }
 

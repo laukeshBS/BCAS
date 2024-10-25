@@ -21,6 +21,11 @@ export class CircularsdatatableComponent {
   lang_code = 'en'; 
   selectedFile: any;
   selectedFileError: string | null = null; // Initialized with null
+  currentPage: number = 1; // Current page for pagination
+  totalItems: number = 0; // Total items to calculate total pages
+  loading: boolean = false;
+  lastPage: number = 0; // Last page]
+  userId: number | null = null;
 
   constructor(private CircularsService: CircularsService) {}
 
@@ -28,13 +33,30 @@ export class CircularsdatatableComponent {
     this.loadList();
   }
 
-  
-
   loadList(): void {
-    this.CircularsService.allList(this.limit, this.lang_code).subscribe(data => {
-      this.events = data;
-      this.formatEventDates(); // Optional: Format dates if needed
+    this.loading = true; // Start loading
+    this.CircularsService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
+      this.events = data.data;
+      this.totalItems = data.total; // Assuming the API returns total items
+      this.lastPage = Math.ceil(this.totalItems / this.limit);
+      this.formatEventDates();
+      this.loading = false; // Stop loading
+    }, error => {
+      console.error('Error loading events:', error);
+      this.loading = false; // Stop loading on error
     });
+  }
+  // Change page method
+  changePage(page: number): void {
+    console.log('Changing to page:', page); // Debugging line
+    if (page < 1 || page > this.lastPage) return; // Prevent out of bounds
+    this.currentPage = page;
+    this.loadList(); // Reload data
+  }
+
+  // Total pages calculation
+  totalPages(): number {
+    return Math.ceil(this.totalItems / this.limit);
   }
 
   formatEventDates(): void {
@@ -81,9 +103,22 @@ export class CircularsdatatableComponent {
   }
   saveEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
-        !this.selectedEvent.start_date || !this.selectedEvent.end_date || !this.fileToUpload) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'title',
+      'lang_code',
+      'status',
+      'start_date',
+      'end_date',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+    
+    if (!this.fileToUpload) {
+      missingFields.push('document');
+    }
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -94,7 +129,24 @@ export class CircularsdatatableComponent {
     formData.append('lang_code', this.selectedEvent.lang_code);
     formData.append('start_date', this.selectedEvent.start_date);
     formData.append('end_date', this.selectedEvent.end_date);
-    formData.append('document', this.fileToUpload, this.fileToUpload.name);
+    // Append file only if it's present
+    if (this.fileToUpload) {
+      const validFileTypes = ['application/pdf']; // Example types
+      const maxFileSize = 5 * 1024 * 1024; // 5MB
+  
+      if (!validFileTypes.includes(this.fileToUpload.type)) {
+        alert('Invalid file type');
+        return;
+      }
+      if (this.fileToUpload.size > maxFileSize) {
+        alert('File size exceeds the limit of 5MB');
+        return;
+      }
+      
+      const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_'); // Replace spaces with underscores
+        
+      formData.append('document', this.fileToUpload, sanitizedFileName);
+    }
 
     this.CircularsService.storeEvent(formData).subscribe(
       (event: HttpEvent<any>) => {
@@ -108,9 +160,18 @@ export class CircularsdatatableComponent {
   }
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
-        !this.selectedEvent.start_date || !this.selectedEvent.end_date) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'title',
+      'lang_code',
+      'status',
+      'start_date',
+      'end_date',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -123,7 +184,20 @@ export class CircularsdatatableComponent {
     formData.append('end_date', this.selectedEvent.end_date);
     // Append file only if it's present
     if (this.fileToUpload) {
-      formData.append('document', this.fileToUpload, this.fileToUpload.name);
+      const validFileTypes = ['application/pdf']; // Example types
+      const maxFileSize = 5 * 1024 * 1024; // 5MB
+  
+      if (!validFileTypes.includes(this.fileToUpload.type)) {
+        alert('Invalid file type');
+        return;
+      }
+      if (this.fileToUpload.size > maxFileSize) {
+        alert('File size exceeds the limit of 5MB');
+        return;
+      }
+      const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_'); // Replace spaces with underscores
+        
+      formData.append('document', this.fileToUpload, sanitizedFileName);
     }
 
     this.CircularsService.updateEvent(this.selectedEvent.id, formData).subscribe(
@@ -184,6 +258,7 @@ export class CircularsdatatableComponent {
       } else {
         this.selectedFile = file;
         this.selectedFileError = '';
+        this.fileToUpload = event.target.files[0];
       }
     }
   }
