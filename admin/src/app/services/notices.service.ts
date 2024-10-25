@@ -8,7 +8,7 @@ import { environment } from '../environments/environment';
 })
 export class NoticesService {
 
-  private apiUrl = environment.apiBaseUrl + 'notice-list';
+  private apiUrl = environment.apiBaseUrl + 'notices-list';
   private getbyidapiUrl = environment.apiBaseUrl + 'notice-list-by-id';
   private storeApiUrl = environment.apiBaseUrl + 'notice-store';
   private updateApiUrl = environment.apiBaseUrl + 'notice-update';
@@ -32,8 +32,8 @@ export class NoticesService {
   }
 
   // Get list of notice
-  allList(limit: number, lang_code: string): Observable<any> {
-    const body = { limit, lang_code };
+  allList(limit: number, lang_code: string, currentPage:Number): Observable<any> {
+    const body = { limit, lang_code,currentPage };
     return this.http.post<any>(this.apiUrl, body, { headers: this.getHeaders() });
   }
 

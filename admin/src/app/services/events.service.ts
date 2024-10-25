@@ -8,7 +8,7 @@ import { environment } from '../environments/environment';
 })
 export class EventsService {
 
-  private apiUrl = environment.apiBaseUrl + 'event-list';
+  private apiUrl = environment.apiBaseUrl + 'events-list';
   private getbyidapiUrl = environment.apiBaseUrl + 'event-list-by-id';
   private storeApiUrl = environment.apiBaseUrl + 'event-store';
   private updateApiUrl = environment.apiBaseUrl + 'event-update';
@@ -32,8 +32,8 @@ export class EventsService {
   }
 
   // Get list of Events
-  allList(limit: number, lang_code: string): Observable<any> {
-    const body = { limit, lang_code };
+  allList(limit: number, lang_code: string,currentPage:Number): Observable<any> {
+    const body = { limit, lang_code,currentPage };
     return this.http.post<any>(this.apiUrl, body, { headers: this.getHeaders() });
   }
 

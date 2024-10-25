@@ -56,7 +56,7 @@ class SliderController extends Controller
         }
 
             return response()->json([
-                'title' => 'Menu List',
+                'title' => 'Slider List',
                 'data' => $slider->items(), 
                 'total' => $slider->total(), 
                 'current_page' => $slider->currentPage(), 
