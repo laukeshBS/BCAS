@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Spatie\Permission\Models\Permission;
 
-class QuizResultController  extends Controller
+class QuizResultController extends Controller
 {
     public $user;
 
@@ -81,6 +81,7 @@ class QuizResultController  extends Controller
     public function store(Request $request)
     {
         // Define validation rules
+      
         $rules = [
             'fullname' => 'required|string|max:255',
             'email' => 'required|email|max:255',
@@ -88,7 +89,7 @@ class QuizResultController  extends Controller
             'score' => 'required|integer',
             'total' => 'required|integer',
         ];
-    
+        
         // Validate the request input
         $validator = Validator::make($request->all(), $rules);
     
@@ -99,7 +100,7 @@ class QuizResultController  extends Controller
                 'messages' => $validator->errors()
             ], 422); // 422 Unprocessable Entity
         }
-    
+        dd($request);
         // Clean and sanitize the validated data
         $validated = $validator->validated();
         
@@ -126,8 +127,8 @@ class QuizResultController  extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'name' => 'required',
-            'status' => 'required',
+            'fullname' => 'required',
+            //'status' => 'required',
         ]);
 
         $result = QuizResult::find($id);
