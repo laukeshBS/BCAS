@@ -164,54 +164,87 @@ export class AdminDocumentDatatableComponent {
   addEvent(): void {
     const modalElement = document.getElementById('addEventModal');
     if (modalElement) {
-      this.selectedEvent = { document_category: '', doc_name: '', doc_type: '', status: '', position: '', start_date: '', end_date: '' };
-      const documentCategoryId = document.getElementById('document_category') as HTMLSelectElement;
+        this.selectedEvent = { document_category: '', doc_name: '', doc_type: '', status: '', position: '', start_date: '', end_date: '' };
+        const documentCategoryId = document.getElementById('document_category') as HTMLSelectElement;
 
-      // Clear existing options
-      documentCategoryId.innerHTML = '';
-      const emptyOption = document.createElement('option');
+        // Clear existing options
+        documentCategoryId.innerHTML = '';
+        const emptyOption = document.createElement('option');
         emptyOption.value = '';
         emptyOption.textContent = 'Select a category';
         documentCategoryId.appendChild(emptyOption);
 
-      // Populate the select element with categories
-      for (const [id, name] of Object.entries(this.categories)) {
-        const option = document.createElement('option');
-        option.value = id;
-        option.textContent = name;
-        documentCategoryId.appendChild(option);
-      }
+        // Populate the select element with categories
+        for (const [id, name] of Object.entries(this.categories)) {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = name;
+            documentCategoryId.appendChild(option);
+        }
 
-      // Populate role checkboxes
-      const rolesContainer = document.getElementById('rolesContainer') as HTMLElement;
-      rolesContainer.innerHTML = ''; // Clear existing checkboxes
-      if (this.rolesArray && Array.isArray(this.rolesArray)) {
-        this.rolesArray.forEach((role: { id: string; name: string; }) => {
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.id = `add_${role.id}`;
-          checkbox.value = role.id;
-          checkbox.checked = this.selectedRoles.includes(role.id);
-  
-          // Use a method to handle checkbox changes
-          checkbox.addEventListener('change', (event) => this.handleRoleChange(event, role.id));
-  
-          const label = document.createElement('label');
-          label.htmlFor = role.id;
-          label.textContent = role.name;
-  
-          rolesContainer.appendChild(checkbox);
-          rolesContainer.appendChild(label);
-          rolesContainer.appendChild(document.createElement('br')); // For spacing
+        // Populate role checkboxes
+        const rolesContainer = document.getElementById('rolesContainer') as HTMLElement;
+        rolesContainer.innerHTML = ''; // Clear existing checkboxes
+
+        // Create "Select All" checkbox
+        const selectAllCheckbox = document.createElement('input');
+        selectAllCheckbox.type = 'checkbox';
+        selectAllCheckbox.id = 'selectAllRoles';
+        selectAllCheckbox.addEventListener('change', (event) => {
+            const isChecked = (event.target as HTMLInputElement).checked;
+            const checkboxes = rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllRoles)');
+            checkboxes.forEach((checkbox) => {
+                const inputCheckbox = checkbox as HTMLInputElement; // Cast to HTMLInputElement
+                inputCheckbox.checked = isChecked; // Set checked state
+                if (isChecked && !this.selectedRoles.includes(inputCheckbox.value)) {
+                    this.selectedRoles.push(inputCheckbox.value); // Add to selected roles
+                } else if (!isChecked) {
+                    this.selectedRoles = this.selectedRoles.filter(role => role !== inputCheckbox.value); // Remove from selected roles
+                }
+            });
         });
-      } else {
-        console.error('Roles is not defined or is not an array');
-      }
 
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
+        const selectAllLabel = document.createElement('label');
+        selectAllLabel.htmlFor = 'selectAllRoles';
+        selectAllLabel.textContent = 'Select All Roles';
+
+        rolesContainer.appendChild(selectAllCheckbox);
+        rolesContainer.appendChild(selectAllLabel);
+        rolesContainer.appendChild(document.createElement('br')); // For spacing
+
+        if (this.rolesArray && Array.isArray(this.rolesArray)) {
+            this.rolesArray.forEach((role: { id: string; name: string; }) => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `add_${role.id}`;
+                checkbox.value = role.id;
+                checkbox.checked = this.selectedRoles.includes(role.id);
+
+                // Use a method to handle checkbox changes
+                checkbox.addEventListener('change', (event) => {
+                    this.handleRoleChange(event, role.id);
+                    // Update "Select All" checkbox state based on individual checkbox states
+                    selectAllCheckbox.checked = Array.from(rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllRoles)')).every((cb) => (cb as HTMLInputElement).checked);
+                });
+
+                const label = document.createElement('label');
+                label.htmlFor = role.id;
+                label.textContent = role.name;
+
+                rolesContainer.appendChild(checkbox);
+                rolesContainer.appendChild(label);
+                rolesContainer.appendChild(document.createElement('br')); // For spacing
+            });
+        } else {
+            console.error('Roles is not defined or is not an array');
+        }
+
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
     }
   }
+
+  
   // Method to handle role checkbox changes
   handleRoleChange(event: Event, roleId: string | undefined): void {
     if (event.target instanceof HTMLInputElement && roleId) { // Check if roleId is defined
@@ -368,50 +401,82 @@ export class AdminDocumentDatatableComponent {
   openEditModal(): void {
     const modalElement = document.getElementById('editEventModal');
     if (modalElement) {
-      const documentCategoryId = document.getElementById('document_category_id') as HTMLSelectElement;
-  
-      // Clear existing options
-      documentCategoryId.innerHTML = '';
-  
-      // Populate the select element with categories
-      for (const [id, name] of Object.entries(this.categories)) {
-        const option = document.createElement('option');
-        option.value = id;
-        option.textContent = name;
-        documentCategoryId.appendChild(option);
-      }
-  
-      // Populate role checkboxes
-      const rolesContainer = document.getElementById('rolesEditContainer') as HTMLElement;
-      rolesContainer.innerHTML = ''; // Clear existing checkboxes
-      if (this.rolesArray && Array.isArray(this.rolesArray)) {
-        this.rolesArray.forEach((role: { id: string; name: string }) => {
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.id = `edit_${role.id}`;
-          checkbox.value = role.id;
-          // Check if the role is in the selectedRoleIds array
-          checkbox.checked = this.selectedRoleIds.includes(String(role.id));
+        const documentCategoryId = document.getElementById('document_category_id') as HTMLSelectElement;
 
-          // Use a method to handle checkbox changes
-          checkbox.addEventListener('change', (event) => this.handleRoleChange(event, role.id));
-  
-          const label = document.createElement('label');
-          label.htmlFor = `edit_${role.id}`; // Use the updated ID here
-          label.textContent = role.name;
-  
-          rolesContainer.appendChild(checkbox);
-          rolesContainer.appendChild(label);
-          rolesContainer.appendChild(document.createElement('br')); // For spacing
+        // Clear existing options
+        documentCategoryId.innerHTML = '';
+
+        // Populate the select element with categories
+        for (const [id, name] of Object.entries(this.categories)) {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = name;
+            documentCategoryId.appendChild(option);
+        }
+
+        // Populate role checkboxes
+        const rolesContainer = document.getElementById('rolesEditContainer') as HTMLElement;
+        rolesContainer.innerHTML = ''; // Clear existing checkboxes
+
+        // Create "Select All" checkbox
+        const selectAllCheckbox = document.createElement('input');
+        selectAllCheckbox.type = 'checkbox';
+        selectAllCheckbox.id = 'selectAllEditRoles';
+        selectAllCheckbox.addEventListener('change', (event) => {
+            const isChecked = (event.target as HTMLInputElement).checked;
+            const checkboxes = rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllEditRoles)');
+            checkboxes.forEach((checkbox) => {
+                const inputCheckbox = checkbox as HTMLInputElement; // Cast to HTMLInputElement
+                inputCheckbox.checked = isChecked; // Set checked state
+                if (isChecked && !this.selectedRoleIds.includes(inputCheckbox.value)) {
+                    this.selectedRoleIds.push(inputCheckbox.value); // Add to selected roles
+                } else if (!isChecked) {
+                    this.selectedRoleIds = this.selectedRoleIds.filter(role => role !== inputCheckbox.value); // Remove from selected roles
+                }
+            });
         });
-      } else {
-        console.error('Roles is not defined or is not an array');
-      }
-  
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
+
+        const selectAllLabel = document.createElement('label');
+        selectAllLabel.htmlFor = 'selectAllEditRoles';
+        selectAllLabel.textContent = 'Select All Roles';
+
+        rolesContainer.appendChild(selectAllCheckbox);
+        rolesContainer.appendChild(selectAllLabel);
+        rolesContainer.appendChild(document.createElement('br')); // For spacing
+
+        if (this.rolesArray && Array.isArray(this.rolesArray)) {
+            this.rolesArray.forEach((role: { id: string; name: string }) => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `edit_${role.id}`;
+                checkbox.value = role.id;
+                // Check if the role is in the selectedRoleIds array
+                checkbox.checked = this.selectedRoleIds.includes(String(role.id));
+
+                // Use a method to handle checkbox changes
+                checkbox.addEventListener('change', (event) => {
+                    this.handleRoleChange(event, role.id);
+                    // Update "Select All" checkbox state based on individual checkbox states
+                    selectAllCheckbox.checked = Array.from(rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllEditRoles)')).every((cb) => (cb as HTMLInputElement).checked);
+                });
+
+                const label = document.createElement('label');
+                label.htmlFor = `edit_${role.id}`; // Use the updated ID here
+                label.textContent = role.name;
+
+                rolesContainer.appendChild(checkbox);
+                rolesContainer.appendChild(label);
+                rolesContainer.appendChild(document.createElement('br')); // For spacing
+            });
+        } else {
+            console.error('Roles is not defined or is not an array');
+        }
+
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
     }
   }
+
   
 
   closeEditModal(): void {

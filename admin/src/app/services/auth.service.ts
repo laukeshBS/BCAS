@@ -49,7 +49,7 @@ export class AuthService {
                     if (accessToken) {
                         this.storeUserData(accessToken, response.data.user);
                         this.loggedInSubject.next(true);
-                        this.router.navigate(['acts-and-policies']);
+                        this.router.navigate(['dashboard']);
                     } else {
                         alert('Login failed: No Access Token Found');
                     }
