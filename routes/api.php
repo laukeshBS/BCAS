@@ -187,6 +187,11 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
     Route::controller(AdminsController::class)->group(function () {
         Route::post('adminList', 'index');
+        Route::post('admin-list', 'cms_data');
+        Route::get('admin-list-by-id/{id}', 'data_by_id');
+        Route::post('admin-store', 'Cms_store');
+        Route::post('admin-update/{id}', 'Cms_update');
+        Route::delete('admin-delete/{id}', 'delete');
       
     });
     Route::controller(menus::class)->group(function () {

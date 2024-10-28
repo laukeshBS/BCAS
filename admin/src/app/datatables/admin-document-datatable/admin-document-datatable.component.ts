@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, Renderer2, AfterViewInit } from '@angular/core';
 import { AdminDocumentService } from '../../services/admin-document.service';  // Import the service
 import { PermissionsService } from '../../services/permissions.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 declare var bootstrap: any;
 
@@ -35,9 +36,10 @@ export class AdminDocumentDatatableComponent {
   selectedRoles: string[] = [];
   rolesArray: any;
   selectedRoleIds: any[] = [];
-  
+  documentUrl: SafeResourceUrl | null = null; // Change to SafeResourceUrl
+  private modal: HTMLElement | null = null; // Store modal reference
 
-  constructor(private AdminDocumentService: AdminDocumentService, private permissionsService: PermissionsService) {}
+  constructor(private AdminDocumentService: AdminDocumentService, private permissionsService: PermissionsService, private renderer: Renderer2, private el: ElementRef, private sanitizer: DomSanitizer) {}
 
   ngOnInit(): void {
     this.loadroles();
@@ -451,32 +453,77 @@ export class AdminDocumentDatatableComponent {
       }
     }
   }
+  ngAfterViewInit(): void {
+    this.modal = this.el.nativeElement.querySelector('#documentModal');
+  }
+
   viewDocument(docId: number): void {
     if (Array.isArray(this.userRoleIds) && this.userRoleIds.length > 0) {
-        this.userRoleIds.forEach(roleId => {
-            this.AdminDocumentService.showDocument(docId, roleId).subscribe({
-                next: (blob) => {
-                    if (blob) {
-                        const url = window.URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.target = '_blank';
-                        link.click();
-                        window.URL.revokeObjectURL(url);
-                    } else {
-                        console.error(`No file found for document ID ${docId} and role ID ${roleId}.`);
-                        alert(`No file found for this document. Please check your permissions or contact support.`);
+      this.userRoleIds.forEach(roleId => {
+        this.AdminDocumentService.showDocument(docId, roleId).subscribe({
+          next: (blob) => {
+            if (blob) {
+              const url = window.URL.createObjectURL(blob);
+              this.documentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url); // Sanitize the URL
+
+              // Show the modal
+            if (this.modal) {
+              this.renderer.addClass(this.modal, 'show');
+              this.renderer.setStyle(this.modal, 'display', 'block');
+
+              // Create and insert the iframe
+              const iframe = this.renderer.createElement('iframe');
+              this.renderer.setAttribute(iframe, 'src', this.documentUrl as string);
+              this.renderer.setStyle(iframe, 'width', '100%');
+              this.renderer.setStyle(iframe, 'height', '100%');
+              this.renderer.setStyle(iframe, 'border', 'none');
+
+              // Append the iframe to the modal
+              this.renderer.appendChild(this.modal, iframe);
+
+              // Disable right-click and print in the iframe
+              iframe.onload = () => {
+                const iframeWindow = iframe.contentWindow;
+                if (iframeWindow) {
+                  iframeWindow.document.addEventListener('contextmenu', (e: { preventDefault: () => any; }) => e.preventDefault());
+                  iframeWindow.document.addEventListener('keydown', (e: { ctrlKey: any; key: string; preventDefault: () => void; }) => {
+                    if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
+                      e.preventDefault();
                     }
-                },
-                error: (error) => {
-                    console.error(`Error fetching document for role ID ${roleId}:`, error);
-                    alert(`Error fetching document. Please check your permissions or try again later.`);
-                },
-            });
+                  });
+                }
+              };
+
+              // Cleanup on modal close
+              const listener = this.renderer.listen(this.modal, 'hidden.bs.modal', () => {
+                window.URL.revokeObjectURL(url);
+                this.documentUrl = null; // Reset URL for next use
+                this.renderer.removeChild(this.modal, iframe); // Remove the iframe
+                listener(); // Remove listener
+              });
+            }
+              
+            } else {
+              console.error(`No file found for document ID ${docId} and role ID ${roleId}.`);
+              alert(`No file found for this document. Please check your permissions or contact support.`);
+            }
+          },
+          error: (error) => {
+            console.error(`Error fetching document for role ID ${roleId}:`, error);
+            alert(`Error fetching document. Please check your permissions or try again later.`);
+          },
         });
+      });
     } else {
-        console.warn('No valid role IDs found');
-        alert('No valid role IDs found. Please contact support.');
+      alert('No valid role IDs found. Please contact support.');
+    }
+  }
+
+  closeModal(): void {
+    if (this.modal) {
+      this.renderer.removeClass(this.modal, 'show');
+      this.renderer.setStyle(this.modal, 'display', 'none');
+      this.documentUrl = null; // Clear URL on close
     }
   }
   
@@ -490,6 +537,19 @@ hasAnyPermission(permissions: string[]): boolean {
   return this.permissionsService.hasAnyPermission(permissions);
 }
 
+disableDownloadAndPrint(event: Event): void {
+  const iframe = event.target as HTMLIFrameElement;
+  const iframeWindow = iframe.contentWindow;
+
+  if (iframeWindow) {
+    iframeWindow.document.addEventListener('contextmenu', (e) => e.preventDefault());
+    iframeWindow.document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault();
+      }
+    });
+  }
+}
 
   
 }

@@ -35,12 +35,12 @@ export class AuthService {
     return of(this.isAuthenticated());
   }
 
-  login(email: string, password: string): Observable<LoginResponse | null> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}login`, { email, password });
+  login(email: string, password: string,iv:string): Observable<LoginResponse | null> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}login`, { email, password,iv })
   }
 
-  handleLogin(email: string, password: string): void {
-    this.login(email, password).subscribe(response => {
+  handleLogin(email: string, password: string,iv:string): void {
+    this.login(email, password,iv).subscribe(response => {
       console.log('Response:', response);
         if (response) {
             if (response.success) {
