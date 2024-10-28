@@ -8,7 +8,7 @@ import { environment } from '../environments/environment';
 })
 export class VacanciesService {
 
-  private apiUrl = environment.apiBaseUrl + 'vacancy-list';
+  private apiUrl = environment.apiBaseUrl + 'vacancys-list';
   private getbyidapiUrl = environment.apiBaseUrl + 'vacancy-list-by-id';
   private storeApiUrl = environment.apiBaseUrl + 'vacancy-store';
   private updateApiUrl = environment.apiBaseUrl + 'vacancy-update';
@@ -32,8 +32,8 @@ export class VacanciesService {
   }
 
   // Get list of vacancy
-  allList(limit: number, lang_code: string): Observable<any> {
-    const body = { limit, lang_code };
+  allList(limit: number, lang_code: string,currentPage:Number): Observable<any> {
+    const body = { limit, lang_code,currentPage };
     return this.http.post<any>(this.apiUrl, body, { headers: this.getHeaders() });
   }
 

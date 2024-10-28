@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, ElementRef, Renderer2, AfterViewInit } from '@angular/core';
 import { AdminDocumentService } from '../../services/admin-document.service';  // Import the service
 import { PermissionsService } from '../../services/permissions.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 declare var bootstrap: any;
 
@@ -35,9 +36,10 @@ export class AdminDocumentDatatableComponent {
   selectedRoles: string[] = [];
   rolesArray: any;
   selectedRoleIds: any[] = [];
-  
+  documentUrl: SafeResourceUrl | null = null; // Change to SafeResourceUrl
+  private modal: HTMLElement | null = null; // Store modal reference
 
-  constructor(private AdminDocumentService: AdminDocumentService, private permissionsService: PermissionsService) {}
+  constructor(private AdminDocumentService: AdminDocumentService, private permissionsService: PermissionsService, private renderer: Renderer2, private el: ElementRef, private sanitizer: DomSanitizer) {}
 
   ngOnInit(): void {
     this.loadroles();
@@ -162,54 +164,87 @@ export class AdminDocumentDatatableComponent {
   addEvent(): void {
     const modalElement = document.getElementById('addEventModal');
     if (modalElement) {
-      this.selectedEvent = { document_category: '', doc_name: '', doc_type: '', status: '', position: '', start_date: '', end_date: '' };
-      const documentCategoryId = document.getElementById('document_category') as HTMLSelectElement;
+        this.selectedEvent = { document_category: '', doc_name: '', doc_type: '', status: '', position: '', start_date: '', end_date: '' };
+        const documentCategoryId = document.getElementById('document_category') as HTMLSelectElement;
 
-      // Clear existing options
-      documentCategoryId.innerHTML = '';
-      const emptyOption = document.createElement('option');
+        // Clear existing options
+        documentCategoryId.innerHTML = '';
+        const emptyOption = document.createElement('option');
         emptyOption.value = '';
         emptyOption.textContent = 'Select a category';
         documentCategoryId.appendChild(emptyOption);
 
-      // Populate the select element with categories
-      for (const [id, name] of Object.entries(this.categories)) {
-        const option = document.createElement('option');
-        option.value = id;
-        option.textContent = name;
-        documentCategoryId.appendChild(option);
-      }
+        // Populate the select element with categories
+        for (const [id, name] of Object.entries(this.categories)) {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = name;
+            documentCategoryId.appendChild(option);
+        }
 
-      // Populate role checkboxes
-      const rolesContainer = document.getElementById('rolesContainer') as HTMLElement;
-      rolesContainer.innerHTML = ''; // Clear existing checkboxes
-      if (this.rolesArray && Array.isArray(this.rolesArray)) {
-        this.rolesArray.forEach((role: { id: string; name: string; }) => {
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.id = `add_${role.id}`;
-          checkbox.value = role.id;
-          checkbox.checked = this.selectedRoles.includes(role.id);
-  
-          // Use a method to handle checkbox changes
-          checkbox.addEventListener('change', (event) => this.handleRoleChange(event, role.id));
-  
-          const label = document.createElement('label');
-          label.htmlFor = role.id;
-          label.textContent = role.name;
-  
-          rolesContainer.appendChild(checkbox);
-          rolesContainer.appendChild(label);
-          rolesContainer.appendChild(document.createElement('br')); // For spacing
+        // Populate role checkboxes
+        const rolesContainer = document.getElementById('rolesContainer') as HTMLElement;
+        rolesContainer.innerHTML = ''; // Clear existing checkboxes
+
+        // Create "Select All" checkbox
+        const selectAllCheckbox = document.createElement('input');
+        selectAllCheckbox.type = 'checkbox';
+        selectAllCheckbox.id = 'selectAllRoles';
+        selectAllCheckbox.addEventListener('change', (event) => {
+            const isChecked = (event.target as HTMLInputElement).checked;
+            const checkboxes = rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllRoles)');
+            checkboxes.forEach((checkbox) => {
+                const inputCheckbox = checkbox as HTMLInputElement; // Cast to HTMLInputElement
+                inputCheckbox.checked = isChecked; // Set checked state
+                if (isChecked && !this.selectedRoles.includes(inputCheckbox.value)) {
+                    this.selectedRoles.push(inputCheckbox.value); // Add to selected roles
+                } else if (!isChecked) {
+                    this.selectedRoles = this.selectedRoles.filter(role => role !== inputCheckbox.value); // Remove from selected roles
+                }
+            });
         });
-      } else {
-        console.error('Roles is not defined or is not an array');
-      }
 
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
+        const selectAllLabel = document.createElement('label');
+        selectAllLabel.htmlFor = 'selectAllRoles';
+        selectAllLabel.textContent = 'Select All Roles';
+
+        rolesContainer.appendChild(selectAllCheckbox);
+        rolesContainer.appendChild(selectAllLabel);
+        rolesContainer.appendChild(document.createElement('br')); // For spacing
+
+        if (this.rolesArray && Array.isArray(this.rolesArray)) {
+            this.rolesArray.forEach((role: { id: string; name: string; }) => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `add_${role.id}`;
+                checkbox.value = role.id;
+                checkbox.checked = this.selectedRoles.includes(role.id);
+
+                // Use a method to handle checkbox changes
+                checkbox.addEventListener('change', (event) => {
+                    this.handleRoleChange(event, role.id);
+                    // Update "Select All" checkbox state based on individual checkbox states
+                    selectAllCheckbox.checked = Array.from(rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllRoles)')).every((cb) => (cb as HTMLInputElement).checked);
+                });
+
+                const label = document.createElement('label');
+                label.htmlFor = role.id;
+                label.textContent = role.name;
+
+                rolesContainer.appendChild(checkbox);
+                rolesContainer.appendChild(label);
+                rolesContainer.appendChild(document.createElement('br')); // For spacing
+            });
+        } else {
+            console.error('Roles is not defined or is not an array');
+        }
+
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
     }
   }
+
+  
   // Method to handle role checkbox changes
   handleRoleChange(event: Event, roleId: string | undefined): void {
     if (event.target instanceof HTMLInputElement && roleId) { // Check if roleId is defined
@@ -274,7 +309,9 @@ export class AdminDocumentDatatableComponent {
         return;
       }
       
-      formData.append('doc', this.fileToUpload, this.fileToUpload.name);
+      const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_'); // Replace spaces with underscores
+        
+      formData.append('document', this.fileToUpload, sanitizedFileName);
     }
   
     this.AdminDocumentService.storeEvent(formData).subscribe(
@@ -337,7 +374,9 @@ export class AdminDocumentDatatableComponent {
         return;
       }
       
-      formData.append('doc', this.fileToUpload, this.fileToUpload.name);
+      const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_'); // Replace spaces with underscores
+        
+      formData.append('document', this.fileToUpload, sanitizedFileName);
     }
 
     this.AdminDocumentService.updateEvent(this.selectedEvent.id, formData).subscribe(
@@ -362,50 +401,82 @@ export class AdminDocumentDatatableComponent {
   openEditModal(): void {
     const modalElement = document.getElementById('editEventModal');
     if (modalElement) {
-      const documentCategoryId = document.getElementById('document_category_id') as HTMLSelectElement;
-  
-      // Clear existing options
-      documentCategoryId.innerHTML = '';
-  
-      // Populate the select element with categories
-      for (const [id, name] of Object.entries(this.categories)) {
-        const option = document.createElement('option');
-        option.value = id;
-        option.textContent = name;
-        documentCategoryId.appendChild(option);
-      }
-  
-      // Populate role checkboxes
-      const rolesContainer = document.getElementById('rolesEditContainer') as HTMLElement;
-      rolesContainer.innerHTML = ''; // Clear existing checkboxes
-      if (this.rolesArray && Array.isArray(this.rolesArray)) {
-        this.rolesArray.forEach((role: { id: string; name: string }) => {
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.id = `edit_${role.id}`;
-          checkbox.value = role.id;
-          // Check if the role is in the selectedRoleIds array
-          checkbox.checked = this.selectedRoleIds.includes(String(role.id));
+        const documentCategoryId = document.getElementById('document_category_id') as HTMLSelectElement;
 
-          // Use a method to handle checkbox changes
-          checkbox.addEventListener('change', (event) => this.handleRoleChange(event, role.id));
-  
-          const label = document.createElement('label');
-          label.htmlFor = `edit_${role.id}`; // Use the updated ID here
-          label.textContent = role.name;
-  
-          rolesContainer.appendChild(checkbox);
-          rolesContainer.appendChild(label);
-          rolesContainer.appendChild(document.createElement('br')); // For spacing
+        // Clear existing options
+        documentCategoryId.innerHTML = '';
+
+        // Populate the select element with categories
+        for (const [id, name] of Object.entries(this.categories)) {
+            const option = document.createElement('option');
+            option.value = id;
+            option.textContent = name;
+            documentCategoryId.appendChild(option);
+        }
+
+        // Populate role checkboxes
+        const rolesContainer = document.getElementById('rolesEditContainer') as HTMLElement;
+        rolesContainer.innerHTML = ''; // Clear existing checkboxes
+
+        // Create "Select All" checkbox
+        const selectAllCheckbox = document.createElement('input');
+        selectAllCheckbox.type = 'checkbox';
+        selectAllCheckbox.id = 'selectAllEditRoles';
+        selectAllCheckbox.addEventListener('change', (event) => {
+            const isChecked = (event.target as HTMLInputElement).checked;
+            const checkboxes = rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllEditRoles)');
+            checkboxes.forEach((checkbox) => {
+                const inputCheckbox = checkbox as HTMLInputElement; // Cast to HTMLInputElement
+                inputCheckbox.checked = isChecked; // Set checked state
+                if (isChecked && !this.selectedRoleIds.includes(inputCheckbox.value)) {
+                    this.selectedRoleIds.push(inputCheckbox.value); // Add to selected roles
+                } else if (!isChecked) {
+                    this.selectedRoleIds = this.selectedRoleIds.filter(role => role !== inputCheckbox.value); // Remove from selected roles
+                }
+            });
         });
-      } else {
-        console.error('Roles is not defined or is not an array');
-      }
-  
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
+
+        const selectAllLabel = document.createElement('label');
+        selectAllLabel.htmlFor = 'selectAllEditRoles';
+        selectAllLabel.textContent = 'Select All Roles';
+
+        rolesContainer.appendChild(selectAllCheckbox);
+        rolesContainer.appendChild(selectAllLabel);
+        rolesContainer.appendChild(document.createElement('br')); // For spacing
+
+        if (this.rolesArray && Array.isArray(this.rolesArray)) {
+            this.rolesArray.forEach((role: { id: string; name: string }) => {
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `edit_${role.id}`;
+                checkbox.value = role.id;
+                // Check if the role is in the selectedRoleIds array
+                checkbox.checked = this.selectedRoleIds.includes(String(role.id));
+
+                // Use a method to handle checkbox changes
+                checkbox.addEventListener('change', (event) => {
+                    this.handleRoleChange(event, role.id);
+                    // Update "Select All" checkbox state based on individual checkbox states
+                    selectAllCheckbox.checked = Array.from(rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllEditRoles)')).every((cb) => (cb as HTMLInputElement).checked);
+                });
+
+                const label = document.createElement('label');
+                label.htmlFor = `edit_${role.id}`; // Use the updated ID here
+                label.textContent = role.name;
+
+                rolesContainer.appendChild(checkbox);
+                rolesContainer.appendChild(label);
+                rolesContainer.appendChild(document.createElement('br')); // For spacing
+            });
+        } else {
+            console.error('Roles is not defined or is not an array');
+        }
+
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
     }
   }
+
   
 
   closeEditModal(): void {
@@ -447,32 +518,77 @@ export class AdminDocumentDatatableComponent {
       }
     }
   }
+  ngAfterViewInit(): void {
+    this.modal = this.el.nativeElement.querySelector('#documentModal');
+  }
+
   viewDocument(docId: number): void {
     if (Array.isArray(this.userRoleIds) && this.userRoleIds.length > 0) {
-        this.userRoleIds.forEach(roleId => {
-            this.AdminDocumentService.showDocument(docId, roleId).subscribe({
-                next: (blob) => {
-                    if (blob) {
-                        const url = window.URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.target = '_blank';
-                        link.click();
-                        window.URL.revokeObjectURL(url);
-                    } else {
-                        console.error(`No file found for document ID ${docId} and role ID ${roleId}.`);
-                        alert(`No file found for this document. Please check your permissions or contact support.`);
+      this.userRoleIds.forEach(roleId => {
+        this.AdminDocumentService.showDocument(docId, roleId).subscribe({
+          next: (blob) => {
+            if (blob) {
+              const url = window.URL.createObjectURL(blob);
+              this.documentUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url); // Sanitize the URL
+
+              // Show the modal
+            if (this.modal) {
+              this.renderer.addClass(this.modal, 'show');
+              this.renderer.setStyle(this.modal, 'display', 'block');
+
+              // Create and insert the iframe
+              const iframe = this.renderer.createElement('iframe');
+              this.renderer.setAttribute(iframe, 'src', this.documentUrl as string);
+              this.renderer.setStyle(iframe, 'width', '100%');
+              this.renderer.setStyle(iframe, 'height', '100%');
+              this.renderer.setStyle(iframe, 'border', 'none');
+
+              // Append the iframe to the modal
+              this.renderer.appendChild(this.modal, iframe);
+
+              // Disable right-click and print in the iframe
+              iframe.onload = () => {
+                const iframeWindow = iframe.contentWindow;
+                if (iframeWindow) {
+                  iframeWindow.document.addEventListener('contextmenu', (e: { preventDefault: () => any; }) => e.preventDefault());
+                  iframeWindow.document.addEventListener('keydown', (e: { ctrlKey: any; key: string; preventDefault: () => void; }) => {
+                    if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
+                      e.preventDefault();
                     }
-                },
-                error: (error) => {
-                    console.error(`Error fetching document for role ID ${roleId}:`, error);
-                    alert(`Error fetching document. Please check your permissions or try again later.`);
-                },
-            });
+                  });
+                }
+              };
+
+              // Cleanup on modal close
+              const listener = this.renderer.listen(this.modal, 'hidden.bs.modal', () => {
+                window.URL.revokeObjectURL(url);
+                this.documentUrl = null; // Reset URL for next use
+                this.renderer.removeChild(this.modal, iframe); // Remove the iframe
+                listener(); // Remove listener
+              });
+            }
+              
+            } else {
+              console.error(`No file found for document ID ${docId} and role ID ${roleId}.`);
+              alert(`No file found for this document. Please check your permissions or contact support.`);
+            }
+          },
+          error: (error) => {
+            console.error(`Error fetching document for role ID ${roleId}:`, error);
+            alert(`Error fetching document. Please check your permissions or try again later.`);
+          },
         });
+      });
     } else {
-        console.warn('No valid role IDs found');
-        alert('No valid role IDs found. Please contact support.');
+      alert('No valid role IDs found. Please contact support.');
+    }
+  }
+
+  closeModal(): void {
+    if (this.modal) {
+      this.renderer.removeClass(this.modal, 'show');
+      this.renderer.setStyle(this.modal, 'display', 'none');
+      this.documentUrl = null; // Clear URL on close
     }
   }
   
@@ -486,6 +602,19 @@ hasAnyPermission(permissions: string[]): boolean {
   return this.permissionsService.hasAnyPermission(permissions);
 }
 
+disableDownloadAndPrint(event: Event): void {
+  const iframe = event.target as HTMLIFrameElement;
+  const iframeWindow = iframe.contentWindow;
+
+  if (iframeWindow) {
+    iframeWindow.document.addEventListener('contextmenu', (e) => e.preventDefault());
+    iframeWindow.document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault();
+      }
+    });
+  }
+}
 
   
 }

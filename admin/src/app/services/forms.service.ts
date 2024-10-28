@@ -8,7 +8,7 @@ import { environment } from '../environments/environment';
 })
 export class FormsService {
 
-  private apiUrl = environment.apiBaseUrl + 'form-list';
+  private apiUrl = environment.apiBaseUrl + 'forms-list';
   private getbyidapiUrl = environment.apiBaseUrl + 'form-list-by-id';
   private storeApiUrl = environment.apiBaseUrl + 'form-store';
   private updateApiUrl = environment.apiBaseUrl + 'form-update';
@@ -32,8 +32,8 @@ export class FormsService {
   }
 
   // Get list of forms
-  allList(limit: number, lang_code: string): Observable<any> {
-    const body = { limit, lang_code };
+  allList(limit: number, lang_code: string,currentPage:Number): Observable<any> {
+    const body = { limit, lang_code,currentPage };
     return this.http.post<any>(this.apiUrl, body, { headers: this.getHeaders() });
   }
 

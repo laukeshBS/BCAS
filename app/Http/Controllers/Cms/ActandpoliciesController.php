@@ -30,7 +30,7 @@ class ActandpoliciesController extends Controller
         $perPage = $request->input('limit');
         $page = $request->input('currentPage');
 
-        $slide = ActAndPolicies::select('*') ->paginate($perPage, ['*'], 'page', $page);
+        $slide = ActAndPolicies::select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
         if ($slide->isNotEmpty()) {
             $slide->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
@@ -82,7 +82,7 @@ class ActandpoliciesController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
-            'description' => 'max:500',
+            'description' => 'nullable|max:500',
             'status' => 'required',
             'lang_code' => 'required',
             'start_date' => 'required',
@@ -118,33 +118,30 @@ class ActandpoliciesController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
-            'description' => 'max:500',
+            'description' => 'nullable|max:500',
             'status' => 'required',
-            'document' => 'file|mimes:pdf|max:2048',
+            'lang_code' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'document' => 'nullable|file|mimes:pdf|max:2048',
         ]);
 
         $actandpolicy = ActAndPolicies::find($id);
 
         if (!$actandpolicy) {
-            return response()->json([
-                'error' => 'Not Found.'
-            ], 400);
+            return response()->json(['error' => 'Not Found.'], 404);
         }
-
-        $actandpolicy->title = $request->input('title');
-        $actandpolicy->description = $request->input('description');
-        $actandpolicy->status = $request->input('status');
-
         if ($request->hasFile('document')) {
             $docUpload = $request->file('document');
             $docPath = time() . '_' . $docUpload->getClientOriginalName();
             $docUpload->move(public_path('documents/actsAndPolicies/'), $docPath);
-            $actandpolicy->document = 'actsAndPolicies/'.$docPath;
+            $validated['document'] = 'actsAndPolicies/' . $docPath;
         }
+        // Use fill to update attributes
+        $actandpolicy->fill($validated);
 
         $actandpolicy->save();
 
-        // Return the data as JSON
         return response()->json($actandpolicy);
     }
 

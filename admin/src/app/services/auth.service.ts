@@ -5,7 +5,9 @@ import { environment } from '../environments/environment';
 import { Observable, of, BehaviorSubject, catchError } from 'rxjs';
 
 interface LoginResponse {
-  data: {
+  success: boolean;
+  message: string;
+  data?: {
     access_token: string;
     user: {
       id: number;
@@ -33,29 +35,39 @@ export class AuthService {
     return of(this.isAuthenticated());
   }
 
-  login(email: string, password: string): Observable<LoginResponse | null> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}login`, { email, password })
-      .pipe(
-        catchError(error => {
-          console.error('Login error', error);
-          return of(null);
-        })
-      );
+  login(email: string, password: string,iv:string): Observable<LoginResponse | null> {
+    return this.http.post<LoginResponse>(`${this.apiUrl}login`, { email, password,iv })
   }
 
-  handleLogin(email: string, password: string): void {
-    this.login(email, password).subscribe(response => {
-      if (response?.data?.access_token) {
-        this.storeUserData(response.data.access_token, response.data.user);
-        this.loggedInSubject.next(true);
-        this.router.navigate(['acts-and-policies']);
-      } else {
-        console.error('Login failed: No token returned or invalid response');
-      }
+  handleLogin(email: string, password: string,iv:string): void {
+    this.login(email, password,iv).subscribe(response => {
+      console.log('Response:', response);
+        if (response) {
+            if (response.success) {
+                if (response.data) { // Check if data exists
+                    const accessToken = response.data.access_token; 
+                    if (accessToken) {
+                        this.storeUserData(accessToken, response.data.user);
+                        this.loggedInSubject.next(true);
+                        this.router.navigate(['dashboard']);
+                    } else {
+                        alert('Login failed: No Access Token Found');
+                    }
+                } else {
+                    alert('Login failed: No User Data Found');
+                }
+            } else {
+                alert('Login failed: ' + response.message);
+            }
+        } else {
+            alert('No Response Found');
+        }
     }, error => {
-      console.error('Login error:', error);
+        console.error('Login error:', error);
+        alert('Login error: ' + (error.error?.message || 'An unexpected error occurred'));
     });
-  }
+}
+
 
   private storeUserData(token: string, user: { id: number; name: string }): void {
     localStorage.setItem('token', token);

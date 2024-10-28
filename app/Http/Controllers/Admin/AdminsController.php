@@ -13,13 +13,13 @@ class AdminsController extends Controller
 {
     public $user;
 
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            $this->user = Auth::guard('admin_api')->user();
-            return $next($request);
-        });
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware(function ($request, $next) {
+    //         $this->user = Auth::guard('admin_api')->user();
+    //         return $next($request);
+    //     });
+    // }
   
     /**
      * Display a listing of the resource.
@@ -212,5 +212,168 @@ class AdminsController extends Controller
 
         session()->flash('success', 'Admin has been deleted !!');
         return back();
+    }
+
+
+    // API
+    public function cms_data(Request $request)
+    {
+        $request->validate([
+            'limit' => 'required|integer',
+            'currentPage' => 'required|integer',
+        ]);
+
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $query = Admin::query();
+
+        $data = $query->with('roles')->select('*')->paginate($perPage, ['*'], 'page', $page);
+
+        if ($data->isNotEmpty()) {
+            $data->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                return $item;
+            });
+        }
+
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'per_page' => $data->perPage(),
+        ]);
+    }
+    
+    public function data_by_id($id)
+    {
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
+        }
+
+        // Eager load roles to reduce queries
+        $data = Admin::with('roles')->find($validatedId);
+
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
+        }
+
+        // Format created_at date
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
+
+        // Get role IDs
+        $roleIds = $data->roles->pluck('id');
+        $data->roleIds = $roleIds;
+
+        // Optionally include role names
+        $roleNames = $data->roles->pluck('name');
+        $data->roleNames = $roleNames;
+
+        return response()->json($data);
+    }
+
+    public function Cms_store(Request $request)
+    {
+        // Validation Data
+        $request->validate([
+            'name' => 'required|max:50',
+            'email' => 'required|max:100|email',
+            'username' => 'required|max:100',
+            'password' => 'required|min:6',
+        ]);
+
+        // Create New Admin
+        $admin = new Admin();
+        $admin->name = $request->name;
+        $admin->username = $request->username;
+        $admin->email = $request->email;
+        $admin->password = Hash::make($request->password);
+        $admin->save();
+        $lastInsertID = $admin->save();
+        $user_login_id=Auth::user()->id;
+        $action_by_role=Auth::user()->username;
+        if($lastInsertID > 0){
+            $logs_data = array(
+                'module_item_title'     =>  $request->name,
+                'module_item_id'        =>  $lastInsertID,
+                'action_by'             =>  $user_login_id,
+                'old_data'              =>  json_encode($admin),
+                'new_data'              =>  json_encode($admin),
+                'action_name'           =>  'Add Admin ',
+                //'page_category'         =>  '',
+                'lang_id'               =>   "en",
+                'action_type'        	=>  'Admin Model',
+                'approve_status'        =>  clean_single_input(Auth::user()->status),
+                'action_by_role'        =>  $action_by_role
+            );
+            audit_trails($logs_data);
+        }
+        // Assign roles by their names
+        if ($request->filled('roles')) {
+            $roleNames = Role::whereIn('id', $request->roles)->pluck('name')->toArray();
+            
+            if (empty($roleNames)) {
+                return response()->json(['error' => 'Invalid roles provided.'], 400);
+            }
+
+            $admin->assignRole($roleNames);
+        }
+
+        return response()->json(['data' => $admin, 'message' => 'Created successfully.'], 201);
+    }
+
+    public function Cms_update(Request $request, $id)
+    {
+        // Create New Admin
+        $admin = Admin::find($id);
+
+        // Validation Data
+        $request->validate([
+            'name' => 'required|max:50',
+            'email' => 'required|max:100|email',
+            'username' => 'required|max:100',
+            'password' => 'nullable|min:6',
+        ]);
+
+
+        $admin->name = $request->name;
+        $admin->email = $request->email;
+        $admin->username = $request->username;
+        if ($request->password) {
+            $admin->password = Hash::make($request->password);
+        }
+        $admin->save();
+
+        $admin->roles()->detach();
+        // Assign roles by their names
+        if ($request->filled('roles')) {
+            $roleNames = Role::whereIn('id', $request->roles)->pluck('name')->toArray();
+            
+            if (empty($roleNames)) {
+                return response()->json(['error' => 'Invalid roles provided.'], 400);
+            }
+
+            $admin->assignRole($roleNames);
+        }
+        return response()->json(['data' => $admin, 'message' => 'Updated successfully.'], 200);
+    }
+
+    public function delete($id)
+    {
+        $data = Admin::find($id);
+
+        if (!$data) {
+            return $this->sendError('No data found.', 404);
+        }
+        $data->delete();
+
+        return response()->json(['data' => $data, 'message' => 'Deleted successfully.'], 201);
     }
 }

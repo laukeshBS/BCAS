@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin\Auth;
+use Log;
 use App\Models\Admin\Admin;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -60,11 +61,18 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        $user = Admin::where('email', $request->email)->first();
+        $user = Admin::with('roles')->where('email', $request->email)->first();
 
-        // $decryptedPassword = Crypt::decryptString($request->password);
+        $key = 'xWfR9K7h3gD5yTqV'; // Adjust to match the 16-byte key
+        $encryptedData = $request->input('password');
+        $iv = base64_decode($request->input('iv')); // Decode Base64 IV
 
-        if ($user && Hash::check($request->password, $user->password)) {
+        $decrypted = openssl_decrypt(base64_decode($encryptedData), 'AES-128-CBC', $key, OPENSSL_RAW_DATA, $iv);
+
+        if ($decrypted === false) {
+            Log::error('Decryption failed: ' . openssl_error_string());
+        }
+        if ($user && Hash::check($decrypted, $user->password)) {
             $token = $user->createToken('bcas_cms')->plainTextToken;
 
             $user->api_token = $token; // If using api_token column

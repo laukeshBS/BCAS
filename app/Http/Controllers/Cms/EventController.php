@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Cms;
 use ZipArchive;
 use App\Models\Admin;
 use App\Models\Cms\Event;
-use App\Models\Cms\Slider;
 use Illuminate\Http\Request;
 use Yajra\DataTables\DataTables;
 use Spatie\Permission\Models\Role;
@@ -82,6 +81,31 @@ class EventController extends Controller
 
         return response()->json($data);
     }
+    public function cms_data(Request $request)
+    {
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $events = Event::select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        if ($events->isNotEmpty()) {
+            $events->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                if ($item->document) {
+                    $item->document = asset('public/documents/'.$item->document);
+                }
+                return $item;
+            });
+        }
+
+            return response()->json([
+                'title' => 'Tender List',
+                'data' => $events->items(),
+                'total' => $events->total(),
+                'current_page' => $events->currentPage(),
+                'last_page' => $events->lastPage(),
+                'per_page' => $events->perPage(),
+            ]);
+    }
     public function data_by_id($id)
     {
         // Validate the ID
@@ -115,12 +139,12 @@ class EventController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
-            'description' => 'max:500',
+            'description' => 'nullable|max:500',
             'status' => 'required',
             'lang_code' => 'required',
             'start_date' => 'required',
             'end_date' => 'required',
-            'document' => 'required|file|mimes:pdf|max:2048',
+            'document' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         // Handle file upload
@@ -132,73 +156,69 @@ class EventController extends Controller
         }
 
         // Create a new Act and Policy instance
-        $actandpolicy = new Event();
-        $actandpolicy->title = $validated['title'];
-        $actandpolicy->description = $validated['description'];
-        $actandpolicy->status = $validated['status'];
-        $actandpolicy->lang_code = $validated['lang_code'];
-        $actandpolicy->start_date = $validated['start_date'];
-        $actandpolicy->end_date = $validated['end_date'];
-        $actandpolicy->document = $filePath; // Store file path in the database
-        $actandpolicy->save();
+        $event = new Event();
+        $event->title = $validated['title'];
+        $event->description = $validated['description'];
+        $event->status = $validated['status'];
+        $event->lang_code = $validated['lang_code'];
+        $event->start_date = $validated['start_date'];
+        $event->end_date = $validated['end_date'];
+        $event->document = $filePath; // Store file path in the database
+        $event->save();
         
         // Return the data as JSON
-        return response()->json($actandpolicy);
+        return response()->json($event);
     }
 
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'title' => 'required|max:255',
-            'description' => 'max:500',
+            'description' => 'nullable|max:500',
             'status' => 'required',
-            'start_date'=>'required',
-            'end_date'=>'required',
-            'document' => 'file|mimes:pdf|max:2048',
+            'lang_code' => 'required',
+            'start_date' => 'required',
+            'end_date' => 'required',
+            'document' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
-        $actandpolicy = Event::find($id);
+        $event = Event::find($id);
 
-        if (!$actandpolicy) {
-            return response()->json([
-                'error' => 'Not Found.'
-            ], 400);
+        if (!$event) {
+            return response()->json(['error' => 'Not Found.'], 404);
         }
 
-        $actandpolicy->title = $request->input('title');
-        $actandpolicy->description = $request->input('description');
-        $actandpolicy->status = $request->input('status');
-        $actandpolicy->start_date = $request->input('start_date');
-        $actandpolicy->end_date = $request->input('end_date');
+        
 
         if ($request->hasFile('document')) {
             $docUpload = $request->file('document');
             $docPath = time() . '_' . $docUpload->getClientOriginalName();
             $docUpload->move(public_path('documents/events/'), $docPath);
-            $actandpolicy->document = 'events/'.$docPath;
+            $validated['document'] = 'events/' . $docPath;
         }
+        // Use fill to update attributes
+        $event->fill($validated);
 
-        $actandpolicy->save();
+        $event->save();
 
-        // Return the data as JSON
-        return response()->json($actandpolicy);
+        return response()->json($event);
     }
 
     public function delete($id)
     {
-        // Find the actandpolicy by id
-        $actandpolicy = Event::find($id);
+        // Find the event by id
+        $event = Event::find($id);
 
-        if (!$actandpolicy) {
+        if (!$event) {
             return response()->json([
                 'error' => 'Not Found.'
             ], 400);
         }
 
-        // Delete the actandpolicy
-        $actandpolicy->delete();
+        // Delete the event
+        $event->delete();
 
         // Return the data as JSON
-        return response()->json($actandpolicy);
+        return response()->json($event);
     }
 }

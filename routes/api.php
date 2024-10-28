@@ -11,7 +11,7 @@ use App\Http\Controllers\Cms\{
     WorkingAirportsController, QuarterlyReportOnlineiiFormsController,
     CommonController as Common, LanguageController as Lang,OrganizationStructureController,
     Common\CommonTitleController, PermittedProhibitedController,QuizResultController,
-    AvsecTrainingCalendarController, QuarterlyReportOnlineFormsController,SecurityQuizController
+    AvsecTrainingCalendarController,AstiVariousEntityController, QuarterlyReportOnlineFormsController,SecurityQuizController
 };
 use App\Http\Controllers\Cms\Division\GalleryController;
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
@@ -55,7 +55,9 @@ Route::middleware(['cors', 'throttle:60,1'])->group(function () {
         Route::post('quarterly-report2-online', 'store');
     });
     Route::controller(QuizResultController::class)->group(function () {
-        Route::any('quiz-results', 'store');
+       Route::any('quiz-results', 'saveScores');
+       Route::post('saveScores', 'saveScores');
+
      });
 });
 
@@ -79,6 +81,9 @@ Route::middleware(['cors'])->group(function () {
     });
     Route::controller(OrganizationStructureController::class)->group(function () {
         Route::post('organization-list', 'organization_list');
+    });
+    Route::controller(AstiVariousEntityController::class)->group(function () {
+        Route::post('asti-list', 'asti_list_approved');
     });
 
     Route::controller(VisitorController::class)->group(function () {
@@ -117,7 +122,7 @@ Route::middleware(['cors'])->group(function () {
     });
 
     Route::controller(CircularController::class)->group(function () {
-        // Route::post('circular-list', 'data');
+        Route::post('circular-list', 'data');
         Route::post('circular-list-for-homepage', 'circular_list_for_homepage');
     });
 
@@ -187,10 +192,15 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
     Route::controller(AdminsController::class)->group(function () {
         Route::post('adminList', 'index');
+        Route::post('admin-list', 'cms_data');
+        Route::get('admin-list-by-id/{id}', 'data_by_id');
+        Route::post('admin-store', 'Cms_store');
+        Route::post('admin-update/{id}', 'Cms_update');
+        Route::delete('admin-delete/{id}', 'delete');
       
     });
     Route::controller(menus::class)->group(function () {
-        Route::post('menulist', 'data');
+        Route::post('menulist', 'index');
         Route::get('menu-by-id/{id}', 'data_by_id');
         Route::post('menu-store', 'store');
         Route::post('menu-update/{id}', 'update');
@@ -233,7 +243,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(EventController::class)->group(function () {
-        Route::post('event-list','data');
+        Route::post('events-list','cms_data');
         Route::post('event-store', 'store');
         Route::post('event-update/{id}', 'update');
         Route::delete('event-delete/{id}', 'delete');
@@ -254,7 +264,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
       
     });
     Route::controller(CircularController::class)->group(function () {
-        Route::post('circular-list','data');
+        Route::post('circulars-list','cms_data');
         Route::post('circular-store', 'store');
         Route::get('circular-list-by-id/{id}', 'data_by_id');
         Route::post('circular-update/{id}', 'update');
@@ -299,7 +309,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::delete('opsisecurity-delete/{id}', 'delete');
     });
     Route::controller(NoticeController::class)->group(function () {
-        Route::post('notice-list','data');
+        Route::post('notices-list','cms_data');
         Route::post('notice-store', 'store');
         Route::get('notice-list-by-id/{id}','data_by_id');
         Route::post('notice-update/{id}', 'update');
@@ -307,8 +317,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(TenderController::class)->group(function(){
-       // Route::post('tender-list','data');
-        Route::get('tender-details/{id}','data_by_id');
+       Route::post('tenders-list','cms_data');
         Route::post('tender-store', 'store');
         Route::get('tender-list-by-id/{id}','data_by_id');
         Route::post('tender-update/{id}', 'update');
@@ -316,7 +325,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(FormController::class)->group(function () {
-        Route::post('form-list','data');
+        Route::post('forms-list','cms_data');
         Route::get('form-list-by-id/{id}','data_by_id');
         Route::post('form-store', 'store');
         Route::post('form-update/{id}', 'update');
@@ -324,9 +333,8 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
     });
 
     Route::controller(VacancyController::class)->group(function () {
-        
+        Route::post('vacancys-list', 'cms_data');
         Route::get('vacancy-list-by-id/{id}','data_by_id');
-
         Route::post('vacancy-store', 'store');
         Route::post('vacancy-update/{id}', 'update');
         Route::delete('vacancy-delete/{id}', 'delete');
@@ -392,7 +400,8 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
       
     });
     Route::controller(GalleryController::class)->group(function(){
-        Route::post('division-gallery-list','cms_data');
+        Route::post('division-gallery-list','data');
+        Route::post('division-gallerys-list','cms_data');
         Route::get('division-gallery-by-id/{id}','cms_data_by_id');
         Route::post('division-gallery-store','store');
         Route::post('division-gallery-update/{id}','update');
@@ -400,7 +409,6 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
       
     });
     Route::controller(DocumentController::class)->group(function(){
-        
         Route::post('admin-document-list','data');
         Route::get('admin-document-by-id/{id}','data_by_id');
         Route::post('admin-document-store','store');
@@ -409,7 +417,6 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::post('admin-document','show_Document');
     });
     Route::controller(DocumentCategoryController::class)->group(function(){
-        
         Route::post('admin-document-category-list','data');
         Route::get('admin-document-category-by-id/{id}','data_by_id');
         Route::post('admin-document-category-store','store');
