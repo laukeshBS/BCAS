@@ -48,32 +48,41 @@ class GalleryController extends Controller
     // API
     public function data(Request $request)
     {
-        $perPage = $request->input('limit');
-        $page = $request->input('currentPage');
+        $lang_code = $request->input('lang_code'); // sOptional lang_code
+        $limit = $request->input('limit'); // Optional limit
 
-        $slide = DivisionGallery::select('*') ->paginate($perPage, ['*'], 'page', $page);
-        if ($slide->isNotEmpty()) {
-            $slide->transform(function ($item) {
-                $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                if ($item->media) {
-                    $item->media = asset('public/'.$item->media);
-                }
-                return $item;
-            });
+        $query = DivisionGallery::select('*');
+
+        // Apply lang_code filter if provided
+        if ($lang_code) {
+            $query->where('lang_code', $lang_code);
         }
-        return response()->json([
-            'title' => 'List',
-            'data' => $slide->items(),
-            'total' => $slide->total(),
-            'current_page' => $slide->currentPage(),
-            'last_page' => $slide->lastPage(),
-            'per_page' => $slide->perPage(),
-        ]);
+
+        // Apply limit if provided
+        if ($limit) {
+            $query->limit($limit);
+        }
+
+        $data = $query->orderBy('id', 'desc')->get();
+
+        if ($data->isEmpty()) {
+            return response()->json(['message' => 'No data found'], 404);
+        }
+
+        $data->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            $item->document = asset('public/documents/' . $item->document);
+
+            return $item; // Return the transformed item
+        });
+
+        return response()->json($data);
     }
+
     public function cms_data(Request $request)
     {
         $perPage = $request->input('limit');
-        $page = $request->input('currentPage');
+        $lang_code = $request->input('lang_code');
 
         $slide = DivisionGallery::select('*') ->paginate($perPage, ['*'], 'page', $page);
         if ($slide->isNotEmpty()) {

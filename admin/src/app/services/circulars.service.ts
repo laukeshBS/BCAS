@@ -8,7 +8,7 @@ import { environment } from '../environments/environment';
 })
 export class CircularsService {
 
-  private apiUrl = environment.apiBaseUrl + 'circular-list';
+  private apiUrl = environment.apiBaseUrl + 'circulars-list';
   private getbyidapiUrl = environment.apiBaseUrl + 'circular-list-by-id';
   private storeApiUrl = environment.apiBaseUrl + 'circular-store';
   private updateApiUrl = environment.apiBaseUrl + 'circular-update';
@@ -32,8 +32,8 @@ export class CircularsService {
   }
 
   // Get list of circulars
-  allList(limit: number, lang_code: string): Observable<any> {
-    const body = { limit, lang_code };
+  allList(limit: number, lang_code: string,currentPage:Number): Observable<any> {
+    const body = { limit, lang_code,currentPage };
     return this.http.post<any>(this.apiUrl, body, { headers: this.getHeaders() });
   }
 

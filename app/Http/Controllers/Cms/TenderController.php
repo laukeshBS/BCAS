@@ -20,7 +20,7 @@ class TenderController extends Controller
 
     public function data(Request $request)
     {
-        $limit = $request->input('limit', 5);
+        $limit = $request->input('limit');
         $lang_code = $request->input('lang_code');
 
 
@@ -60,6 +60,31 @@ class TenderController extends Controller
     
         return response()->json($data);
     }
+    public function cms_data(Request $request)
+    {
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $slider = Tender::select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        if ($slider->isNotEmpty()) {
+            $slider->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                if ($item->document) {
+                    $item->document = asset('public/documents/'.$item->document);
+                }
+                return $item;
+            });
+        }
+
+            return response()->json([
+                'title' => 'Tender List',
+                'data' => $slider->items(),
+                'total' => $slider->total(),
+                'current_page' => $slider->currentPage(),
+                'last_page' => $slider->lastPage(),
+                'per_page' => $slider->perPage(),
+            ]);
+    }
 
     public function data_by_id($id)
     {
@@ -80,8 +105,8 @@ class TenderController extends Controller
                 'error' => 'Data not found '
             ], 404);
         }
-        $data->start_date = date('d-m-Y', strtotime($data->start_date));
-        $data->end_date = date('d-m-Y', strtotime($data->end_date));
+        // $data->start_date = date('d-m-Y', strtotime($data->start_date));
+        // $data->end_date = date('d-m-Y', strtotime($data->end_date));
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
         $data->document = asset('public/documents/' . $data->document) ;
 
@@ -96,33 +121,42 @@ class TenderController extends Controller
             'description' => 'max:500',
             'status' => 'required',
             'lang_code' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required',
+            'start_date' => 'required|date|before:end_date',
+            'end_date' => 'required|date',
+            'positions' => 'nullable',
             'document' => 'required|file|mimes:pdf|max:2048',
         ]);
 
+        $filePath = null;
+
         // Handle file upload
         if ($request->hasFile('document')) {
-            $docUpload = $request->file('document');
-            $docPath = time() . '_' . $docUpload->getClientOriginalName();
-            $docUpload->move(public_path('documents/tenders/'), $docPath);
-            $filePath = 'tenders/'.$docPath;
+            try {
+                $docUpload = $request->file('document');
+                $docPath = time() . '_' . $docUpload->getClientOriginalName();
+                $docUpload->move(public_path('documents/tenders/'), $docPath);
+                $filePath = 'tenders/' . $docPath;
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'File upload failed: ' . $e->getMessage()], 500);
+            }
         }
 
-        // Create a new Act and Policy instance
-        $actandpolicy = new Tender();
-        $actandpolicy->title = $validated['title'];
-        $actandpolicy->description = $validated['description'];
-        $actandpolicy->status = $validated['status'];
-        $actandpolicy->lang_code = $validated['lang_code'];
-        $actandpolicy->start_date = $validated['start_date'];
-        $actandpolicy->end_date = $validated['end_date'];
-        $actandpolicy->document = $filePath; // Store file path in the database
-        $actandpolicy->save();
-        
-        // Return the data as JSON
-        return response()->json($actandpolicy);
+        // Create a new Tender instance
+        $tender = new Tender();
+        $tender->title = $validated['title'];
+        $tender->description = $validated['description'] ?? '';
+        $tender->status = $validated['status'];
+        $tender->lang_code = $validated['lang_code'];
+        $tender->start_date = $validated['start_date'];
+        $tender->end_date = $validated['end_date'];
+        $tender->positions = $validated['positions'] ?? null; // Handle nullable fields
+        $tender->document = $filePath; // Store file path in the database
+        $tender->save();
+
+        // Return the data as JSON with a 201 status code
+        return response()->json($tender, 201);
     }
+
 
     public function update(Request $request, $id)
     {
@@ -130,31 +164,30 @@ class TenderController extends Controller
             'title' => 'required|max:255',
             'description' => 'max:500',
             'status' => 'required',
-            'document' => 'file|mimes:pdf|max:2048',
+            'lang_code' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date', // Ensure end_date is after start_date
+            'positions' => 'nullable',
+            'document' => 'nullable|file|mimes:pdf|max:2048',
         ]);
 
         $actandpolicy = Tender::find($id);
 
         if (!$actandpolicy) {
-            return response()->json([
-                'error' => 'Not Found.'
-            ], 400);
+            return response()->json(['error' => 'Not Found.'], 404);
         }
-
-        $actandpolicy->title = $request->input('title');
-        $actandpolicy->description = $request->input('description');
-        $actandpolicy->status = $request->input('status');
 
         if ($request->hasFile('document')) {
             $docUpload = $request->file('document');
             $docPath = time() . '_' . $docUpload->getClientOriginalName();
             $docUpload->move(public_path('documents/tenders/'), $docPath);
-            $actandpolicy->document = 'tenders/'.$docPath;
+            $validated['document'] = 'tenders/' . $docPath;
         }
+        // Use fill to update attributes
+        $actandpolicy->fill($validated);
 
         $actandpolicy->save();
 
-        // Return the data as JSON
         return response()->json($actandpolicy);
     }
 

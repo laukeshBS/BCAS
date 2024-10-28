@@ -34,8 +34,23 @@
     </div>
     
     <div *ngIf="events.length === 0">
-      <p>No Notice Available.</p>
+      <p>Loading.</p>
     </div>
+    <nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+      <ul class="pagination">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="changePage(currentPage - 1)" [attr.aria-disabled]="currentPage === 1">Previous</a>
+        </li>
+        
+        <li *ngFor="let page of [].constructor(lastPage); let i = index" class="page-item" [class.active]="i + 1 === currentPage">
+          <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+        </li>
+        
+        <li class="page-item" [class.disabled]="currentPage === lastPage">
+          <a class="page-link" (click)="changePage(currentPage + 1)" [attr.aria-disabled]="currentPage === lastPage">Next</a>
+        </li>
+      </ul>
+    </nav>
     
     <!-- Bootstrap modal -->
     <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
@@ -143,6 +158,14 @@
                   <div *ngIf="endDate.errors?.['required']">End Date is required.</div>
                 </div>
               </div>
+
+              <div class="mb-3">
+                <label for="important" class="form-label">Important</label>
+                <input type="number" id="important" class="form-control" [(ngModel)]="selectedEvent.important" name="important" required #important="ngModel"/>
+                <div *ngIf="important.invalid && (important.dirty || important.touched)" class="text-danger">
+                  <div *ngIf="important.errors?.['required']">Important is required.</div>
+                </div>
+              </div>
             
               <div class="mb-3">
                 <label for="document" class="form-label">Upload Document</label>
@@ -150,14 +173,14 @@
                   type="file" 
                   id="document" 
                   class="form-control" 
-                  (change)="oneditFileChange($event)"
+                  (change)="oneditFileChange($event)" accept=".pdf"
                 />
                 <div *ngIf="selectedFileError" class="text-danger">
                   <div>{{ selectedFileError }}</div>
                 </div>
               </div>
             
-              <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Save Changes</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
             </form>
             
           </div>
@@ -222,13 +245,20 @@
                 </div>
               </div>
               <div class="mb-3">
+                <label for="important" class="form-label">Important</label>
+                <input type="number" id="important" class="form-control" [(ngModel)]="selectedEvent.important" name="important" required #important="ngModel"/>
+                <div *ngIf="important.invalid && (important.dirty || important.touched)" class="text-danger">
+                  <div *ngIf="important.errors?.['required']">Important is required.</div>
+                </div>
+              </div>
+              <div class="mb-3">
                 <label for="document" class="form-label">Upload Document</label>
-                <input type="file" id="document" class="form-control" (change)="onFileChange($event)">
+                <input type="file" id="document" class="form-control" (change)="onFileChange($event)" accept=".pdf">
                 <div *ngIf="!fileToUpload" class="text-danger">
                   Document is required.
                 </div>
               </div>
-              <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Save Changes</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
             </form>
             
           </div>
