@@ -58,6 +58,24 @@
     <p>No Document Available.</p>
 </div>
 
+<!-- modal.component.html -->
+<div class="modal fade" id="documentModal" tabindex="-1" role="dialog" aria-labelledby="modalTitle" aria-hidden="true">
+    <div class="modal-dialog" role="document" style="min-width: 80%;">
+      <div class="modal-content">
+        <div class="modal-header" style="z-index: 1;background:white;">
+          <h5 class="modal-title" id="modalTitle">Document Preview</h5>
+          <button type="button" class="close" (click)="closeModal()" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" style="top: -75px;">
+          <iframe *ngIf="documentUrl" [src]="documentUrl" style="width:100%; height:500px;" frameborder="0" (load)="disableDownloadAndPrint($event)"></iframe>
+          <div *ngIf="!documentUrl">Loading document...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
 <!-- Bootstrap modal -->
 <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
     <div class="modal-dialog" style="min-width: 900px;">

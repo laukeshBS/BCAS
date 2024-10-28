@@ -33,10 +33,26 @@ export class LoginComponent {
       alert('CAPTCHA is incorrect, please try again.');
       return;
     }
-    this.authService.handleLogin(this.email, this.password);
+    if (this.password) {
+      
+      // const key = CryptoJS.enc.Utf8.parse('xWfR9K7h3gD5yTqV6zUqE4mJ2d8C3sA4'); // 16-byte key
+      // const iv = CryptoJS.lib.WordArray.random(16); // 16-byte IV
+      // const encryptedPassword = CryptoJS.AES.encrypt(this.password, key, { iv: iv }).toString();
+      const key = CryptoJS.enc.Utf8.parse('xWfR9K7h3gD5yTqV'); // Adjust to 16 bytes
+      const iv = CryptoJS.lib.WordArray.random(16); // Generate 16-byte IV
+      const encryptedPassword = CryptoJS.AES.encrypt(this.password, key, { iv: iv }).toString();
+      // const bytes = CryptoJS.AES.decrypt(encryptedPassword, key);
+      // alert(bytes.toString(CryptoJS.enc.Utf8));
+      this.authService.handleLogin(this.email, encryptedPassword,iv.toString(CryptoJS.enc.Base64));
+    }else{
+      alert('Please enter valid password.');
+      return;
+    }
+
+    // this.authService.handleLogin(this.email, this.password);
   
     // Define your secret key
-    // const secretKey = 'SEjGcAu686ZZQORkIEodR2WdcPpqBBKjMxfIbEFoTrA=';
+    // const secretKey = 'xWfR9K7h3gD5yTqV6zUqE4mJ2d8C3sA4';
     
     // try {
     //   // Encrypt the password
