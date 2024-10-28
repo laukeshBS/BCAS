@@ -339,7 +339,7 @@ class AdminsController extends Controller
             'name' => 'required|max:50',
             'email' => 'required|max:100|email',
             'username' => 'required|max:100',
-            'password' => 'required|min:6',
+            'password' => 'nullable|min:6',
         ]);
 
 
