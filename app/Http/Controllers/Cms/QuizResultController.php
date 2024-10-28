@@ -78,7 +78,7 @@ class QuizResultController extends Controller
 
         return response()->json($data);
     }
-    public function store(Request $request)
+    public function saveScores(Request $request)
     {
         // Define validation rules
       
@@ -92,7 +92,7 @@ class QuizResultController extends Controller
         
         // Validate the request input
         $validator = Validator::make($request->all(), $rules);
-    
+       // dd($request);
         // Handle validation errors
         if ($validator->fails()) {
             return response()->json([
@@ -100,7 +100,53 @@ class QuizResultController extends Controller
                 'messages' => $validator->errors()
             ], 422); // 422 Unprocessable Entity
         }
+      
+        // Clean and sanitize the validated data
+        $validated = $validator->validated();
+       // dd($validated);
+        // Store the quiz result
+        $result = new QuizResult();
+        $result->fullname = clean_single_input(strip_tags($validated['fullname']));
+        $result->email = clean_single_input(strip_tags($validated['email']));
+        $result->phone = clean_single_input(strip_tags($validated['phone']));
+        $result->score = clean_single_input(strip_tags($validated['score']));
+        $result->total = clean_single_input(strip_tags($validated['total']));
+        $result->created_by = clean_single_input(strip_tags($validated['fullname']));
+        $result->save();
+    
+        // Check if the result is saved successfully
+        if ($result) {
+            $responseMessage['message'] = "Thank You";
+        } else {
+            $responseMessage['error'] = "Failed to save the result";
+        }
+    
+        // Return the response as JSON
+        return response()->json($responseMessage);
+    }
+    public function store(Request $request)
+    {
+        // Define validation rules
+      
+        $rules = [
+            //'fullname' => 'required|string|max:255',
+            //'email' => 'required|email|max:255',
+            //'phone' => 'required|string|max:15',
+            'score' => 'required|integer',
+            'total' => 'required|integer',
+        ];
+        
+        // Validate the request input
+        $validator = Validator::make($request->all(), $rules);
         dd($request);
+        // Handle validation errors
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation Error.',
+                'messages' => $validator->errors()
+            ], 422); // 422 Unprocessable Entity
+        }
+      
         // Clean and sanitize the validated data
         $validated = $validator->validated();
         
@@ -139,7 +185,7 @@ class QuizResultController extends Controller
             ], 400);
         }
 
-        $result->name = $validated['name'];
+        $result->fullname = $validated['fullname'];
         $result->status = $validated['status'];
         $result->save();
 

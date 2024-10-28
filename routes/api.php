@@ -55,7 +55,9 @@ Route::middleware(['cors', 'throttle:60,1'])->group(function () {
         Route::post('quarterly-report2-online', 'store');
     });
     Route::controller(QuizResultController::class)->group(function () {
-        Route::any('quiz-results', 'store');
+       Route::any('quiz-results', 'saveScores');
+       Route::post('saveScores', 'saveScores');
+
      });
 });
 
