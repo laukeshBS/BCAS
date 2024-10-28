@@ -11,7 +11,7 @@ class Region extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name','status','position',
+        'name','status','position','lang_code',
     ];
     public function contacts()
     {

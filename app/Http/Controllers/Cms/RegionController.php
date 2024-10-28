@@ -116,4 +116,8 @@ class RegionController extends Controller
 
         return response()->json($region);
     }
+    public function region_dropdown_list($lang_code)
+    {
+        return Region::where('lang_code', $lang_code)->get();
+    }
 }
