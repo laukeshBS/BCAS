@@ -40,11 +40,12 @@ class Kernel extends HttpKernel
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\TrackVisitors::class,
             \App\Http\Middleware\SetLocale::class,
+            \App\Http\Middleware\RemovePoweredByHeader::class,
         ],
 
         'api' => [
           //  'throttle:60,1',
-           
+            \App\Http\Middleware\RemovePoweredByHeader::class,
             \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             //'throttle:api',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
@@ -71,6 +72,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'resetLastActive' => \App\Http\Middleware\ResetLastActive::class,
         'cors' => \App\Http\Middleware\CorsMiddleware::class,
+        'removePoweredBy' => \App\Http\Middleware\RemovePoweredByHeader::class,
 
     ];
 }

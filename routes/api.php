@@ -11,7 +11,7 @@ use App\Http\Controllers\Cms\{
     WorkingAirportsController, QuarterlyReportOnlineiiFormsController,
     CommonController as Common, LanguageController as Lang,OrganizationStructureController,
     Common\CommonTitleController, PermittedProhibitedController,QuizResultController,
-    AvsecTrainingCalendarController, QuarterlyReportOnlineFormsController,SecurityQuizController
+    AvsecTrainingCalendarController,AstiVariousEntityController, QuarterlyReportOnlineFormsController,SecurityQuizController
 };
 use App\Http\Controllers\Cms\Division\GalleryController;
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
@@ -43,7 +43,7 @@ Route::get('/clear-cache', function () {
 // Public Routes
 Route::post('login', [LoginController::class, 'login']);
 
-Route::middleware(['cors', 'throttle:60,1'])->group(function () {
+Route::middleware(['cors', 'throttle:60,1','removePoweredBy'])->group(function () {
     Route::controller(FeedbackController::class)->group(function () {
         Route::any('submit_feedback', 'store');
     });
@@ -56,11 +56,13 @@ Route::middleware(['cors', 'throttle:60,1'])->group(function () {
         Route::post('quarterly-report2-online', 'store');
     });
     Route::controller(QuizResultController::class)->group(function () {
-        Route::any('quiz-results', 'store');
+       Route::any('quiz-results', 'saveScores');
+       Route::post('saveScores', 'saveScores');
+
      });
 });
 
-Route::middleware(['cors'])->group(function () {
+Route::middleware(['cors','removePoweredBy'])->group(function () {
     Route::get('/csrf-token', fn () => response()->json(['csrfToken' => csrf_token()]));
 
     Route::controller(Lang::class)->group(function () {
@@ -80,6 +82,9 @@ Route::middleware(['cors'])->group(function () {
     });
     Route::controller(OrganizationStructureController::class)->group(function () {
         Route::post('organization-list', 'organization_list');
+    });
+    Route::controller(AstiVariousEntityController::class)->group(function () {
+        Route::post('asti-list', 'asti_list_approved');
     });
 
     Route::controller(VisitorController::class)->group(function () {
@@ -179,7 +184,7 @@ Route::middleware(['cors'])->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function () {
+Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])->group(function () {
     Route::controller(RolesController::class)->group(function () {
         Route::post('roles-list', 'cms_data');
         Route::post('roles-store', 'store');
@@ -199,7 +204,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
       
     });
     Route::controller(menus::class)->group(function () {
-        Route::post('menulist', 'data');
+        Route::post('menulist', 'index');
         Route::get('menu-by-id/{id}', 'data_by_id');
         Route::post('menu-store', 'store');
         Route::post('menu-update/{id}', 'update');
