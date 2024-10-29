@@ -43,7 +43,7 @@ Route::get('/clear-cache', function () {
 // Public Routes
 Route::post('login', [LoginController::class, 'login']);
 
-Route::middleware(['cors', 'throttle:60,1'])->group(function () {
+Route::middleware(['cors', 'throttle:60,1','removePoweredBy'])->group(function () {
     Route::controller(FeedbackController::class)->group(function () {
         Route::any('submit_feedback', 'store');
     });
@@ -62,7 +62,7 @@ Route::middleware(['cors', 'throttle:60,1'])->group(function () {
      });
 });
 
-Route::middleware(['cors'])->group(function () {
+Route::middleware(['cors','removePoweredBy'])->group(function () {
     Route::get('/csrf-token', fn () => response()->json(['csrfToken' => csrf_token()]));
 
     Route::controller(Lang::class)->group(function () {
@@ -184,7 +184,7 @@ Route::middleware(['cors'])->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function () {
+Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])->group(function () {
     Route::controller(RolesController::class)->group(function () {
         Route::post('roles-list', 'cms_data');
         Route::post('roles-store', 'store');
