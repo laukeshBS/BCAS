@@ -4,12 +4,12 @@ namespace App\Http\Controllers\Cms;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Cms\CateringCompany;
+use App\Models\Cms\AstiVariousEntity;
 use App\Helpers\AuditTrail;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Spatie\Permission\Models\Permission;
-class CateringCompanyController extends Controller
+class AstiVariousEntityController extends Controller
 {
     public $user;
 
@@ -22,54 +22,48 @@ class CateringCompanyController extends Controller
     }
 
   
-    public function catering_list(Request $request)
+    public function asti_list(Request $request)
     {
        // dd('here');
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
 
-        $catering = CateringCompany::select('*')
-            ->orderBy('id', 'desc')
+        $airports = AstiVariousEntity::select('*')
+            ->orderBy('region_name', 'ASC')
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $catering->getCollection()->transform(function ($item) {
+        $airports->getCollection()->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             return $item;
         });
 
-        return response()->json($catering);
+        return response()->json($airports);
     }
-public function catering_list_approved(Request $request)
+public function asti_list_approved(Request $request)
 {
     // Default pagination parameters
     $perPage = $request->input('per_page', 10);
     $page = $request->input('page', 1);
 
     // Filter parameters
-    $airport_name = $request->input('airport_name');
-    $regional_office = $request->input('regional_office');
+    $lang_code = $request->input('lang_code');
+    
 
-    // Query to fetch approved catering based on the provided filters
-    $catering = CateringCompany::select('*')
-    ->where('status', 'APPROVED')
-    ->when($airport_name, function ($query, $airport_name) {
-        return $query->where('entity_name', $airport_name);
-    })
-    ->when($regional_office, function ($query, $regional_office) {
-        return $query->where('regional_office', $regional_office);
-    })
-   
-        ->orderBy('date_of_security_programme_approval', 'DESC')
+    // Query to fetch approved airports based on the provided filters
+    $airports = AstiVariousEntity::select('*')
+        //->where('in_principle_provisional', 'APPROVED')  
+        ->where('lang_code',$lang_code)
+        ->orderBy('region_name', 'ASC')
         ->paginate($perPage, ['*'], 'page', $page);
 
     // Transforming the collection to format the created_at date
-    $catering->getCollection()->transform(function ($item) {
+    $airports->getCollection()->transform(function ($item) {
         $item->created_at = date('d-m-Y', strtotime($item->created_at));
         return $item;
     });
 
-    // Returning the paginated list of catering as a JSON response
-    return response()->json($catering);
+    // Returning the paginated list of airports as a JSON response
+    return response()->json($airports);
 }
 
     public function data(Request $request)
@@ -77,7 +71,7 @@ public function catering_list_approved(Request $request)
         $limit = $request->input('limit', 5);
         $lang_code = $request->input('lang_code');
 
-        $data = CateringCompany::select('*')
+        $data = AstiVariousEntity::select('*')
             ->where('lang_code',$lang_code)
             ->orderBy('id', 'desc')
             ->limit($limit)
@@ -104,7 +98,7 @@ public function catering_list_approved(Request $request)
         }
 
         // Retrieve the data by ID
-        $data = CateringCompany::find($validatedId);
+        $data = AstiVariousEntity::find($validatedId);
 
         // Return a 404 response if data is not found
         if (!$data) {
@@ -124,18 +118,18 @@ public function catering_list_approved(Request $request)
         $rules = [
             'region_name' => 'required|string|max:255',
             'sr_no' => 'required|numeric',
-            'catering_name' => 'required|string|max:255',
+            'airport_name' => 'required|string|max:255',
             'entity_name' => 'required|string|max:255',
             'address' => 'required|string|max:500',
             'mobile_no' => 'required|numeric',
             'phone_no' => 'required|numeric',
             'unique_reference_number' => 'required|string|max:255',
             'approved_status_clearance' => 'required',
-            'date_of_security_programme_approval_clearance' => 'required|date',
+            'date_of_approval_clearance' => 'required|date',
             'approved_status_programme' => 'required',
-            'date_of_security_programme_approval_programme' => 'required|date',
+            'date_of_approval_programme' => 'required|date',
             'valid_till' => 'required|date',
-            //'catering_orders' => 'required|string|max:255'
+            //'airport_orders' => 'required|string|max:255'
         ];
 
         // Validate the request
@@ -152,24 +146,24 @@ public function catering_list_approved(Request $request)
         $data = $request->only([
             'region_name', 
             'sr_no', 
-            'catering_name', 
+            'airport_name', 
             'entity_name', 
             'address', 
             'mobile_no', 
             'phone_no', 
             'unique_reference_number', 
             'approved_status_clearance', 
-            'date_of_security_programme_approval_clearance', 
+            'date_of_approval_clearance', 
             'approved_status_programme', 
-            'date_of_security_programme_approval_programme', 
+            'date_of_approval_programme', 
             'valid_till', 
-            'catering_orders'
+            'airport_orders'
         ]);
 //dd($data);
         //$data['created_by'] = Auth::guard('admin')->user()->id;
 
-        // // Create new CateringCompany record
-        $cateringdata = CateringCompany::create($data);
+        // // Create new AstiVariousEntity record
+        $airportdata = AstiVariousEntity::create($data);
 
         // // Log audit trail
         // $user_login_id = Auth::guard('admin')->user()->id;
@@ -177,7 +171,7 @@ public function catering_list_approved(Request $request)
 
         // $logs_data = [
         //     'module_item_title' => $request->unique_reference_number,
-        //     'module_item_id' => $cateringdata->id,
+        //     'module_item_id' => $airportdata->id,
         //     'action_by' => $user_login_id,
         //     'old_data' => json_encode($data),
         //     'new_data' => json_encode($data),
@@ -191,7 +185,7 @@ public function catering_list_approved(Request $request)
         // AuditTrail::log($logs_data);
 
         // Return JSON response
-        return response()->json($cateringdata, 201); // 201 Created
+        return response()->json($airportdata, 201); // 201 Created
     }
 
     public function update(Request $request, $id)
@@ -203,73 +197,73 @@ public function catering_list_approved(Request $request)
             'lang_code' => 'required',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
-            'catering_orders' => 'required|string|max:255',
+            'airport_orders' => 'required|string|max:255',
             'region_name' => 'required|string|max:255',
             'sr_no' => 'required|numeric',
-            'catering_name' => 'required|string|max:255',
+            'airport_name' => 'required|string|max:255',
             'entity_name' => 'required|string|max:255',
             'address' => 'required|string|max:500',
             'mobile_no' => 'required|numeric',
             'phone_no' => 'required|numeric',
             'unique_reference_number' => 'required|string|max:255',
             'approved_status_clearance' => 'required|boolean',
-            'date_of_security_programme_approval_clearance' => 'required|date',
+            'date_of_approval_clearance' => 'required|date',
             'approved_status_programme' => 'required|boolean',
-            'date_of_security_programme_approval_programme' => 'required|date',
+            'date_of_approval_programme' => 'required|date',
             'valid_till' => 'required|date'
         ]);
         
 
-        $cateringdata = CateringCompany::find($id);
+        $airportdata = AstiVariousEntity::find($id);
 
-        if (!$cateringdata) {
+        if (!$airportdata) {
             return response()->json([
                 'error' => 'Not Found.'
             ], 400);
         }
 
-        $cateringdata->title = $validated['title'];
-        $cateringdata->description = $validated['description'];
-        $cateringdata->status = $validated['status'];
-        $cateringdata->lang_code = $validated['lang_code'];
-        $cateringdata->start_date = $validated['start_date'];
-        $cateringdata->end_date = $validated['end_date'];
-        $cateringdata->catering_orders = $validated['catering_orders'] ?? null;
-        $cateringdata->region_name = $validated['region_name'] ?? null;
-        $cateringdata->sr_no = $validated['sr_no'] ?? null;
-        $cateringdata->catering_name = $validated['catering_name'] ?? null;
-        $cateringdata->entity_name = $validated['entity_name'] ?? null;
-        $cateringdata->address = $validated['address'] ?? null;
-        $cateringdata->mobile_no = $validated['mobile_no'] ?? null;
-        $cateringdata->phone_no = $validated['phone_no'] ?? null;
-        $cateringdata->unique_reference_number = $validated['unique_reference_number'] ?? null;
-        $cateringdata->approved_status_clearance = $validated['approved_status_clearance'] ?? null;
-        $cateringdata->date_of_security_programme_approval_clearance = $validated['date_of_security_programme_approval_clearance'] ?? null;
-        $cateringdata->approved_status_programme = $validated['approved_status_programme'] ?? null;
-        $cateringdata->date_of_security_programme_approval_programme = $validated['date_of_security_programme_approval_programme'] ?? null;
-        $cateringdata->valid_till = $validated['valid_till'] ?? null;
-        $cateringdata->save();
+        $airportdata->title = $validated['title'];
+        $airportdata->description = $validated['description'];
+        $airportdata->status = $validated['status'];
+        $airportdata->lang_code = $validated['lang_code'];
+        $airportdata->start_date = $validated['start_date'];
+        $airportdata->end_date = $validated['end_date'];
+        $airportdata->airport_orders = $validated['airport_orders'] ?? null;
+        $airportdata->region_name = $validated['region_name'] ?? null;
+        $airportdata->sr_no = $validated['sr_no'] ?? null;
+        $airportdata->airport_name = $validated['airport_name'] ?? null;
+        $airportdata->entity_name = $validated['entity_name'] ?? null;
+        $airportdata->address = $validated['address'] ?? null;
+        $airportdata->mobile_no = $validated['mobile_no'] ?? null;
+        $airportdata->phone_no = $validated['phone_no'] ?? null;
+        $airportdata->unique_reference_number = $validated['unique_reference_number'] ?? null;
+        $airportdata->approved_status_clearance = $validated['approved_status_clearance'] ?? null;
+        $airportdata->date_of_approval_clearance = $validated['date_of_approval_clearance'] ?? null;
+        $airportdata->approved_status_programme = $validated['approved_status_programme'] ?? null;
+        $airportdata->date_of_approval_programme = $validated['date_of_approval_programme'] ?? null;
+        $airportdata->valid_till = $validated['valid_till'] ?? null;
+        $airportdata->save();
 
         // Return the data as JSON
-        return response()->json($cateringdata);
+        return response()->json($airportdata);
     }
 
     public function delete($id)
     {
-        // Find the cateringdata by id
-        $cateringdata = CateringCompany::find($id);
+        // Find the airportdata by id
+        $airportdata = AstiVariousEntity::find($id);
 
-        if (!$cateringdata) {
+        if (!$airportdata) {
             return response()->json([
                 'error' => 'Not Found.'
             ], 400);
         }
 
-        // Delete the cateringdata
-        $cateringdata->delete();
+        // Delete the airportdata
+        $airportdata->delete();
 
         // Return the data as JSON
-        return response()->json($cateringdata);
+        return response()->json($airportdata);
     }
 
 }
