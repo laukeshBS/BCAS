@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\AdminsController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\DocumentCategoryController;
+use App\Http\Controllers\Admin\AuditController;
 
 /*
 |--------------------------------------------------------------------------
@@ -171,13 +172,16 @@ Route::middleware(['cors'])->group(function () {
         Route::post('quiz-results', 'store');
         
     });
+    // Route::controller(RolesController::class)->group(function () {
+    //     Route::post('roles-list', 'index');
+    // });
    
 });
 
 // Admin Routes
 Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function () {
     Route::controller(RolesController::class)->group(function () {
-        Route::post('roles-list', 'index');
+        Route::post('roles-list', 'cms_data');
         Route::post('roles-store', 'store');
         Route::post('roles-update/{id}','update');
         Route::delete('roles-delete/{id}','destroy');
@@ -420,6 +424,9 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api'])->group(function (
         Route::post('admin-document-category-update/{id}','update');
         Route::delete('admin-document-category-delete/{id}','delete');
         Route::get('admin-document-category','document_categories');
+    });
+    Route::controller(AuditController::class)->group(function () {
+        Route::post('audit-list', 'index');
     });
     
 });

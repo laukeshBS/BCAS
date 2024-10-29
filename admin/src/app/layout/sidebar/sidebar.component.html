@@ -15,6 +15,14 @@
             </a>
           </li>
           <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.view'])">
+            <a [routerLink]="['audit']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Audit
+              </p>
+            </a>
+          </li>
+          <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.view'])">
             <a [routerLink]="['admin-doc']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>
