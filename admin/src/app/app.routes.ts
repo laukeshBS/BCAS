@@ -24,6 +24,7 @@ import { AdminDocumentCategoryComponent } from './pages/admin-document-category/
 import { DasboardComponent } from './pages/dasboard/dasboard.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { AdminComponent } from './pages/admin/admin.component';
+import { AuditComponent } from './pages/audit/audit.component';
 
 
 export const routes: Routes = [
@@ -48,6 +49,7 @@ export const routes: Routes = [
     { path: 'admin-doc-categories', component: AdminDocumentCategoryComponent, canActivate: [AuthGuard]  },
     { path: 'user', component: AdminComponent, canActivate: [AuthGuard]  },
     { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard]  },
+    { path: 'audit', component: AuditComponent, canActivate: [AuthGuard]  },
     { path: '**', redirectTo: '/login' },
     {
       path: 'restricted',

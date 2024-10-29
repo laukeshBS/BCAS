@@ -147,8 +147,6 @@ class MenuController extends BaseController
         ->orderBy('id', 'ASC')
         ->paginate($perPage, ['*'], 'page', $page);
     
-
-
         if ($menus->isNotEmpty()) {
             $menus->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
@@ -423,11 +421,7 @@ class MenuController extends BaseController
                       ->orderBy('page_order', 'ASC');
             }])
             ->select(
-                'id',
-                'menu_type',
                 'menu_child_id',
-                'menu_position',
-                'language_id',
                 'menu_name',
                 'menu_url',
                 'menu_title',
@@ -436,8 +430,6 @@ class MenuController extends BaseController
                 'content',
                 'doc_upload',
                 'menu_links',
-                'page_order',
-                'current_version',
                 'welcomedescription',
                 'banner_img',
                 'img_upload'
@@ -494,11 +486,7 @@ class MenuController extends BaseController
                       ->orderBy('page_order', 'ASC');
             }])
             ->select(
-                'id',
-                'menu_type',
                 'menu_child_id',
-                'menu_position',
-                'language_id',
                 'menu_name',
                 'menu_url',
                 'menu_title',
@@ -507,8 +495,6 @@ class MenuController extends BaseController
                 'content',
                 'doc_upload',
                 'menu_links',
-                'page_order',
-                'current_version',
                 'welcomedescription',
                 'img_upload'
             )->orderBy('page_order','ASC')

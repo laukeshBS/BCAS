@@ -27,8 +27,23 @@
     </div>
     
     <div *ngIf="events.length === 0">
-      <p>No Role Available.</p>
+      <p>Loading.</p>
     </div>
+    <nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+      <ul class="pagination">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="changePage(currentPage - 1)" [attr.aria-disabled]="currentPage === 1">Previous</a>
+        </li>
+        
+        <li *ngFor="let page of [].constructor(lastPage); let i = index" class="page-item" [class.active]="i + 1 === currentPage">
+          <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+        </li>
+        
+        <li class="page-item" [class.disabled]="currentPage === lastPage">
+          <a class="page-link" (click)="changePage(currentPage + 1)" [attr.aria-disabled]="currentPage === lastPage">Next</a>
+        </li>
+      </ul>
+    </nav>
     
     <!-- Bootstrap modal -->
     <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
@@ -105,8 +120,6 @@
             
               <button type="submit" class="btn btn-primary mt-4 pr-4 pl-4">Update Role</button>
             </form>
-            
-            
           </div>
         </div>
       </div>

@@ -72,7 +72,7 @@ class ContactController extends Controller
         // Get parameters from the request with defaults
         $approve_status = $request->input('status');
         $lang_code = $request->input('lang_code');
-        $perPage = $request->input('limit', 5); // Default limit to 5
+        $perPage = $request->input('limit', 10); // Default limit to 5
         $page = $request->input('currentPage', 1); // Default page number to 1
 
         // Initialize query builder

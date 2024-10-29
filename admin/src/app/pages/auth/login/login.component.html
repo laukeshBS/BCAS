@@ -6,14 +6,14 @@
     <div class="login">
       <img src="assets/logo.png" alt="AdminLTE Logo" class="brand-image elevation-3" style="width: 100px;background-color: #ffffff; border-radius: 50%;">
       <h2>CMS Login</h2>
-      <form (ngSubmit)="login()" #loginForm="ngForm">
+      <form (ngSubmit)="login()" #loginForm="ngForm" autocomplete="off">
         <div class="input-box">
           <label>Email:</label>
-          <input type="email" [(ngModel)]="email" name="email" required />
+          <input type="email" [(ngModel)]="email" name="email" required autocomplete="off" />
         </div>
         <div class="input-box">
           <label>Password:</label>
-          <input type="password" [(ngModel)]="password" name="password" required />
+          <input type="password" [(ngModel)]="password" name="password" required autocomplete="new-password" />
         </div>
         <app-captcha></app-captcha>
         <div class="input-box">

@@ -36,35 +36,75 @@ class RolesController extends Controller
         $roles = Role::paginate(15);
         return response()->json(['roles' => $roles], 200);
     }
-    public function all_permissions()
-{
-    if (is_null($this->user)) {
-        return response()->json(['error' => 'Unauthorized to view roles'], 403);
-    }
+    public function cms_data(Request $request)
+    {
+        // Validate request parameters
+        $request->validate([
+            'status' => 'nullable|string',
+            'lang_code' => 'nullable|string',
+            'limit' => 'nullable|integer|min:1', // Limit between 1 and 100
+            'currentPage' => 'nullable'
+        ]);
 
-    // Check if the user is the super admin
-    if ($this->user->id == 1) {
-        // Get all admins with their roles and permissions
-        $admins = Admin::with('roles.permissions')->get();
-        
-        // Collect permissions from all admins
-        $permissions = $admins->flatMap(function ($admin) {
-            return $admin->roles->flatMap->permissions;
-        });
-    } else {
-        // Get the specific admin
-        $user_permissions = Admin::with('roles.permissions')->find($this->user->id);
+        // Get parameters from the request with defaults
+        $approve_status = $request->input('status');
+        $lang_code = $request->input('lang_code');
+        $perPage = $request->input('limit', 10); // Default limit to 5
+        $page = $request->input('currentPage', 1); // Default page number to 1
 
-        // Check if the user has roles
-        if ($user_permissions && $user_permissions->roles->isNotEmpty()) {
-            $permissions = $user_permissions->roles->flatMap->permissions;
-        } else {
-            $permissions = [];
+        // Initialize query builder
+        $query = Role::select('*');
+
+        // Apply filters if provided
+        if (!empty($approve_status)) {
+            $query->where('status', $approve_status);
         }
-    }
 
-    return response()->json(['all_permissions' => $permissions], 200);
-}
+        if (!empty($lang_code)) {
+            $query->where('lang_code', $lang_code);
+        }
+
+        // Get the paginated list
+        $list = $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+        return response()->json([
+            'title' => 'Role List',
+            'data' => $list->items(), // Get items for the current page
+            'total' => $list->total(), // Total number of items
+            'current_page' => $list->currentPage(), // Current page number
+            'last_page' => $list->lastPage(), // Last page number
+            'per_page' => $list->perPage(), // Items per page
+        ]);
+    }
+    public function all_permissions()
+    {
+        if (is_null($this->user)) {
+            return response()->json(['error' => 'Unauthorized to view roles'], 403);
+        }
+
+        // Check if the user is the super admin
+        if ($this->user->id == 1) {
+            // Get all admins with their roles and permissions
+            $admins = Admin::with('roles.permissions')->get();
+            
+            // Collect permissions from all admins
+            $permissions = $admins->flatMap(function ($admin) {
+                return $admin->roles->flatMap->permissions;
+            });
+        } else {
+            // Get the specific admin
+            $user_permissions = Admin::with('roles.permissions')->find($this->user->id);
+
+            // Check if the user has roles
+            if ($user_permissions && $user_permissions->roles->isNotEmpty()) {
+                $permissions = $user_permissions->roles->flatMap->permissions;
+            } else {
+                $permissions = [];
+            }
+        }
+
+        return response()->json(['all_permissions' => $permissions], 200);
+    }
 
 
     /**

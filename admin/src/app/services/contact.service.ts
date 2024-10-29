@@ -14,6 +14,8 @@ export class ContactService {
   private storeApiUrl = environment.apiBaseUrl + 'contact-store';
   private updateApiUrl = environment.apiBaseUrl + 'contact-update';
   private deleteApiUrl = environment.apiBaseUrl + 'contact-delete';
+  private fetchDivisionsapiUrl = environment.apiBaseUrl + 'division-dropdown-list';
+  private fetchRegionsapiUrl = environment.apiBaseUrl + 'region-dropdown-list';
 
   constructor(private http: HttpClient) {}
 
@@ -56,5 +58,13 @@ export class ContactService {
   // Add method to delete an Acts and Plocies
   deleteEvent(id: number): Observable<any> {
     return this.http.delete<any>(`${this.deleteApiUrl}/${id}`, { headers: this.getHeaders2() });
+  }
+  // Fetch Division list
+  fetchDivisions(lang_code: string): Observable<any> {
+    return this.http.get<any>(`${this.fetchDivisionsapiUrl}/${lang_code}`, { headers: this.getHeaders() });
+  }
+  // Fetch Region list
+  fetchRegions(lang_code: string): Observable<any> {
+    return this.http.get<any>(`${this.fetchRegionsapiUrl}/${lang_code}`, { headers: this.getHeaders() });
   }
 }

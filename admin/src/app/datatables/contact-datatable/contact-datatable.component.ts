@@ -18,13 +18,15 @@ export class ContactDatatableComponent {
   selectedEvent: any = {};
   fileToUpload: File | null = null;
   limit = 10; 
-  lang_code = 'en'; 
+  lang_code = ''; 
   selectedFile: any;
   selectedFileError: string | null = null; // Initialized with null
   currentPage: number = 1; // Current page for pagination
   totalItems: number = 0; // Total items to calculate total pages
   loading: boolean = false;
   lastPage: number = 0; // Last page
+  divisions: any;
+  regions: any;
 
   constructor(private ContactService: ContactService) {}
 
@@ -38,14 +40,25 @@ export class ContactDatatableComponent {
       this.events = data.data;
       this.totalItems = data.total; // Assuming the API returns total items
       this.lastPage = Math.ceil(this.totalItems / this.limit);
-      console.log('Total Items:', this.totalItems);
-    console.log('Current Page:', this.currentPage);
-    console.log('Last Page:', this.lastPage);
       this.formatEventDates();
       this.loading = false; // Stop loading
     }, error => {
       console.error('Error loading events:', error);
       this.loading = false; // Stop loading on error
+    });
+  }
+  loadDivisions(lang_code: any): void {
+    this.ContactService.fetchDivisions(lang_code).subscribe(data => {
+    this.divisions = data;
+    }, error => {
+      console.error('Error loading events:', error);
+    });
+  }
+  loadRegions(lang_code: any): void {
+    this.ContactService.fetchRegions(lang_code).subscribe(data => {
+      this.regions = data;
+    }, error => {
+      console.error('Error loading events:', error);
     });
   }
   // Change page method
@@ -84,7 +97,13 @@ export class ContactDatatableComponent {
   editEvent(id: number): void {
     this.ContactService.getEvent(id).subscribe(data => {
       this.selectedEvent = data;
-      console.log(this.selectedEvent);
+      if (this.selectedEvent.type == '1') {
+        // Load divisions for Headquarters
+        this.loadDivisions(this.selectedEvent.lang_code);
+      } else if (this.selectedEvent.type == '2') {
+        // Load regions for Regional
+        this.loadRegions(this.selectedEvent.lang_code);
+      }
       this.openEditModal();
     });
   }
@@ -215,6 +234,37 @@ export class ContactDatatableComponent {
       const modal = bootstrap.Modal.getInstance(modalElement);
       if (modal) {
         modal.hide();
+      }
+    }
+  }
+  onLanguageChange(): void {
+    // Reset type and IDs when the language changes
+    this.selectedEvent.type = null; // Reset type
+    this.selectedEvent.division_id = null; // Reset Division Id
+    this.selectedEvent.region_id = null; // Reset Region Id
+    this.divisions = []; // Clear divisions
+    this.regions = []; // Clear regions
+  }
+  onTypeChange(): void {
+    // Clear previous selections
+    this.selectedEvent.division_id = null; // Clear the division ID if changing type
+    this.selectedEvent.region_id = null; // Clear the region ID if changing type
+    this.regions = []; // Clear regions to force reload on language change
+
+    // Load divisions or regions based on the selected type
+    if (this.selectedEvent.type === '1') {
+      // Load new divisions and regions based on the new language
+      if (this.selectedEvent.lang_code) {
+        this.loadDivisions(this.selectedEvent.lang_code);
+      } else {
+        alert('Please select a language first.');
+      }
+    } else if (this.selectedEvent.type === '2') {
+      // Load new divisions and regions based on the new language
+      if (this.selectedEvent.lang_code) {
+        this.loadRegions(this.selectedEvent.lang_code);
+      } else {
+        alert('Please select a language first.');
       }
     }
   }
