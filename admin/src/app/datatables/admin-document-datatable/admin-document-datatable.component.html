@@ -97,11 +97,6 @@
                                     <div *ngIf="document_category_id.errors?.['required']">Category is required.</div>
                                 </div>
                             </div>
-                            <div id="rolesEditContainer" class="mb-3"></div>
-                            
-                        </div>
-                
-                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="doc_name" class="form-label">Title</label>
                                 <input type="text" id="doc_name" class="form-control" [(ngModel)]="selectedEvent.doc_name" name="doc_name" required #doc_name="ngModel" />
@@ -120,6 +115,45 @@
                                     <div *ngIf="doc_type.errors?.['required']">Document Type is required.</div>
                                 </div>
                             </div>
+                            <div class="mb-3">
+                                <label for="doc" class="form-label">Upload Document</label>
+                                <input type="file" id="doc" name="doc" class="form-control" (change)="oneditFileChange($event)" accept=".pdf" />
+                                <div *ngIf="selectedFileError" class="text-danger">
+                                    <div>{{ selectedFileError }}</div>
+                                </div>
+                            </div>
+                        </div>
+                
+                        <div class="col-md-6">
+                            <div id="rolesContainer" class="mb-3 dropdown">
+                                <label for="selectAllRoles" class="form-label">Select Roles for Access</label>
+                                <button type="button" (click)="toggleDropdown()" class="btn btn-primary dropdown-toggle" aria-haspopup="true" aria-expanded="isOpen">
+                                    Select Roles
+                                </button>
+                                <div *ngIf="isOpen" class="dropdown-menu show">
+                                    <div class="dropdown-item">
+                                        <input type="checkbox" id="selectAllRoles" (change)="toggleSelectAll($event)" />
+                                        <label for="selectAllRoles" class="role-label">Select All Roles</label>
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <div class="roles-container">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div *ngFor="let role of rolesArray.slice(0, rolesArray.length / 2); let i = index" class="form-check">
+                                                    <input type="checkbox" [checked]="isSelected(role.id)" (change)="toggleSelection(role.id)" id="role-{{ i }}" value="{{ role.id }}"/>
+                                                    <label for="role-{{ i }}" class="role-label">{{ role.name }}</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div *ngFor="let role of rolesArray.slice(rolesArray.length / 2); let i = index" class="form-check">
+                                                    <input type="checkbox" [checked]="isSelected(role.id)" (change)="toggleSelection(role.id)" id="role-{{ i + (rolesArray.length / 2) }}" />
+                                                    <label for="role-{{ i + (rolesArray.length / 2) }}" class="role-label">{{ role.name }}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>   
                             <div class="mb-3">
                                 <label for="status" class="form-label">Status</label>
                                 <select id="status" class="form-select" [(ngModel)]="selectedEvent.status" name="status" required #status="ngModel">
@@ -153,13 +187,6 @@
                                     <div *ngIf="endDate.errors?.['required']">End Date is required.</div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label for="doc" class="form-label">Upload Document</label>
-                                <input type="file" id="doc" name="doc" class="form-control" (change)="oneditFileChange($event)" accept=".pdf" />
-                                <div *ngIf="selectedFileError" class="text-danger">
-                                    <div>{{ selectedFileError }}</div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                     <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -182,7 +209,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="document_category_id" class="form-label">Category Id</label>
+                                <label for="document_category_id" class="form-label">Document Category</label>
                                 <select id="document_category" class="form-select" [(ngModel)]="selectedEvent.document_category_id" name="document_category_id" required #document_category="ngModel">
                                     <option value="" disabled>Select Category</option>
                                 </select>
@@ -190,27 +217,61 @@
                                     <div *ngIf="document_category_id.errors?.['required']">Category is required.</div>
                                 </div>
                             </div>
-                            <div id="rolesContainer" class="mb-3"></div>
-                            
-                        </div>
-                
-                        <div class="col-md-6">
                             <div class="mb-3">
                                 <label for="doc_name" class="form-label">Title</label>
-                                <input type="text" id="doc_name" class="form-control" name="doc_name" [(ngModel)]="selectedEvent.doc_name" required #doc_name="ngModel">
+                                <input type="text" id="doc_name" class="form-control" [(ngModel)]="selectedEvent.doc_name" name="doc_name" required #doc_name="ngModel" />
                                 <div *ngIf="doc_name.invalid && (doc_name.dirty || doc_name.touched)" class="text-danger">
                                     <div *ngIf="doc_name.errors?.['required']">Title is required.</div>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label for="description" class="form-label">Description</label>
-                                <textarea id="description" class="form-control" name="description" [(ngModel)]="selectedEvent.description"></textarea>
+                                <textarea id="description" class="form-control" [(ngModel)]="selectedEvent.description" name="description"></textarea>
                             </div>
                             <div class="mb-3">
                                 <label for="doc_type" class="form-label">Document Type</label>
                                 <input type="text" id="doc_type" class="form-control" [(ngModel)]="selectedEvent.doc_type" name="doc_type" required #doc_type="ngModel" />
                                 <div *ngIf="doc_type.invalid && (doc_type.dirty || doc_type.touched)" class="text-danger">
                                     <div *ngIf="doc_type.errors?.['required']">Document Type is required.</div>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="document" class="form-label">Upload Document</label>
+                                <input type="file" id="document" name="document" class="form-control" (change)="onFileChange($event)" accept=".pdf">
+                                <div *ngIf="!fileToUpload" class="text-danger">
+                                    Document is required.
+                                </div>
+                            </div>       
+                        </div>
+                
+                        <div class="col-md-6">
+                            <div id="rolesContainer" class="mb-3 dropdown">
+                                <label for="selectAllRoles" class="form-label">Select Roles for Access</label>
+                                <button type="button" (click)="toggleDropdown()" class="btn btn-primary dropdown-toggle" aria-haspopup="true" aria-expanded="isOpen">
+                                    Select Roles
+                                </button>
+                                <div *ngIf="isOpen" class="dropdown-menu show">
+                                    <div class="dropdown-item">
+                                        <input type="checkbox" id="selectAllRoles" (change)="toggleSelectAll($event)" />
+                                        <label for="selectAllRoles" class="role-label">Select All Roles</label>
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <div class="roles-container">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div *ngFor="let role of rolesArray.slice(0, rolesArray.length / 2); let i = index" class="form-check">
+                                                    <input type="checkbox" [checked]="isSelected(role.id)" (change)="toggleSelection(role.id)" id="role-{{ i }}" />
+                                                    <label for="role-{{ i }}" class="role-label">{{ role.name }}</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div *ngFor="let role of rolesArray.slice(rolesArray.length / 2); let i = index" class="form-check">
+                                                    <input type="checkbox" [checked]="isSelected(role.id)" (change)="toggleSelection(role.id)" id="role-{{ i + (rolesArray.length / 2) }}" />
+                                                    <label for="role-{{ i + (rolesArray.length / 2) }}" class="role-label">{{ role.name }}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="mb-3">
@@ -244,13 +305,6 @@
                                 <input type="date" id="end_date" class="form-control" name="end_date" [(ngModel)]="selectedEvent.end_date" required #end_date="ngModel">
                                 <div *ngIf="end_date.invalid && (end_date.dirty || end_date.touched)" class="text-danger">
                                     <div *ngIf="end_date.errors?.['required']">End date is required.</div>
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label for="document" class="form-label">Upload Document</label>
-                                <input type="file" id="document" name="document" class="form-control" (change)="onFileChange($event)" accept=".pdf">
-                                <div *ngIf="!fileToUpload" class="text-danger">
-                                    Document is required.
                                 </div>
                             </div>
                         </div>
