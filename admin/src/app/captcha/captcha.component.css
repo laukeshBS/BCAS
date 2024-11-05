@@ -40,7 +40,7 @@
     background-color: #4CAF50; /* Green background */
     color: white; /* White text */
     border: none; /* No border */
-    padding: 10px 15px; /* Padding inside button */
+    padding: 10px 8px; /* Padding inside button */
     border-radius: 4px; /* Rounded corners */
     cursor: pointer; /* Pointer cursor */
     transition: background-color 0.3s; /* Transition for background color */
@@ -54,5 +54,11 @@
     font-size: 14px; /* Smaller font for hint */
     color: #555; /* Gray color */
     margin-top: 10px; /* Spacing above hint */
+  }
+  .captcha-text {
+    -webkit-user-select: none; /* Safari */
+    -moz-user-select: none;    /* Firefox */
+    -ms-user-select: none;     /* Internet Explorer/Edge */
+    user-select: none;         /* Non-webkit browsers */
   }
   
