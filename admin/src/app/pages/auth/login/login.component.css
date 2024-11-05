@@ -8,7 +8,7 @@
 }
 
 .loginpage{
-    background: #070707 !important;
+    background: #343A40 !important;
     height: 100vh;
 }
 
@@ -29,16 +29,6 @@
     transition: .5s;
 }
 
-.loginpage .container i:nth-child(1){ animation: animate 5s linear infinite;}
-
-.loginpage .container i:nth-child(2){ animation: animate 7s linear infinite;}
-
-.loginpage .container i:nth-child(3){ animation: animate 11s linear infinite;}
-
-.loginpage .container i{
-    border: 6px solid var(--clr);
-    filter: drop-shadow(0 0 20px var(--clr));
-}
 
 .login{
     position: absolute;
@@ -108,14 +98,4 @@
 .login .links a{
     color: #fff;
     text-decoration: none;
-}
-
-@keyframes animate{
-    0% { transform: rotate(0deg);}
-    100%{ transform: rotate(360deg);}
-}
-
-@keyframes animate4{
-    0% { transform: rotate(360deg);}
-    100%{ transform: rotate(0deg);}
 }
