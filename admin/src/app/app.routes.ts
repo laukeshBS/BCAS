@@ -26,6 +26,7 @@ import { ContactComponent } from './pages/contact/contact.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { AuditComponent } from './pages/audit/audit.component';
 import { FirstTimeLoginComponent } from './pages/first-time-login/first-time-login.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
 
 
 export const routes: Routes = [
@@ -51,6 +52,7 @@ export const routes: Routes = [
     { path: 'user', component: AdminComponent, canActivate: [AuthGuard]  },
     { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard]  },
     { path: 're-registration', component: FirstTimeLoginComponent, canActivate: [NoAuthGuard]  },
+    { path: 'forget-password', component: ForgotPasswordComponent, canActivate: [NoAuthGuard]  },
     { path: 'audit', component: AuditComponent, canActivate: [AuthGuard]  },
     { path: '**', redirectTo: '/login' },
     {

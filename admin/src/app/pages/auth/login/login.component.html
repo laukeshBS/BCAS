@@ -11,6 +11,7 @@
         <div class="input-box">
           <label>Password:</label>
           <input type="password" [(ngModel)]="password" name="password" required autocomplete="new-password" />
+          <a href="/forget-password">Forget Password</a>
         </div>
         <app-captcha></app-captcha>
         <div class="input-box row">
@@ -18,7 +19,7 @@
             <button type="submit" [disabled]="!loginForm.valid">Login</button>
           </div>
           <div class="col-md-6 d-flex">
-            <a href="/re-registration">Register</a>
+            <a id="registration-btn" href="/re-registration">Register</a>
           </div>
           
           <div *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</div>

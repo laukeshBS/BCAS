@@ -175,6 +175,8 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
     });
     Route::controller(SecurityQuestionController::class)->group(function () {
         Route::get('question-list', 'questions');
+        Route::post('re-register', 'reRegister');
+        Route::post('forgot-password', 'forgotPassword');
         Route::post('quiz-results', 'store');
         
     });

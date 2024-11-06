@@ -5,13 +5,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 
 @Component({
-  selector: 'app-first-time-login',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './first-time-login.component.html',
-  styleUrls: ['./first-time-login.component.css']
+  selector: 'app-forgot-password',
+  templateUrl: './forgot-password.component.html',
+  styleUrls: ['./forgot-password.component.css']
 })
-export class FirstTimeLoginComponent {
+export class ForgotPasswordComponent {
   email: string = '';
   errorMessage: string = '';
   questions: any;
@@ -42,7 +42,7 @@ export class FirstTimeLoginComponent {
   }
 
   // Handle the form submission
-  register() {
+  onSubmit() {
     if (!this.reRegistrationForm?.valid) {
       this.errorMessage = 'Form is invalid. Please complete all required fields.';
       return;
@@ -66,13 +66,13 @@ export class FirstTimeLoginComponent {
       }))
     };
 
-    this.authService.reRegister(registrationData).subscribe(
+    this.authService.forgotPassword(registrationData).subscribe(
       response => {
         this.loading = false;
         if (response.success) {
           this.router.navigate(['login']);
         } else {
-          this.errorMessage = response.message || 'Re-registration failed';
+          this.errorMessage = response.message || 'Paaswrod reset failed';
         }
       },
       error => {

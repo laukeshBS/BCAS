@@ -81,7 +81,7 @@
     box-shadow: none;
     outline: none;
 }
-.login .input-box a{
+.login .input-box #registration-btn{
     width: 100%;
     background: #06ae3e;
     background: linear-gradient(45deg, #06ae3e, #0e763d);

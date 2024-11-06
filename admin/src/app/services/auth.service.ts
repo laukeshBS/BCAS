@@ -46,6 +46,12 @@ export class AuthService {
     return this.http.post<any>(`${this.apiUrl}re-register`, body); // Adjust API endpoint as needed
   }
 
+  // Re-registration method
+  forgotPassword(registrationData: { email: string; questions: { questionId: number; answer: string }[] }): Observable<any> {
+    const body = registrationData;
+    return this.http.post<any>(`${this.apiUrl}forgot-password`, body); // Adjust API endpoint as needed
+  }
+
   // get all questions 
   getQuestions(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}question-list`);
