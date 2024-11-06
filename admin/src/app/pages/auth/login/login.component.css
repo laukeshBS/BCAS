@@ -68,20 +68,31 @@
 }
 
 .login .input-box button[type="submit"]{
-    margin-top: 10px;
     width: 100%;
     background: #0078ff;
     background: linear-gradient(45deg, #0d10d8, #cb0fd1);
     cursor: pointer;
     position: relative;
-    width: 100%;
-    padding: 12px 20px;
+    padding: 10px 10px;
     border: 2px solid #fff;
     border-radius: 40px;
     font-size: 1.2em;
     color: #fff;
     box-shadow: none;
     outline: none;
+}
+.login .input-box a{
+    width: 100%;
+    background: #06ae3e;
+    background: linear-gradient(45deg, #06ae3e, #0e763d);
+    padding: 10px 10px;
+    border: 2px solid #fff;
+    border-radius: 40px;
+    font-size: 1.2em;
+    color: #fff;
+    box-shadow: none;
+    outline: none;
+    text-align: center;
 }
 
 .login .input-box input::placeholder{ color: rgba(255, 255, 255, .75);}
