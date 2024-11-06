@@ -10,6 +10,7 @@ use App\Models\Admin\Document;
 use GPBMetadata\Google\Api\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Admin\DocumentCategory;
@@ -169,6 +170,51 @@ class SecurityQuestionController extends Controller
             }
         }
 
+        // Generate OTP (6-digit number)
+        $otp = mt_rand(100000, 999999); // Simple OTP generation
+
+        // Store OTP temporarily in the database or cache for verification (e.g., using Redis or the database)
+        $user->otp = $otp;
+        $user->save();
+
+        // Send OTP via external API (assuming it's an SMS or other notification)
+        $apiUrl = "https://pgapi.smartping.ai/fe/api/v1/send?username=cscetrpg6.trans&password=LuRXO&unicode=false&from=BCASRM&to=8302649083&dltPrincipalEntityId=1401665390000071833&dltContentId=1407173021512730911&text=".$otp."";
+        $response = Http::post($apiUrl, [
+            'message' => "Your OTP for password reset is: $otp",
+            'recipient' => $user->email,  // You can change this to 'phone' if it's for SMS
+        ]);
+
+        // Check if the request was successful
+        if ($response->successful()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'OTP sent successfully to your phone.',
+            ],200);
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to send OTP. Please try again later.',
+            ], 500);
+        }
+    }
+    public function verifyOtp(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'otp' => 'required|numeric'
+        ]);
+
+        // Find user by email
+        $user = Admin::where('email', $request->email)->first();
+
+        // Check if OTP matches and if it's still valid
+        if ($user->otp != $request->otp) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid OTP or OTP expired.'
+            ], 400);
+        }
+
         // // Generate a new random password (12 characters long)
         // $newPassword = Str::random(12);
 
@@ -178,16 +224,14 @@ class SecurityQuestionController extends Controller
 
         // Update the user's password
         $user->password = $hashedPassword;
+        $user->otp = null;
         $user->save();
 
-        // Optionally, send the new password to the user via email
-        // Mail::to($user->email)->send(new PasswordResetMail($newPassword));
-
-        // Return success response with a message (or you can return the new password for testing purposes)
+        // OTP is valid, allow user to reset password
         return response()->json([
             'success' => true,
-            'message' => 'Your password has been reset successfully. Please check your email for the new password.'
-        ], 200);
+            'message' => 'OTP verified successfully.'
+        ]);
     }
 
     public function delete($id)

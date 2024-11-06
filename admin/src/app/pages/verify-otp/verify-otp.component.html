@@ -1,0 +1,17 @@
+<div class="verify-otp-container">
+    <h2>Verify OTP</h2>
+  
+    <form (ngSubmit)="verifyOtp()" #reRegistrationForm="ngForm" autocomplete="off">
+        <div class="mb-3">
+            <label>OTP</label>
+            <input matInput type="text" [(ngModel)]="otp" name="otp" required />
+        </div>
+      
+      <div *ngIf="message" class="message" [ngClass]="{ 'success': isSuccess, 'error': !isSuccess }">
+        {{ message }}
+      </div>
+  
+      <button mat-raised-button color="primary" type="submit">Verify OTP</button>
+    </form>
+  </div>
+  

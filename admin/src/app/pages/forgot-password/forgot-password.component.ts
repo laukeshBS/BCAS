@@ -70,7 +70,9 @@ export class ForgotPasswordComponent {
       response => {
         this.loading = false;
         if (response.success) {
-          this.router.navigate(['login']);
+          localStorage.setItem('userEmail', this.email);
+          // this.router.navigate(['login']);
+          this.router.navigate(['/verify-otp']);
         } else {
           this.errorMessage = response.message || 'Paaswrod reset failed';
         }
