@@ -1,24 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
-*{
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Open Sans', sans-serif;
-}
 
 .loginpage{
-    background: #343A40 !important;
+    background: #37517e !important;
     height: 100vh;
 }
 
 .loginpage .container{
     position: relative;
-    width: 400px;
+    width: 700px;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 80vh;
+    min-height: 100vh;
     margin: auto;
 }
 
@@ -32,7 +26,7 @@
 
 .login{
     position: absolute;
-    width: 300px;
+    width: 60%;
     height: 100%;
     display: flex;
     justify-content: center;
@@ -42,26 +36,29 @@
 }
 
 .login h2{
-    font-size: 2em;
-    color: #fff;
+    font-size: 22px;
+color: #ffffff;
+line-height: 20px;
+font-weight: 700;
 }
 .login label{
-    color: #fff;
+    color: #ffffff;
 }
-
+ 
 .login .input-box{
     position: relative;
     width: 100%;
+    margin: 0 0 10px;
 }
 
 .login .input-box input{
     position: relative;
     width: 100%;
-    padding: 12px 20px;
+    padding: 6px 20px;
     background: transparent;
-    border: 2px solid #fff;
-    border-radius: 40px;
-    font-size: 1.2em;
+    border: 1px solid #f1f1f1;
+    border-radius: 6px;
+    font-size: 15px;
     color: #fff;
     box-shadow: none;
     outline: none;
@@ -69,31 +66,41 @@
 
 .login .input-box button[type="submit"]{
     width: 100%;
-    background: #0078ff;
-    background: linear-gradient(45deg, #0d10d8, #cb0fd1);
+    background: #ffffff;
     cursor: pointer;
     position: relative;
     padding: 10px 10px;
-    border: 2px solid #fff;
+ 
     border-radius: 40px;
-    font-size: 1.2em;
-    color: #fff;
+    font-size: 16px;
+    color: #244163;
     box-shadow: none;
     outline: none;
+    text-align: center;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    width: 96%;
 }
 .login .input-box #registration-btn{
     width: 100%;
     background: #06ae3e;
-    background: linear-gradient(45deg, #06ae3e, #0e763d);
     padding: 10px 10px;
-    border: 2px solid #fff;
     border-radius: 40px;
     font-size: 1.2em;
     color: #fff;
     box-shadow: none;
     outline: none;
     text-align: center;
+    border-radius: 40px;
+    font-size: 16px;
+    color: #fff;
+    box-shadow: none;
+    outline: none;
+    text-align: center;
+    font-weight: 600;
 }
+
 
 .login .input-box input::placeholder{ color: rgba(255, 255, 255, .75);}
 
@@ -110,3 +117,35 @@
     color: #fff;
     text-decoration: none;
 }
+ 
+ 
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;
+}
+
+form.forn-bg {
+    background: #2f4160;
+    display: inline-block;
+    width: 100%;
+    padding: 30px 20px;
+    border-radius: 10px;
+}
+ 
+.captcha-container[_ngcontent-ng-c1419368598] {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: 12px auto;
+    text-align: center;
+}
+.captcha-container[_ngcontent-ng-c1419368598] {
+    padding: 12px !important;
+}
+ 
+ 

@@ -1,1 +1,31 @@
-<p>dasboard</p>
+<div class="wrapper-w" *ngIf="hasAnyPermission(['admin-document.view'])">
+    <div class="row">
+      <div class="col-xs-12 col-md-3">
+        <div class="card-d">
+          <h6>AO</h6>
+          <p>3</p>
+        </div>
+      </div>
+   
+      <div class="col-xs-12 col-md-3">
+        <div class="card-d two">
+          <h6>AC</h6>
+          <p>1</p>
+        </div>
+      </div>
+   
+      <div class="col-xs-12 col-md-3">
+        <div class="card-d three">
+          <h6>Corrigendum</h6>
+          <p>1</p>
+        </div>
+      </div>
+   
+      <div class="col-xs-12 col-md-3">
+        <div class="card-d four">
+          <h6>Addendum/Order</h6>
+          <p>0</p>
+        </div>
+      </div>   
+    </div>
+  </div>

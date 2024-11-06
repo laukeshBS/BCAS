@@ -1,17 +1,30 @@
-<div class="verify-otp-container">
-    <h2>Verify OTP</h2>
-  
-    <form (ngSubmit)="verifyOtp()" #reRegistrationForm="ngForm" autocomplete="off">
-        <div class="mb-3">
-            <label>OTP</label>
-            <input matInput type="text" [(ngModel)]="otp" name="otp" required />
+<div class="re-registration-page">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="re-registration shadow-lg p-4 rounded bg-white">
+                    <div class="text-center">
+                        <!-- Logo -->
+                        <img src="assets/logo.png" alt="BCAS Logo" class="brand-image rounded-circle mb-4"
+                            style="width: 100px; background-color: #ffffff;">
+
+                        <!-- Heading -->
+                        <h2>Verify OTP</h2>
+                    </div>
+                    <form (ngSubmit)="verifyOtp()" #reRegistrationForm="ngForm" autocomplete="off">
+                        <div class="mb-3 d-flex justify-content-center">
+                            <input matInput type="text" [(ngModel)]="otp" name="otp" required />
+                        </div>
+
+                        <div *ngIf="message" class="message" [ngClass]="{ 'success': isSuccess, 'error': !isSuccess }">
+                            {{ message }}
+                        </div>
+                        <div class="mb-3 d-flex justify-content-center">
+                            <button class="btn btn-primary text-center" type="submit">Submit</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-      
-      <div *ngIf="message" class="message" [ngClass]="{ 'success': isSuccess, 'error': !isSuccess }">
-        {{ message }}
-      </div>
-  
-      <button mat-raised-button color="primary" type="submit">Verify OTP</button>
-    </form>
-  </div>
-  
+    </div>
+</div>

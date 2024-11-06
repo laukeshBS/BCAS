@@ -1,0 +1,44 @@
+.card-d {
+    background: #024621;
+    padding: 12px;
+    display: inline-block;
+    width: 100%;
+    margin: 0 0 20px;
+    border-radius: 4px;
+}
+.wrapper-w {
+    padding: 20px;
+}
+.two{
+  background: #033443;
+}
+.three{
+  background: #0d1015;
+}
+.four{
+  background: #60070b;
+}
+.five{
+  background: #e5882a;
+}
+.six{
+  background: #2827ff;
+}
+.seven{
+  background: #fd4645;
+}
+.eight{
+  background: #033443;
+}
+h6 {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+}
+p {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 500;
+}
+ 
+ 
