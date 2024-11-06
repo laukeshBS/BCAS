@@ -167,7 +167,7 @@ i: any;
   addEvent(): void {
     const modalElement = document.getElementById('addEventModal');
     if (modalElement) {
-        this.selectedEvent = '';
+        this.selectedEvent = {};
         this.selectedRoles =[];
         this.isOpen =false;
         const documentCategoryId = document.getElementById('document_category') as HTMLSelectElement;
@@ -211,23 +211,21 @@ i: any;
 
 
   saveEvent(): void {
+    console.log('Selected Event:', this.selectedEvent);  // Log selectedEvent for debugging
+    
     // Validate the form data
     const requiredFields = [
-      'doc_name',
-      'doc_type',
-      'status',
-      'position',
-      'start_date',
-      'end_date',
+        'doc_name', 'doc_type', 'status', 'position', 'start_date', 'end_date',
     ];
 
-    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
-  
+    // Check for missing required fields
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field] && this.selectedEvent[field] !== 0);
     if (missingFields.length > 0) {
-      alert(`Missing required fields: ${missingFields.join(', ')}`);
-      return;
+        alert(`Missing required fields: ${missingFields.join(', ')}`);
+        return;
     }
-  
+
+    // Prepare FormData
     const formData = new FormData();
     formData.append('document_category_id', this.selectedEvent.document_category_id);
     formData.append('doc_name', this.selectedEvent.doc_name);
@@ -237,42 +235,64 @@ i: any;
     formData.append('position', this.selectedEvent.position);
     formData.append('start_date', this.selectedEvent.start_date);
     formData.append('end_date', this.selectedEvent.end_date);
-  
-    // Append selected roles to formData
-    this.selectedRoles.forEach((roleId: string | Blob) => {
-      formData.append('roles[]', roleId); // Use roles[] for array input
-    });
-  
-    // Validate and append file only if it's present
-    if (this.fileToUpload) {
-      const validFileTypes = ['application/pdf']; // Example types
-      const maxFileSize = 5 * 1024 * 1024; // 5MB
-  
-      if (!validFileTypes.includes(this.fileToUpload.type)) {
-        alert('Invalid file type');
-        return;
-      }
-      if (this.fileToUpload.size > maxFileSize) {
-        alert('File size exceeds the limit of 5MB');
-        return;
-      }
-      
-      const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_'); // Replace spaces with underscores
-        
-      formData.append('document', this.fileToUpload, sanitizedFileName);
+
+    // Log formData content before submission
+    console.log('Form Data:', this.selectedEvent);
+
+    // Append selected roles to formData (if any)
+    if (this.selectedRoles && this.selectedRoles.length > 0) {
+        this.selectedRoles.forEach((roleId: string | Blob) => {
+            formData.append('roles[]', roleId);  // Ensure 'roles[]' matches backend API
+        });
+    } else {
+        console.log('No roles selected');
     }
-  
+
+    // Validate and append file if it's present
+    if (this.fileToUpload) {
+        const validFileTypes = ['application/pdf'];  // Example: Only PDF files allowed
+        const maxFileSize = 5 * 1024 * 1024;  // 5MB size limit
+
+        // Validate file type
+        if (!validFileTypes.includes(this.fileToUpload.type)) {
+            alert('Invalid file type. Only PDF files are allowed.');
+            return;
+        }
+
+        // Validate file size
+        if (this.fileToUpload.size > maxFileSize) {
+            alert('File size exceeds the limit of 5MB.');
+            return;
+        }
+
+        const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_');  // Replace spaces with underscores
+
+        formData.append('doc', this.fileToUpload, sanitizedFileName);
+    } else {
+        console.log('No file selected');
+    }
+
+    // Send the request to the backend
     this.AdminDocumentService.storeEvent(formData).subscribe(
-      (event: HttpEvent<any>) => {
-        this.loadList(); // Refresh the list of events
-        this.closeAddModal(); // Close the modal or form
-      },
-      error => {
-        alert('Error saving event: '+error.message || error);
-        // Optionally, display an error message to the user
-      }
+        (event: HttpEvent<any>) => {
+            console.log('Event saved successfully:', event);
+            this.loadList();  // Refresh the list of events
+            this.closeAddModal();  // Close the modal or form
+        },
+        error => {
+            // Handle error response from backend
+            if (error.status === 422) {
+                // Log detailed error message from the backend
+                console.error('Backend Validation Errors:', error.error);
+                alert('Error saving event: ' + (error.error?.message || 'Unknown error'));
+            } else {
+                console.error('Error saving event:', error);
+                alert('Error saving event: ' + (error.message || error));
+            }
+        }
     );
-  }
+}
+
   
 
   modifyEvent(): void {

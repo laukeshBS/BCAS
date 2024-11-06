@@ -21,6 +21,7 @@ use App\Http\Controllers\Admin\AdminsController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\DocumentCategoryController;
 use App\Http\Controllers\Admin\AuditController;
+use App\Http\Controllers\Admin\SecurityQuestionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -172,8 +173,8 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
         Route::post('airline-list', 'airline_list');
         Route::post('airline-list-approved', 'airline_list_approved');
     });
-    Route::controller(SecurityQuizController::class)->group(function () {
-        Route::post('quiz-list', 'quiz_list');
+    Route::controller(SecurityQuestionController::class)->group(function () {
+        Route::get('question-list', 'questions');
         Route::post('quiz-results', 'store');
         
     });
