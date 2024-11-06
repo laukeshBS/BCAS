@@ -1,7 +1,7 @@
 <div class="loginpage">
   <div class="container">
     <div class="login">
-      <img src="assets/logo.png" alt="AdminLTE Logo" class="brand-image elevation-3" style="width: 100px;background-color: #ffffff; border-radius: 50%;">
+      <img src="assets/logo.png" alt="BCAS Logo" class="brand-image elevation-3" style="width: 100px;background-color: #ffffff; border-radius: 50%;">
       <h2>CMS Login</h2>
       <form (ngSubmit)="login()" #loginForm="ngForm" autocomplete="off">
         <div class="input-box">
@@ -13,8 +13,14 @@
           <input type="password" [(ngModel)]="password" name="password" required autocomplete="new-password" />
         </div>
         <app-captcha></app-captcha>
-        <div class="input-box">
-          <button type="submit" [disabled]="!loginForm.valid">Login</button>
+        <div class="input-box row">
+          <div class="col-md-6">
+            <button type="submit" [disabled]="!loginForm.valid">Login</button>
+          </div>
+          <div class="col-md-6 d-flex">
+            <a href="/re-registration">Register</a>
+          </div>
+          
           <div *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</div>
         </div>
       </form>
