@@ -20,6 +20,8 @@ class Document extends Model
     {
         return $this->belongsToMany(Role::class, 'document_role');
     }
-
-
+    public function documentCategory()
+    {
+        return $this->belongsToMany(DocumentCategory::class, 'document_category_id');
+    }
 }

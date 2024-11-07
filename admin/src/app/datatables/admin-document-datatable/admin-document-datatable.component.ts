@@ -40,7 +40,7 @@ export class AdminDocumentDatatableComponent {
   documentUrl: SafeResourceUrl | null = null; // Change to SafeResourceUrl
   private modal: HTMLElement | null = null; // Store modal reference
   isOpen = false;
-i: any;
+  i: any;
 
   constructor(private AdminDocumentService: AdminDocumentService, private permissionsService: PermissionsService, private renderer: Renderer2, private el: ElementRef, private sanitizer: DomSanitizer) {}
 

@@ -26,6 +26,8 @@ import { ContactComponent } from './pages/contact/contact.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { AuditComponent } from './pages/audit/audit.component';
 import { FirstTimeLoginComponent } from './pages/first-time-login/first-time-login.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
+import { VerifyOtpComponent } from './pages/verify-otp/verify-otp.component';
 
 
 export const routes: Routes = [
@@ -49,10 +51,12 @@ export const routes: Routes = [
     { path: 'admin-doc', component: AdminDocumentComponent, canActivate: [AuthGuard]  },
     { path: 'admin-doc-categories', component: AdminDocumentCategoryComponent, canActivate: [AuthGuard]  },
     { path: 'user', component: AdminComponent, canActivate: [AuthGuard]  },
-    { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard]  },
+    { path: '', component: LoginComponent, canActivate: [NoAuthGuard]  },
     { path: 're-registration', component: FirstTimeLoginComponent, canActivate: [NoAuthGuard]  },
+    { path: 'forget-password', component: ForgotPasswordComponent, canActivate: [NoAuthGuard]  },
+    { path: 'verify-otp', component: VerifyOtpComponent },
     { path: 'audit', component: AuditComponent, canActivate: [AuthGuard]  },
-    { path: '**', redirectTo: '/login' },
+    { path: '**', redirectTo: '/' },
     {
       path: 'restricted',
       loadChildren: () => import('./restricted/restricted.module').then(m => m.RestrictedModule)

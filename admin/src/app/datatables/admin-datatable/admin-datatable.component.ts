@@ -21,7 +21,8 @@ export class AdminDatatableComponent {
   lang_code = 'en'; 
   selectedFile: any;
   selectedFileError: string | null = null; // Initialized with null
-roles: any;
+  roles: any;
+  
 
   constructor(private adminService: AdminService) {}
 
@@ -123,14 +124,13 @@ roles: any;
 
   saveEvent(): void {
     // Define the keys of the fields to validate
-    type Field = 'name' | 'username' | 'email' | 'password';
+    type Field = 'name' | 'username' | 'email';
      // Validate the form data
-    const requiredFields: Field[] = ['name', 'username', 'email', 'password'];
+    const requiredFields: Field[] = ['name', 'username', 'email'];
     const maxLengths: Record<Field, number> = {
       name: 50,
       username: 100,
       email: 100,
-      password: 100,
     };
 
     const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
@@ -156,25 +156,12 @@ roles: any;
       alert('Invalid email format.');
       return;
     }
-
-    // Password minimum length check
-    if (this.selectedEvent.password.length < 6) {
-      alert('Password must be at least 6 characters long.');
-      return;
-    }
-
-    // Password confirmation check
-    if (this.selectedEvent.password !== this.selectedEvent.confirmPassword) {
-      alert('Password confirmation does not match.');
-      return;
-    }
   
     // Create FormData object
     const formData = new FormData();
-    formData.append('name', this.selectedEvent.name);
-    formData.append('username', this.selectedEvent.username);
+    formData.append('name', this.removeHtmlTags(this.selectedEvent.name.trim()));
+    formData.append('username', this.removeHtmlTags(this.selectedEvent.username.trim()));
     formData.append('email', this.selectedEvent.email);
-    formData.append('password', this.selectedEvent.password);
     
     // Include selected roles
     if (this.selectedEvent.roles && this.selectedEvent.roles.length > 0) {
@@ -231,24 +218,9 @@ roles: any;
     }
 
     const formData = new FormData();
-    formData.append('name', this.selectedEvent.name);
-    formData.append('username', this.selectedEvent.username);
+    formData.append('name', this.removeHtmlTags(this.selectedEvent.name.trim()));
+    formData.append('username', this.removeHtmlTags(this.selectedEvent.username.trim()));
     formData.append('email', this.selectedEvent.email);
-    
-    if (this.selectedEvent.password) {
-      // Password minimum length check
-      if (this.selectedEvent.password.length < 6) {
-        alert('Password must be at least 6 characters long.');
-        return;
-      }
-  
-      // Password confirmation check
-      if (this.selectedEvent.password !== this.selectedEvent.confirmPassword) {
-        alert('Password confirmation does not match.');
-        return;
-      }
-      formData.append('password', this.selectedEvent.password);
-    }
   
     // Include selected roles
     if (this.selectedEvent.roles && this.selectedEvent.roles.length > 0) {
@@ -310,6 +282,9 @@ roles: any;
     this.selectedEvent.roles = this.roles
       .filter((role: { selected: any; }) => role.selected)
       .map((role: { id: any; }) => role.id);
+  }
+  removeHtmlTags(input: string) {
+    return input.replace(/<[^>]*>/g, '');
   }
 
   

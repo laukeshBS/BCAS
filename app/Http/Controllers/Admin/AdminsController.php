@@ -286,7 +286,6 @@ class AdminsController extends Controller
             'name' => 'required|max:50',
             'email' => 'required|max:100|email',
             'username' => 'required|max:100',
-            'password' => 'required|min:6',
         ]);
 
         // Create New Admin
@@ -294,8 +293,8 @@ class AdminsController extends Controller
         $admin->name = $request->name;
         $admin->username = $request->username;
         $admin->email = $request->email;
-        $admin->password = Hash::make($request->password);
         $admin->save();
+        
         $lastInsertID = $admin->save();
         $user_login_id=Auth::user()->id;
         $action_by_role=Auth::user()->username;
@@ -339,16 +338,12 @@ class AdminsController extends Controller
             'name' => 'required|max:50',
             'email' => 'required|max:100|email',
             'username' => 'required|max:100',
-            'password' => 'nullable|min:6',
         ]);
 
 
         $admin->name = $request->name;
         $admin->email = $request->email;
         $admin->username = $request->username;
-        if ($request->password) {
-            $admin->password = Hash::make($request->password);
-        }
         $admin->save();
 
         $admin->roles()->detach();

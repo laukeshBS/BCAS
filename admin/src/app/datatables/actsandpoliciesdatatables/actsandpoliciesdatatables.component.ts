@@ -3,6 +3,7 @@ import { ActsandpoliciesService } from '../../services/actsandpolicies.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 declare var bootstrap: any;
 
@@ -21,6 +22,7 @@ export class ActsandpoliciesdatatablesComponent {
   lang_code = 'en'; 
   selectedFile: any;
   selectedFileError: string | null = null; // Initialized with null
+  apiBasePath='';
 
   constructor(private actsAndPoliciesService: ActsandpoliciesService) {}
 
@@ -35,6 +37,7 @@ export class ActsandpoliciesdatatablesComponent {
 
   loadList(): void {
     this.loading = true; // Start loading
+    this.apiBasePath=environment.apiDocBaseUrl;
     this.actsAndPoliciesService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
       this.events = data.data;
       this.totalItems = data.total; // Assuming the API returns total items
@@ -79,7 +82,7 @@ export class ActsandpoliciesdatatablesComponent {
           break;
       }
       if (event.document!='') {
-        event.document = '<a href="'+event.document+'">'+event.title+' Document</a>';
+        event.document = '<a href="'+this.apiBasePath+'public/documents/'+event.document+'">'+event.title+' Document</a>';
       }else{
         event.document = '';
       }
