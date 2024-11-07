@@ -3,39 +3,39 @@
       <div class="col-xs-12 col-md-3">
         <div class="card-d">
           <h6>AO</h6>
-          <p>3</p>
+          <p>{{ documentCount.data.ao }}</p>
         </div>
       </div>
    
       <div class="col-xs-12 col-md-3">
         <div class="card-d two">
           <h6>AC</h6>
-          <p>1</p>
+          <p>{{ documentCount.data.ac }}</p>
         </div>
       </div>
    
       <div class="col-xs-12 col-md-3">
         <div class="card-d three">
           <h6>Corrigendum</h6>
-          <p>1</p>
+          <p>{{ documentCount.data.corrigendum }}</p>
         </div>
       </div>
    
       <div class="col-xs-12 col-md-3">
         <div class="card-d four">
           <h6>Addendum/Order</h6>
-          <p>0</p>
+          <p>{{ documentCount.data.addendum_Order }}</p>
         </div>
       </div>  
       <div class="col-xs-12 col-md-6">
         <div class="chart-w">
-          <h6>Chart 1</h6>
+          <app-document-category-chart></app-document-category-chart> 
         </div>
       </div>
-      <div class="col-xs-12 col-md-6">
+      <!-- <div class="col-xs-12 col-md-6">
         <div class="chart-w">
            <h6>Chart 2</h6>
         </div>
-      </div> 
+      </div>  -->
     </div>
   </div>

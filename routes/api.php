@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\DocumentCategoryController;
 use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\SecurityQuestionController;
+use App\Http\Controllers\Admin\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -436,6 +437,10 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
     });
     Route::controller(AuditController::class)->group(function () {
         Route::post('audit-list', 'index');
+    });
+    Route::controller(DashboardController::class)->group(function () {
+        Route::get('dashboard-data', 'cms_data');
+        Route::get('dashboard-count-data', 'cms_count_data');
     });
     
 });

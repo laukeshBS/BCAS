@@ -20,7 +20,7 @@
             <td>{{ event.title }}</td>
             <td>{{ event.description }}</td>
             <td>
-                <a *ngIf="event.media; else noImage" [href]="event.media" target="_blank">Image</a>
+                <a *ngIf="event.media; else noImage" [href]="this.apiBasePath+'public/'+event.media" target="_blank">Image</a>
                 <ng-template #noImage>
                   <span>No Image Available</span>
                 </ng-template>

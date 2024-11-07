@@ -21,7 +21,8 @@ export class AdminDatatableComponent {
   lang_code = 'en'; 
   selectedFile: any;
   selectedFileError: string | null = null; // Initialized with null
-roles: any;
+  roles: any;
+  
 
   constructor(private adminService: AdminService) {}
 

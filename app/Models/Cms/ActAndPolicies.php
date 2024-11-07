@@ -11,6 +11,6 @@ class ActAndPolicies extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'name', 'title', 'description','lang_code','status','start_date','end_date',
+        'name', 'title', 'description','lang_code','status','start_date','end_date','document',
     ];
 }

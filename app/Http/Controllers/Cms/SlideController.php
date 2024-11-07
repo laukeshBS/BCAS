@@ -38,9 +38,9 @@ class SlideController extends Controller
         if ($slide->isNotEmpty()) {
             $slide->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                if ($item->media) {
-                    $item->media = asset('public/'.$item->media);
-                }
+                // if ($item->media) {
+                //     $item->media = asset('public/'.$item->media);
+                // }
                 return $item;
             });
         }

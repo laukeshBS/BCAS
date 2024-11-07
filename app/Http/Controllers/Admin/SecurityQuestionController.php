@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Mail\OtpEmail;
 use Illuminate\Http\File;
 use App\Models\Admin\Admin;
 use Illuminate\Support\Str;
@@ -11,6 +12,7 @@ use GPBMetadata\Google\Api\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Admin\DocumentCategory;
@@ -178,13 +180,13 @@ class SecurityQuestionController extends Controller
         $user->save();
 
         // Send OTP via external API (assuming it's an SMS or other notification)
-        $apiUrl = "https://pgapi.smartping.ai/fe/api/v1/send?username=cscetrpg6.trans&password=LuRXO&unicode=false&from=BCASRM&to=8302649083&dltPrincipalEntityId=1401665390000071833&dltContentId=1407173021512730911&text=".$otp."";
+        $apiUrl = "https://pgapi.smartping.ai/fe/api/v1/send?username=cscetrpg6.trans&password=LuRXO&unicode=false&from=BCASRM&to=8302649083&dltPrincipalEntityId=1401665390000071833&dltContentId=1407173089739138468&text=".$otp."";
         $response = Http::post($apiUrl, [
             'message' => "Your OTP for password reset is: $otp",
             'recipient' => $user->email,  // You can change this to 'phone' if it's for SMS
         ]);
 
-        // Mail::to('ajit.rai@bharuwasolutions.com')->send(new OtpEmail($user->name, $otp));
+        Mail::to('ajit.rai@bharuwasolutions.com')->send(new OtpEmail($user->name, $otp));
         
         // Check if the request was successful
         if ($response->successful()) {

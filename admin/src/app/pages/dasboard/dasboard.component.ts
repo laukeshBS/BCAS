@@ -1,11 +1,14 @@
 import { Component } from '@angular/core';
 import { PermissionsService } from '../../services/permissions.service';
 import { CommonModule } from '@angular/common'; // Import CommonModule
+import { DocumentCategoryChartComponent } from '../../document-category-chart/document-category-chart.component'; // Import the chart component
+import { DocumentDataService } from '../../services/document-data.service';
+
 
 @Component({
   selector: 'app-dasboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule,DocumentCategoryChartComponent],
   templateUrl: './dasboard.component.html',
   styleUrl: './dasboard.component.css'
 })
@@ -13,13 +16,15 @@ export class DasboardComponent {
 
   loading = false; // Loading state
   permissions: any[] = []; // Define type based on your response
+  documentCount: any = {}; // Store document count data
 
   constructor(
-    private permissionsService: PermissionsService,
+    private permissionsService: PermissionsService,private documentDataService: DocumentDataService,
   ) {}
   
   ngOnInit(): void {
     this.fetchPermissions();
+    this.fetchDocumentCountData();
   }
   fetchPermissions(): void {
     this.loading = true; // Set loading to true
@@ -42,6 +47,27 @@ export class DasboardComponent {
       }
     );
   }
+
+  // Fetch document count data from DocumentDataService
+  fetchDocumentCountData(): void {
+    this.loading = true; // Set loading to true while fetching
+
+    console.log('Fetching document count data...'); // Debug log
+
+    this.documentDataService.getDocumentCountData().subscribe(
+      response => {
+        this.documentCount = response; // Store the document count data
+      },
+      error => {
+        console.error('Error fetching document count data:', error);
+        // Optionally, display an error message to the user
+      },
+      () => {
+        this.loading = false; // Set loading to false after the request completes
+      }
+    );
+  }
+
   // Checks if the user has the given permission
   hasPermission(permission: string): boolean {
     return this.permissionsService.hasPermission(permission);
