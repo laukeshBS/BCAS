@@ -1,44 +1,43 @@
-<div class="re-registration-page">
-  <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <div class="re-registration shadow-lg p-4 rounded bg-white">
-          <div class="text-center">
-            <!-- Logo -->
-            <img src="assets/logo.png" alt="BCAS Logo" class="brand-image rounded-circle mb-4" style="width: 100px; background-color: #ffffff;">
-            
-            <!-- Heading -->
-            <h2 class="mb-4">Registration</h2>
-          </div>
-          <form (ngSubmit)="register()" #reRegistrationForm="ngForm" autocomplete="off">
-    <!-- Email Input -->
-    <div class="mb-3">
-      <label for="email" class="form-label">Email:</label>
-      <input type="email" [(ngModel)]="email" name="email" id="email" class="form-control" required autocomplete="off">
-    </div>
-  
-    <!-- Dynamic Security Questions -->
-    <div *ngFor="let question of questions" class="mb-3">
-      <label [for]="'question_' + question.id" class="form-label">{{ question.question }}</label>
-      <input type="text" [(ngModel)]="question.answer" [id]="'question_' + question.id" class="form-control" [name]="'question_' + question.id" required>
-    </div>
-  
-    <!-- Submit Button -->
-    <div class="row">
-      <div class="col-12">
-        <button class="btn btn-primary w-100" type="submit" [disabled]="!reRegistrationForm.valid || loading">Submit</button>
-      </div>
-    </div>
-  
-    <!-- Error Message -->
-    <div *ngIf="errorMessage" class="text-danger mt-3">
-      {{ errorMessage }}
-    </div>
-  </form>
-</div>
-</div>
-</div>
-</div>
-</div>
+<div class="re-registration-page Registration-bg">
+  <div class="row">
+    <div class="col-xs-12 col-md-7"></div>
+    <div class="col-xs-12 col-md-5">
+          <div class="login">
+            <div class="logo-p">
+              <img src="assets/logo.png" alt="BCAS Logo" class="brand-image">
+            </div>
+            <h4 class="wl-bc">Registration</h4>
 
-  
+            <form (ngSubmit)="register()" #reRegistrationForm="ngForm" autocomplete="off" class="register-form">
+
+              <!-- Email Input -->
+              <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <input type="email" [(ngModel)]="email" name="email" id="email" class="form-control" required autocomplete="off">
+              </div>
+
+              <!-- Dynamic Security Questions -->
+              <div *ngFor="let question of questions" class="mb-3">
+                <label [for]="'question_' + question.id" class="form-label">{{ question.question }}</label>
+                <input type="text" [id]="'question_' + question.id" class="form-control" [name]="'question_' + question.id" required>
+              </div>
+
+              <!-- Submit Button -->
+              <div class="row">
+                <div class="col-12">
+                  <button class="btn Login" type="submit" [disabled]="!reRegistrationForm.valid">Register</button>
+                </div>
+              </div>
+
+              <!-- Error Message -->
+              <div *ngIf="errorMessage" class="text-danger mt-3">
+                {{ errorMessage }}
+              </div>
+            </form>
+            </div>
+
+    </div>
+  </div>
+
+  </div>
+

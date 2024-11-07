@@ -1,30 +1,38 @@
-<div class="loginpage">
-  <div class="container">
-    <div class="login">
-      <img src="assets/logo.png" alt="BCAS Logo" class="brand-image elevation-3" style="width: 100px;background-color: #ffffff; border-radius: 50%;">
-      <h2>CMS Login</h2>
-      <form (ngSubmit)="login()" #loginForm="ngForm" autocomplete="off" class="forn-bg">
-        <div class="input-box">
-          <label>Email:</label>
-          <input type="email" [(ngModel)]="email" name="email" required autocomplete="off" />
+<div class="loginpage login-bg">
+  <div class="row">
+     <div class="col-xs-12 col-md-7">
+        <div class="logo-wrpper">
+
         </div>
-        <div class="input-box">
-          <label>Password:</label>
-          <input type="password" [(ngModel)]="password" name="password" required autocomplete="new-password" />
-          <a [routerLink]="'/forget-password'" class="forget">Forget Password</a>
+     </div>
+     <div class="col-xs-12 col-md-5">
+        <div class="login">
+           <div class="logo-p">
+             <img src="assets/logo.png" alt="BCAS Logo" class="brand-image">
+           </div>
+           <h4 class="wl-bc">Login</h4>
+           <form (ngSubmit)="login()" class="forn-bg" #loginForm="ngForm" autocomplete="off">
+           <div class="input-box">
+              <label class="control-label">Email</label>
+              <input type="email" class="form-control" placeholder="Enter Email" [(ngModel)]="email" name="email" required />
+           </div>
+           <div class="input-box">
+              <label class="control-label">Password</label>
+              <input type="password" class="form-control" placeholder="Enter Password" [(ngModel)]="password" name="password" required autocomplete="new-password" />
+           </div>
+           <a [routerLink]="'/forget-password'" class="forget">Forget Password</a>
+           <app-captcha></app-captcha>
+           <div class="row btn-pr">
+              <div class="col-md-6">
+                 <button type="submit" class="btn Login" [disabled]="!loginForm.valid">Login</button>
+              </div>
+              <div class="col-md-6">
+                <a id="registration-btn" class="btn Register" [routerLink]="'/re-registration'">Register</a>
+              </div>
+              <div *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</div>
+           </div>
+           </form>
         </div>
-        <app-captcha></app-captcha>
-        <div class="input-box row">
-          <div class="col-md-6">
-            <button type="submit" [disabled]="!loginForm.valid">Login</button>
-          </div>
-          <div class="col-md-6 d-flex">
-            <a id="registration-btn" [routerLink]="'/re-registration'">Register</a>
-          </div>
-          
-          <div *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</div>
-        </div>
-      </form>
-    </div>
+     </div>
   </div>
 </div>

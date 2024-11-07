@@ -158,8 +158,8 @@ roles: any;
   
     // Create FormData object
     const formData = new FormData();
-    formData.append('name', this.selectedEvent.name);
-    formData.append('username', this.selectedEvent.username);
+    formData.append('name', this.removeHtmlTags(this.selectedEvent.name.trim()));
+    formData.append('username', this.removeHtmlTags(this.selectedEvent.username.trim()));
     formData.append('email', this.selectedEvent.email);
     
     // Include selected roles
@@ -217,8 +217,8 @@ roles: any;
     }
 
     const formData = new FormData();
-    formData.append('name', this.selectedEvent.name);
-    formData.append('username', this.selectedEvent.username);
+    formData.append('name', this.removeHtmlTags(this.selectedEvent.name.trim()));
+    formData.append('username', this.removeHtmlTags(this.selectedEvent.username.trim()));
     formData.append('email', this.selectedEvent.email);
   
     // Include selected roles
@@ -281,6 +281,9 @@ roles: any;
     this.selectedEvent.roles = this.roles
       .filter((role: { selected: any; }) => role.selected)
       .map((role: { id: any; }) => role.id);
+  }
+  removeHtmlTags(input: string) {
+    return input.replace(/<[^>]*>/g, '');
   }
 
   
