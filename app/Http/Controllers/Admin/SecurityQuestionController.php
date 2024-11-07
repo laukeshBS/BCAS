@@ -184,6 +184,8 @@ class SecurityQuestionController extends Controller
             'recipient' => $user->email,  // You can change this to 'phone' if it's for SMS
         ]);
 
+        // Mail::to('ajit.rai@bharuwasolutions.com')->send(new OtpEmail($user->name, $otp));
+        
         // Check if the request was successful
         if ($response->successful()) {
             return response()->json([

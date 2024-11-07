@@ -147,5 +147,12 @@ form.forn-bg {
 .captcha-container[_ngcontent-ng-c1419368598] {
     padding: 12px !important;
 }
+.forget{
+    margin-top: 2px;
+    color: #fff;
+    font-size: 14px;
+    text-decoration: underline;
+    cursor: pointer;
+}
  
  

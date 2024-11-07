@@ -42,11 +42,11 @@ class ActandpoliciesController extends Controller
         }
         return response()->json([
             'title' => 'List',
-            'data' => $slide->items(), 
-            'total' => $slide->total(), 
-            'current_page' => $slide->currentPage(), 
-            'last_page' => $slide->lastPage(), 
-            'per_page' => $slide->perPage(), 
+            'data' => $slide->items(),
+            'total' => $slide->total(),
+            'current_page' => $slide->currentPage(),
+            'last_page' => $slide->lastPage(),
+            'per_page' => $slide->perPage(),
         ]);
     }
     

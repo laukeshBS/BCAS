@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { CaptchaComponent } from '../../../captcha/captcha.component';
 import * as CryptoJS from 'crypto-js';
+import { RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, CommonModule, CaptchaComponent],
+  imports: [FormsModule, CommonModule, CaptchaComponent,RouterModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })

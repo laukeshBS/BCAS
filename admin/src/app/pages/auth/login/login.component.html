@@ -3,7 +3,7 @@
     <div class="login">
       <img src="assets/logo.png" alt="BCAS Logo" class="brand-image elevation-3" style="width: 100px;background-color: #ffffff; border-radius: 50%;">
       <h2>CMS Login</h2>
-      <form (ngSubmit)="login()" #loginForm="ngForm" autocomplete="off">
+      <form (ngSubmit)="login()" #loginForm="ngForm" autocomplete="off" class="forn-bg">
         <div class="input-box">
           <label>Email:</label>
           <input type="email" [(ngModel)]="email" name="email" required autocomplete="off" />
@@ -11,7 +11,7 @@
         <div class="input-box">
           <label>Password:</label>
           <input type="password" [(ngModel)]="password" name="password" required autocomplete="new-password" />
-          <a href="/forget-password">Forget Password</a>
+          <a [routerLink]="'/forget-password'" class="forget">Forget Password</a>
         </div>
         <app-captcha></app-captcha>
         <div class="input-box row">
@@ -19,7 +19,7 @@
             <button type="submit" [disabled]="!loginForm.valid">Login</button>
           </div>
           <div class="col-md-6 d-flex">
-            <a id="registration-btn" href="/re-registration">Register</a>
+            <a id="registration-btn" [routerLink]="'/re-registration'">Register</a>
           </div>
           
           <div *ngIf="errorMessage" style="color: red;">{{ errorMessage }}</div>
