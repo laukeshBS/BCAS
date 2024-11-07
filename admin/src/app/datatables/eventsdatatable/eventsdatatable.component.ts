@@ -3,6 +3,7 @@ import { EventsService } from '../../services/events.service';  // Import the se
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 declare var bootstrap: any;
 
@@ -26,6 +27,7 @@ export class EventsdatatableComponent {
   loading: boolean = false;
   lastPage: number = 0; // Last page]
   userId: number | null = null;
+  apiBasePath='';
 
   constructor(private EventsService: EventsService) {}
 
@@ -34,6 +36,7 @@ export class EventsdatatableComponent {
   }
 
   loadList(): void {
+    this.apiBasePath=environment.apiDocBaseUrl;
     this.loading = true; // Start loading
     this.EventsService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
       this.events = data.data;
@@ -79,7 +82,7 @@ export class EventsdatatableComponent {
           break;
       }
       if (event.document!='') {
-        event.document = '<a href="'+event.document+'">'+event.title+' Document</a>';
+        event.document = '<a href="'+this.apiBasePath+'public/documents/'+event.document+'">'+event.title+' Document</a>';
       }else{
         event.document = '';
       }

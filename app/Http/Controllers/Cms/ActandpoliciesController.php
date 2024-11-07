@@ -34,19 +34,19 @@ class ActandpoliciesController extends Controller
         if ($slide->isNotEmpty()) {
             $slide->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                if ($item->document) {
-                    $item->document = asset('public/documents/'.$item->document);
-                }
+                // if ($item->document) {
+                //     $item->document = asset('public/documents/'.$item->document);
+                // }
                 return $item;
             });
         }
         return response()->json([
             'title' => 'List',
-            'data' => $slide->items(), 
-            'total' => $slide->total(), 
-            'current_page' => $slide->currentPage(), 
-            'last_page' => $slide->lastPage(), 
-            'per_page' => $slide->perPage(), 
+            'data' => $slide->items(),
+            'total' => $slide->total(),
+            'current_page' => $slide->currentPage(),
+            'last_page' => $slide->lastPage(),
+            'per_page' => $slide->perPage(),
         ]);
     }
     
@@ -72,7 +72,7 @@ class ActandpoliciesController extends Controller
         // $data->start_date = date('d-m-Y', strtotime($data->start_date));
         // $data->end_date = date('d-m-Y', strtotime($data->end_date));
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
-        $data->document = asset('public/documents/' . $data->document) ;
+        // $data->document = asset('public/documents/' . $data->document) ;
 
         // Return the data as JSON
         return response()->json($data);
