@@ -286,6 +286,8 @@ class AdminsController extends Controller
             'name' => 'required|max:50',
             'email' => 'required|max:100|email',
             'username' => 'required|max:100',
+            'phone'     => 'required',
+            'rank'     => 'nullable',
         ]);
 
         // Create New Admin
@@ -293,6 +295,11 @@ class AdminsController extends Controller
         $admin->name = $request->name;
         $admin->username = $request->username;
         $admin->email = $request->email;
+        $admin->phone = $request->phone;
+        if ($request->rank) {
+            $admin->rank = $request->rank;
+        }
+        
         $admin->save();
         
         $lastInsertID = $admin->save();
@@ -338,12 +345,18 @@ class AdminsController extends Controller
             'name' => 'required|max:50',
             'email' => 'required|max:100|email',
             'username' => 'required|max:100',
+            'phone'     => 'required',
+            'rank'     => 'nullable',
         ]);
 
 
         $admin->name = $request->name;
         $admin->email = $request->email;
         $admin->username = $request->username;
+        $admin->phone = $request->phone;
+        if ($request->rank) {
+            $admin->rank = $request->rank;
+        }
         $admin->save();
 
         $admin->roles()->detach();

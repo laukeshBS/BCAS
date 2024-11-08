@@ -32,6 +32,7 @@ export class AdminDocumentDatatableComponent {
   fileToUploadImg: File | null = null;
   userId: number | null = null;
   userRoleIds: number[] | [] = [];
+  userRankId: number = 0;
   categories: { [key: string]: string } = {};
   roles: any;
   selectedRoles: string[] = [];
@@ -40,7 +41,12 @@ export class AdminDocumentDatatableComponent {
   documentUrl: SafeResourceUrl | null = null; // Change to SafeResourceUrl
   private modal: HTMLElement | null = null; // Store modal reference
   isOpen = false;
+  isOpen2 = false;
   i: any;
+  j: any;
+  rank: any;
+  rankArray: any;
+  selectedRank: any;
 
   constructor(private AdminDocumentService: AdminDocumentService, private permissionsService: PermissionsService, private renderer: Renderer2, private el: ElementRef, private sanitizer: DomSanitizer) {}
 
@@ -48,6 +54,7 @@ export class AdminDocumentDatatableComponent {
     this.loadroles();
     this.loadUserId();
     this.loadCategories();
+    this.loadRank();
     this.loadList();
   }
 
@@ -61,8 +68,12 @@ export class AdminDocumentDatatableComponent {
       if (Array.isArray(user.roles)) {
         this.userRoleIds = user.roles.map((role: { id: any; }) => role.id); // Extracting only the role IDs
         
+        
       } else {
           this.userRoleIds = []; // Reset to an empty array if not valid
+      }
+      if (user.rank) {
+        this.userRankId=user.rank;
       }
     } else {
       console.warn('No user data found in localStorage');
@@ -72,6 +83,22 @@ export class AdminDocumentDatatableComponent {
     this.AdminDocumentService.documentCategory().subscribe(
       (data) => {
         this.categories = data.data; // Assuming the response is an object with id as keys and name as values
+      },
+      (error) => {
+        console.error('Error fetching categories:', error);
+      }
+    );
+  }
+  loadRank(): void {
+    this.AdminDocumentService.getRankList().subscribe(
+      (data) => {
+        this.rank = data.data;
+        if (this.rank && typeof this.rank === 'object') {
+          this.rankArray = Object.entries(this.rank).map(([id, name]) => ({ id, name }));
+        } else {
+          console.error('Rank is not defined or is not an object:', this.rank);
+          this.rankArray = []; // Reset to an empty array if not valid
+        }
       },
       (error) => {
         console.error('Error fetching categories:', error);
@@ -97,7 +124,7 @@ export class AdminDocumentDatatableComponent {
 
   loadList(): void {
     this.loading = true; // Start loading
-    this.AdminDocumentService.allList(this.limit, this.lang_code, this.currentPage, this.userRoleIds ).subscribe(data => {
+    this.AdminDocumentService.allList(this.limit, this.lang_code, this.currentPage, this.userRoleIds, this.userRankId ).subscribe(data => {
       this.events = data.data;
       this.totalItems = data.total; // Assuming the API returns total items
       this.lastPage = Math.ceil(this.totalItems / this.limit);
@@ -160,6 +187,7 @@ export class AdminDocumentDatatableComponent {
       this.selectedEvent = data;
       // Set selectedRoles based on the fetched data
       this.selectedRoles = data.roleIds.map((id: any) => String(id)) || [];
+      this.selectedRank = data.rankIds.map((id: any) => String(id)) || [];
       this.openEditModal();
     });
   }
@@ -169,7 +197,10 @@ export class AdminDocumentDatatableComponent {
     if (modalElement) {
         this.selectedEvent = {};
         this.selectedRoles =[];
+        this.selectedRank =[];
         this.isOpen =false;
+        this.isOpen2 =false;
+        
         const documentCategoryId = document.getElementById('document_category') as HTMLSelectElement;
 
         // Clear existing options
@@ -185,7 +216,7 @@ export class AdminDocumentDatatableComponent {
           option.value = id;
           option.textContent = name;
           documentCategoryId.appendChild(option);
-      }
+        }
 
         const modal = new bootstrap.Modal(modalElement);
         modal.show();
@@ -237,7 +268,7 @@ export class AdminDocumentDatatableComponent {
     formData.append('end_date', this.selectedEvent.end_date);
 
     // Log formData content before submission
-    console.log('Form Data:', this.selectedEvent);
+    // console.log('Form Data:', this.selectedEvent);
 
     // Append selected roles to formData (if any)
     if (this.selectedRoles && this.selectedRoles.length > 0) {
@@ -245,7 +276,16 @@ export class AdminDocumentDatatableComponent {
             formData.append('roles[]', roleId);  // Ensure 'roles[]' matches backend API
         });
     } else {
-        console.log('No roles selected');
+        alert('No roles selected');
+    }
+
+    // Append selected ranks to formData (if any)
+    if (this.selectedRank && this.selectedRank.length > 0) {
+      this.selectedRank.forEach((rankId: string | Blob) => {
+          formData.append('ranks[]', rankId);  // Ensure 'ranks[]' matches backend API
+      });
+    } else {
+        alert('No ranks selected');
     }
 
     // Validate and append file if it's present
@@ -328,6 +368,15 @@ export class AdminDocumentDatatableComponent {
       formData.append('roles[]', roleId); // Use roles[] for array input
     });
 
+     // Append selected ranks to formData (if any)
+     if (this.selectedRank && this.selectedRank.length > 0) {
+      this.selectedRank.forEach((rankId: string | Blob) => {
+          formData.append('ranks[]', rankId);  // Ensure 'ranks[]' matches backend API
+      });
+    } else {
+        alert('No ranks selected');
+    }
+
     // Append file only if it's present
     if (this.fileToUpload) {
       const validFileTypes = ['application/pdf']; // Example types
@@ -370,6 +419,7 @@ export class AdminDocumentDatatableComponent {
     const modalElement = document.getElementById('editEventModal');
     if (modalElement) {
       this.isOpen =false;
+      this.isOpen2 =false;
         const documentCategoryId = document.getElementById('document_category_id') as HTMLSelectElement;
 
         // Clear existing options
@@ -548,6 +598,29 @@ export class AdminDocumentDatatableComponent {
 
   isSelected(roleId: string): boolean {
       return this.selectedRoles.includes(roleId);
+  }
+
+  toggleDropdown2() {
+    this.isOpen2 = !this.isOpen2;
+  }
+
+  toggleSelectAll2(event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    this.selectedRank = isChecked ? this.rankArray.map((rank: { id: any; }) => rank.id) : [];
+    console.log(this.selectedRank );
+  }
+
+  toggleSelection2(rankId: string): void {
+      const index = this.selectedRank.indexOf(rankId);
+      if (index === -1) {
+          this.selectedRank.push(rankId);
+      } else {
+          this.selectedRank.splice(index, 1);
+      }
+  }
+
+  isSelected2(rankId: string): boolean {
+      return this.selectedRank.includes(rankId);
   }
   
 }
