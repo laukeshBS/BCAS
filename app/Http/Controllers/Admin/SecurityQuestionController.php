@@ -4,11 +4,13 @@ namespace App\Http\Controllers\Admin;
 
 use App\Mail\OtpEmail;
 use Illuminate\Http\File;
+use App\Mail\RegisterEmail;
 use App\Models\Admin\Admin;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\Admin\Document;
 use GPBMetadata\Google\Api\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
@@ -180,11 +182,18 @@ class SecurityQuestionController extends Controller
         $user->save();
 
         // Send OTP via external API (assuming it's an SMS or other notification)
-        $apiUrl = "https://pgapi.smartping.ai/fe/api/v1/send?username=cscetrpg6.trans&password=LuRXO&unicode=false&from=BCASRM&to=8302649083&dltPrincipalEntityId=1401665390000071833&dltContentId=1407173089739138468&text=".$otp."";
-        $response = Http::post($apiUrl, [
-            'message' => "Your OTP for password reset is: $otp",
-            'recipient' => $user->email,  // You can change this to 'phone' if it's for SMS
-        ]);
+        $apiUrl = "https://pgapi.smartping.ai/fe/api/v1/send?username=cscetrpg6.trans&password=LuRXO&unicode=false&from=BCASRM&to=".$user->phone."&dltPrincipalEntityId=1401665390000071833&dltContentId=1407173089732960387&text=".urlencode("".$otp." is your SMS OTP for reset of your password. This is valid for 5 minutes. Do not share your OTP with anyone. If not requested by you, please contact us or visit (https://bcasindia.gov.in/#!/hi_home) to block your account. Best regards, Team BCAS.");
+            $response = Http::get($apiUrl);  // Assuming GET request here since you're sending via URL.
+
+            // Check response for success or failure
+            if ($response->successful()) {
+                // SMS sent successfully
+                Log::info('SMS OTP sent successfully to ' . $user->phone);
+                Log::info($apiUrl );
+            } else {
+                // Handle failure
+                Log::error('Failed to send SMS OTP: ' . $response->body());
+            }
 
         Mail::to($user->email)->send(new OtpEmail($user->name, $otp));
         
@@ -220,16 +229,17 @@ class SecurityQuestionController extends Controller
         }
 
         // // Generate a new random password (12 characters long)
-        // $newPassword = Str::random(12);
+        $newPassword = Str::random(12);
 
-        // // Hash the new password
-        // $hashedPassword = Hash::make($newPassword);
-        $hashedPassword = Hash::make('admin@1234');
+        // Hash the new password
+        $hashedPassword = Hash::make($newPassword);
 
         // Update the user's password
         $user->password = $hashedPassword;
         $user->otp = null;
         $user->save();
+
+        Mail::to($user->email)->send(new RegisterEmail($user->name, $newPassword));
 
         // OTP is valid, allow user to reset password
         return response()->json([

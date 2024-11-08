@@ -2,42 +2,59 @@
   <div class="row">
     <div class="col-xs-12 col-md-7"></div>
     <div class="col-xs-12 col-md-5">
-          <div class="login">
-            <div class="logo-p">
-              <img src="assets/logo.png" alt="BCAS Logo" class="brand-image">
+      <div class="login">
+        <div class="logo-p">
+          <img src="assets/logo.png" alt="BCAS Logo" class="brand-image">
+        </div>
+        <h4 class="wl-bc">Registration</h4>
+
+        <form (ngSubmit)="register()" #reRegistrationForm="ngForm" autocomplete="off" class="register-form">
+
+          <!-- Email Input -->
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input 
+              type="email" 
+              [(ngModel)]="email" 
+              name="email" 
+              id="email" 
+              class="form-control" 
+              required 
+              autocomplete="off">
+          </div>
+
+          <!-- Dynamic Security Questions -->
+          <div *ngFor="let question of questions" class="mb-3">
+            <label [for]="'question_' + question.id" class="form-label">{{ question.question }}</label>
+            <!-- Bind the answer field here -->
+            <input 
+              type="text" 
+              [(ngModel)]="question.answer"
+              [id]="'question_' + question.id" 
+              class="form-control" 
+              [name]="'question_' + question.id" 
+              required 
+              autocomplete="off">
+          </div>
+
+          <!-- Submit Button -->
+          <div class="row">
+            <div class="col-12">
+              <button class="btn Login" type="submit" [disabled]="loading || !reRegistrationForm.valid">
+                Register
+              </button>
             </div>
-            <h4 class="wl-bc">Registration</h4>
+          </div>
 
-            <form (ngSubmit)="register()" #reRegistrationForm="ngForm" autocomplete="off" class="register-form">
-
-              <!-- Email Input -->
-              <div class="mb-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="email" [(ngModel)]="email" name="email" id="email" class="form-control" required autocomplete="off">
-              </div>
-
-              <!-- Dynamic Security Questions -->
-              <div *ngFor="let question of questions" class="mb-3">
-                <label [for]="'question_' + question.id" class="form-label">{{ question.question }}</label>
-                <input type="text" [id]="'question_' + question.id" class="form-control" [name]="'question_' + question.id" required>
-              </div>
-
-              <!-- Submit Button -->
-              <div class="row">
-                <div class="col-12">
-                  <button class="btn Login" type="submit" [disabled]="!reRegistrationForm.valid">Register</button>
-                </div>
-              </div>
-
-              <!-- Error Message -->
-              <div *ngIf="errorMessage" class="text-danger mt-3">
-                {{ errorMessage }}
-              </div>
-            </form>
-            </div>
-
+          <!-- Error Message -->
+          <div *ngIf="errorMessage" class="text-danger mt-3">
+            {{ errorMessage }}
+          </div>
+          <div *ngIf="loading" class="loading-spinner">
+            <!-- Include your loading spinner component here -->
+          </div>
+        </form>
+      </div>
     </div>
   </div>
-
-  </div>
-
+</div>
