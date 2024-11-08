@@ -296,8 +296,7 @@ class MenuController extends BaseController
             $this->updateMediaUrls($childMenu, $baseUrl);
         }
     }
-    public function lang_slugs_wise(Request $request): JsonResponse
-    {
+    public function lang_slugs_wise(Request $request): JsonResponse{
         $data = $request->all();
         $menu_url = $data['menu_url'] ?? null;
        
