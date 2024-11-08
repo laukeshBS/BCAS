@@ -106,11 +106,10 @@ class SecurityQuestionController extends Controller
             ]);
         }
         // // Generate a random password (e.g., 12 characters long)
-        // $randomPassword = Str::random(12); // Generates a 12-character random string
+        $randomPassword = Str::random(12); // Generates a 12-character random string
 
-        // // Hash the password before updating the user's record
-        // $hashedPassword = Hash::make($randomPassword);
-        $hashedPassword = Hash::make('admin@123');
+        // Hash the password before updating the user's record
+        $hashedPassword = Hash::make($randomPassword);
 
         // Update the user's password
         $user->password = $hashedPassword;
@@ -118,7 +117,7 @@ class SecurityQuestionController extends Controller
         $user->save();
 
         // Optionally, send the new password to the user via email
-        // Mail::to($user->email)->send(new PasswordResetMail($newPassword));
+        Mail::to($user->email)->send(new RegisterEmail($user->name, $randomPassword));
 
         // All checks passed, proceed to re-registration (e.g., reset password, etc.)
         return response()->json([

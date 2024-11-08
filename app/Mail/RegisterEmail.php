@@ -31,7 +31,7 @@ class RegisterEmail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Otp Email',
+            subject: 'Register Email',
         );
     }
 
