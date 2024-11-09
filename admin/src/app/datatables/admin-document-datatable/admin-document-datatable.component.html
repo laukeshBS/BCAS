@@ -154,6 +154,35 @@
                                     </div>
                                 </div>
                             </div>   
+                            <div class="mb-3 rankContainer dropdown">
+                                <label for="selectAllRank" class="form-label">Select Rank for Access</label>
+                                <button type="button" (click)="toggleDropdown2()" class="btn btn-primary dropdown-toggle" aria-haspopup="true" aria-expanded="isOpen2">
+                                    Select Rank
+                                </button>
+                                <div *ngIf="isOpen2" class="dropdown-menu show">
+                                    <div class="dropdown-item">
+                                        <input type="checkbox" id="selectAllRank" (change)="toggleSelectAll2($event)" />
+                                        <label for="selectAllRank" class="rank-label">Select All Rank</label>
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <div class="rank-container">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div *ngFor="let rank of rankArray.slice(0, rankArray.length / 2); let j = index" class="form-check">
+                                                    <input type="checkbox" [checked]="isSelected2(rank.id)" (change)="toggleSelection2(rank.id)" id="rank-{{ j }}" />
+                                                    <label for="rank-{{ j }}" class="rank-label">{{ rank.name }}</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div *ngFor="let rank of rankArray.slice(rankArray.length / 2); let j = index" class="form-check">
+                                                    <input type="checkbox" [checked]="isSelected2(rank.id)" (change)="toggleSelection2(rank.id)" id="rank-{{ j + (rankArray.length / 2) }}" />
+                                                    <label for="rank-{{ j + (rankArray.length / 2) }}" class="rank-label">{{ rank.name }}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="mb-3">
                                 <label for="status" class="form-label">Status</label>
                                 <select id="status" class="form-select" [(ngModel)]="selectedEvent.status" name="status" required #status="ngModel">
@@ -268,6 +297,35 @@
                                                 <div *ngFor="let role of rolesArray.slice(rolesArray.length / 2); let i = index" class="form-check">
                                                     <input type="checkbox" [checked]="isSelected(role.id)" (change)="toggleSelection(role.id)" id="role-{{ i + (rolesArray.length / 2) }}" />
                                                     <label for="role-{{ i + (rolesArray.length / 2) }}" class="role-label">{{ role.name }}</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mb-3 rankContainer dropdown">
+                                <label for="selectAllRank" class="form-label">Select Rank for Access</label>
+                                <button type="button" (click)="toggleDropdown2()" class="btn btn-primary dropdown-toggle" aria-haspopup="true" aria-expanded="isOpen2">
+                                    Select Rank
+                                </button>
+                                <div *ngIf="isOpen2" class="dropdown-menu show">
+                                    <div class="dropdown-item">
+                                        <input type="checkbox" id="selectAllRank" (change)="toggleSelectAll2($event)" />
+                                        <label for="selectAllRank" class="rank-label">Select All Rank</label>
+                                    </div>
+                                    <div class="dropdown-divider"></div>
+                                    <div class="rank-container">
+                                        <div class="row">
+                                            <div class="col-6">
+                                                <div *ngFor="let rank of rankArray.slice(0, rankArray.length / 2); let j = index" class="form-check">
+                                                    <input type="checkbox" [checked]="isSelected2(rank.id)" (change)="toggleSelection2(rank.id)" id="rank-{{ j }}" />
+                                                    <label for="rank-{{ j }}" class="rank-label">{{ rank.name }}</label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div *ngFor="let rank of rankArray.slice(rankArray.length / 2); let j = index" class="form-check">
+                                                    <input type="checkbox" [checked]="isSelected2(rank.id)" (change)="toggleSelection2(rank.id)" id="rank-{{ j + (rankArray.length / 2) }}" />
+                                                    <label for="rank-{{ j + (rankArray.length / 2) }}" class="rank-label">{{ rank.name }}</label>
                                                 </div>
                                             </div>
                                         </div>

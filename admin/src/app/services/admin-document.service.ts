@@ -17,6 +17,7 @@ export class AdminDocumentService {
   private storeApiUrl = environment.apiBaseUrl + 'admin-document-store';
   private updateApiUrl = environment.apiBaseUrl + 'admin-document-update';
   private deleteApiUrl = environment.apiBaseUrl + 'admin-document-delete';
+  private apiUrlRankDropdown = environment.apiBaseUrl + 'rank-dropdown-list';  // API endpoint
 
   constructor(private http: HttpClient) {}
 
@@ -36,8 +37,8 @@ export class AdminDocumentService {
   }
 
   // Get list 
-  allList(limit: number, lang_code: string,currentPage:number,roleIds: number[]): Observable<any> {
-    const body = { limit, lang_code, currentPage,roleIds: roleIds };
+  allList(limit: number, lang_code: string,currentPage:number,roleIds: number[],userRankId: number): Observable<any> {
+    const body = { limit, lang_code, currentPage,roleIds: roleIds,userRankId: userRankId };
     return this.http.post<any>(this.apiUrl, body, { headers: this.getHeaders() });
   }
   // Get Document view
@@ -52,6 +53,10 @@ export class AdminDocumentService {
   // Get Categories
   documentCategory(): Observable<any> {
     return this.http.get<any>(`${this.documentCategoryapiUrl}`, { headers: this.getHeaders() });
+  }
+  // Get Rank List for dropdow
+  getRankList(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrlRankDropdown}`, { headers: this.getHeaders() });
   }
 
   // Get role
@@ -78,4 +83,5 @@ export class AdminDocumentService {
   deleteEvent(id: number): Observable<any> {
     return this.http.delete<any>(`${this.deleteApiUrl}/${id}`, { headers: this.getHeaders2() });
   }
+  
 }

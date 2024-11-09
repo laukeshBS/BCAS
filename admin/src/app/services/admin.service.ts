@@ -16,6 +16,7 @@ export class AdminService {
   private updateApiUrl = environment.apiBaseUrl + 'admin-update';
   private deleteApiUrl = environment.apiBaseUrl + 'admin-delete';
   private getRoleapiUrl = environment.apiBaseUrl + 'roles';
+  private apiUrlRankDropdown = environment.apiBaseUrl + 'rank-dropdown-list';  // API endpoint
 
   constructor(private http: HttpClient) {}
 
@@ -63,6 +64,11 @@ export class AdminService {
   // Get role
   getRoles(): Observable<any> {
     return this.http.get<any>(`${this.getRoleapiUrl}`, { headers: this.getHeaders() });
+  }
+
+  // Get Rank List for dropdow
+  getRankList(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrlRankDropdown}`, { headers: this.getHeaders() });
   }
 }
 

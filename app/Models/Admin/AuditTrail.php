@@ -13,4 +13,8 @@ class AuditTrail extends Model
     use HasFactory;
     protected $fillable =['id','action_name','module_item_title','module_item_id','action_by','action_type','lang_id','old_data','new_data','approve_status','action_date','ip_address','action_by_role'
     ];
+    public function user()
+    {
+        return $this->belongsTo(Admin::class, 'action_by');
+    }
 }

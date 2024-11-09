@@ -80,7 +80,24 @@
                     <div *ngIf="email.errors?.['email']">Invalid email format.</div>
                   </div>
                 </div>
+                <div class="mb-3">
+                  <label for="phone" class="form-label">Phone</label>
+                  <input type="number" id="phone" class="form-control" [(ngModel)]="selectedEvent.phone" name="phone" required #phone="ngModel" maxlength="10"/>
+                  <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger">
+                    <div *ngIf="phone.errors?.['required']">phone is required.</div>
+                    <div *ngIf="phone.errors?.['phone']">Invalid phone format.</div>
+                  </div>
+                </div>
 
+                <div class="mb-3">
+                  <label for="rank" class="form-label">Rank Id</label>
+                  <select id="rank" class="form-select" [(ngModel)]="selectedEvent.rank" name="rank" required #rank="ngModel">
+                      <option value="" disabled>Select Rank</option>
+                  </select>
+                  <div *ngIf="rank.invalid && (rank.dirty || rank.touched)" class="text-danger">
+                      <div *ngIf="rank.errors?.['required']">Rank is required.</div>
+                  </div>
+                </div>
                 <div class="mb-3">
                   <label class="form-label">Select Roles</label>
                   <div *ngFor="let role of roles">
@@ -129,6 +146,25 @@
                   <input type="email" id="email" class="form-control" [(ngModel)]="selectedEvent.email" name="email" required #email="ngModel"/>
                   <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-danger">
                     <div *ngIf="email.errors?.['required']">Email is required.</div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="phone" class="form-label">Phone</label>
+                  <input type="number" id="phone" class="form-control" [(ngModel)]="selectedEvent.phone" name="phone" required #phone="ngModel" maxlength="10"/>
+                  <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger">
+                    <div *ngIf="phone.errors?.['required']">phone is required.</div>
+                    <div *ngIf="phone.errors?.['phone']">Invalid phone format.</div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label for="addrank" class="form-label">Rank Id</label>
+                  <select id="addrank" class="form-select" [(ngModel)]="selectedEvent.rank" name="rank" required #rank="ngModel">
+                      <option value="" disabled>Select Rank</option>
+                  </select>
+                  <div *ngIf="rank.invalid && (rank.dirty || rank.touched)" class="text-danger">
+                      <div *ngIf="rank.errors?.['required']">Rank is required.</div>
                   </div>
                 </div>
               

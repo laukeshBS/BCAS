@@ -22,6 +22,7 @@ export class AdminDatatableComponent {
   selectedFile: any;
   selectedFileError: string | null = null; // Initialized with null
   roles: any;
+  rank: any;
   
 
   constructor(private adminService: AdminService) {}
@@ -29,6 +30,7 @@ export class AdminDatatableComponent {
   ngOnInit(): void {
     this.loadRoles();
     this.loadList();
+    this.loadRank();
   }
 
   loading: boolean = false;
@@ -47,6 +49,16 @@ export class AdminDatatableComponent {
       },
       (error) => {
         console.error('Error fetching roles', error);
+      }
+    );
+  }
+  loadRank(): void {
+    this.adminService.getRankList().subscribe(
+      (data) => {
+        this.rank = data.data; // Assuming the response is an object with id as keys and name as values
+      },
+      (error) => {
+        console.error('Error fetching categories:', error);
       }
     );
   }
@@ -107,30 +119,87 @@ export class AdminDatatableComponent {
         this.roles.forEach((role: { selected: any; id: any; }) => {
           role.selected = this.selectedEvent.roles.includes(role.id);
         });
+      }else {
+        alert('No roles found or invalid roles data in the selected event.');
       }
-      console.log(this.selectedEvent);
+      const rankInput = document.getElementById('rank') as HTMLSelectElement;
+      // Check if this.rank is an object and loop through it
+      if (this.rank && typeof this.rank === 'object') {
+        // Iterate over each rank (id, name)
+        for (const [id, name] of Object.entries(this.rank)) {
+          const option = document.createElement('option');
+          option.value = id;  // Set the option's value to the rank id
+          option.textContent = typeof name === 'string' ? name : 'Unknown Rank';  // Use rank name or fallback
+          rankInput.appendChild(option);  // Append the option to the dropdown
+        }
+      } else {
+        console.warn('Invalid or empty rank data');
+      }
+
+      // console.log(this.selectedEvent);
       this.openEditModal();
     });
   }
 
   addEvent(): void {
     const modalElement = document.getElementById('addEventModal');
+    
     if (modalElement) {
-      this.selectedEvent = {};
-      const modal = new bootstrap.Modal(modalElement);
-      modal.show();
+      this.selectedEvent = {};  // Reset selected event
+  
+      const rankInput = document.getElementById('addrank') as HTMLSelectElement;
+  
+      // Check if rankInput is found and is a valid HTMLSelectElement
+      if (rankInput) {
+        // Clear existing options
+        rankInput.innerHTML = '';
+  
+        // Add the default empty option
+        const emptyOption = document.createElement('option');
+        emptyOption.value = '';
+        emptyOption.textContent = 'Select a rank';  // Default placeholder text
+        rankInput.appendChild(emptyOption);
+  
+        // Log rank to confirm data structure
+        console.log(this.rank);  // Debugging: Log rank data to inspect it
+  
+        // Check if this.rank is an object and loop through it
+        if (this.rank && typeof this.rank === 'object') {
+          // Iterate over each rank (id, name)
+          for (const [id, name] of Object.entries(this.rank)) {
+            const option = document.createElement('option');
+            option.value = id;  // Set the option's value to the rank id
+            option.textContent = typeof name === 'string' ? name : 'Unknown Rank';  // Use rank name or fallback
+            rankInput.appendChild(option);  // Append the option to the dropdown
+          }
+        } else {
+          console.warn('Invalid or empty rank data');
+        }
+  
+        // Show the modal using Bootstrap's Modal API
+        const modal = new bootstrap.Modal(modalElement);
+        modal.show();
+      } else {
+        alert('Rank input element not found!');
+      }
+    } else {
+      alert('Modal element not found!');
     }
   }
+  
+  
+  
 
   saveEvent(): void {
     // Define the keys of the fields to validate
-    type Field = 'name' | 'username' | 'email';
+    type Field = 'name' | 'username' | 'email' | 'phone';
      // Validate the form data
-    const requiredFields: Field[] = ['name', 'username', 'email'];
+    const requiredFields: Field[] = ['name', 'username', 'email', 'phone'];
     const maxLengths: Record<Field, number> = {
       name: 50,
       username: 100,
       email: 100,
+      phone: 10,
     };
 
     const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
@@ -162,6 +231,8 @@ export class AdminDatatableComponent {
     formData.append('name', this.removeHtmlTags(this.selectedEvent.name.trim()));
     formData.append('username', this.removeHtmlTags(this.selectedEvent.username.trim()));
     formData.append('email', this.selectedEvent.email);
+    formData.append('phone', this.selectedEvent.phone);
+    formData.append('rank', this.selectedEvent.rank);
     
     // Include selected roles
     if (this.selectedEvent.roles && this.selectedEvent.roles.length > 0) {
@@ -185,13 +256,14 @@ export class AdminDatatableComponent {
 
   modifyEvent(): void {
     // Define the keys of the fields to validate
-    type Field = 'name' | 'username' | 'email';
+    type Field = 'name' | 'username' | 'email'| 'phone';
      // Validate the form data
-    const requiredFields: Field[] = ['name', 'username', 'email'];
+    const requiredFields: Field[] = ['name', 'username', 'email', 'phone'];
     const maxLengths: Record<Field, number> = {
       name: 50,
       username: 100,
       email: 100,
+      phone: 10,
     };
 
     const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
@@ -221,6 +293,8 @@ export class AdminDatatableComponent {
     formData.append('name', this.removeHtmlTags(this.selectedEvent.name.trim()));
     formData.append('username', this.removeHtmlTags(this.selectedEvent.username.trim()));
     formData.append('email', this.selectedEvent.email);
+    formData.append('phone', this.selectedEvent.phone);
+    formData.append('rank', this.selectedEvent.rank);
   
     // Include selected roles
     if (this.selectedEvent.roles && this.selectedEvent.roles.length > 0) {

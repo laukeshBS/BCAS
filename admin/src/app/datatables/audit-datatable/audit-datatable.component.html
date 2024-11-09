@@ -15,7 +15,7 @@
           <tr *ngFor="let event of events">
             <td>{{ event.action_name }}</td>
             <td>{{ event.module_item_title }}</td>
-            <td>{{ event.action_by}}</td>
+            <td>{{ event.user.name}}</td>
             <td style="max-width: 300px;">{{ event.old_data }}</td>
             <td style="max-width: 300px;">{{ event.new_data }}</td>
             <td>{{ event.action_date }}</td>

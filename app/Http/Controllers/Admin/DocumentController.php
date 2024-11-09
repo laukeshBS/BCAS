@@ -26,12 +26,14 @@ class DocumentController extends Controller
         $request->validate([
             'limit' => 'required|integer',
             'currentPage' => 'required|integer',
+            'userRankId' => 'required|integer',
             'roleIds' => 'array', // Accept an array of role IDs
         ]);
 
         $perPage = $request->input('limit');
         $page = $request->input('currentPage');
         $roleIds = $request->input('roleIds'); // Get the array of role IDs
+        $userRankId = $request->input('userRankId');
 
         $query = Document::query();
 
@@ -40,6 +42,20 @@ class DocumentController extends Controller
             $query->whereHas('roles', function ($q) use ($roleIds) {
                 $q->whereIn('roles.id', $roleIds);
             });
+        }
+
+        // If userRankId is provided, filter by ranks
+        if ($userRankId) {
+            $query->where(function ($q) use ($userRankId) {
+                // Either the document has no rank assigned OR it's assigned to the given rank
+                $q->whereDoesntHave('ranks') // No rank assigned
+                ->orWhereHas('ranks', function ($q) use ($userRankId) {
+                    $q->where('ranks.id', $userRankId); // Filter by user rank ID
+                });
+            });
+        } else {
+            // If userRankId is not provided, show documents that have no rank assigned
+            $query->whereDoesntHave('ranks'); // Only documents with no rank assigned
         }
 
         $data = $query->select('*')->paginate($perPage, ['*'], 'page', $page);
@@ -80,6 +96,9 @@ class DocumentController extends Controller
         $roleIds = $data->roles->pluck('id');
         $data->roleIds = $roleIds;
 
+        $rankIds = $data->ranks->pluck('id');
+        $data->rankIds = $rankIds;
+
         return response()->json($data);
     }
     public function store(Request $request)
@@ -95,6 +114,7 @@ class DocumentController extends Controller
             'start_date' => 'required',
             'end_date' => 'required',
             'roles' => 'required|array',
+            'ranks' => 'required|array',
         ]);
 
         $filePath = null;
@@ -121,6 +141,8 @@ class DocumentController extends Controller
 
         $data->roles()->attach($request->input('roles'));
 
+        $data->ranks()->attach($request->input('ranks'));
+
         return response()->json(['data' => $data, 'message' => 'Created successfully.'], 201);
     }
 
@@ -138,6 +160,7 @@ class DocumentController extends Controller
             'start_date' => 'required|date', // Ensure date validation
             'end_date' => 'required|date|after:start_date', // Ensure end date is after start date
             'roles' => 'required|array',
+            'ranks' => 'required|array',
             'submitted_by' => 'nullable|integer', // Make submitted_by optional since it can be set in the controller
         ]);
 
@@ -171,6 +194,9 @@ class DocumentController extends Controller
         // Sync roles instead of attach to avoid duplicates
         if ($request->has('roles')) {
             $data->roles()->sync($request->input('roles'));
+        }
+        if ($request->has('ranks')) {
+            $data->ranks()->attach($request->input('ranks'));
         }
 
         return response()->json(['data' => $data, 'message' => 'Updated successfully.'], 200); // Use 200 for successful update
