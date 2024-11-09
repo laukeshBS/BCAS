@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\DocumentCategoryController;
 use App\Http\Controllers\Admin\AuditController;
 use App\Http\Controllers\Admin\SecurityQuestionController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\RankController;
 
 /*
 |--------------------------------------------------------------------------
@@ -442,6 +443,8 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::get('dashboard-data', 'cms_data');
         Route::get('dashboard-count-data', 'cms_count_data');
     });
-    
+    Route::controller(RankController::class)->group(function () {
+        Route::get('rank-dropdown-list', 'dropdown_list');
+    });
 });
 
