@@ -9,6 +9,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "barryvdh/laravel-dompdf": "*",
         "guzzlehttp/guzzle": "^7.9",
         "kreait/laravel-firebase": "^5.8",
         "laravel/framework": "^11.0",
@@ -16,7 +17,8 @@
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.5",
         "mews/captcha": "^3.3",
-        "spatie/laravel-permission": "^6.4"
+        "spatie/laravel-permission": "^6.4",
+        "tecnickcom/tcpdf": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
