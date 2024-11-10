@@ -40,9 +40,8 @@ class ContactController extends Controller
             $query = Division::with('contacts')->where('lang_code', $lang_code);
             if ($division_id) {
                 $query->where('id', $division_id);
-            }else{
-                $query->orderBy('position');
             }
+            $query->orderBy('position');
             $data = $query->get();
         } else if ($type == 2) {
             // Query for Region model
@@ -50,6 +49,7 @@ class ContactController extends Controller
             if ($region_id) {
                 $query->where('id', $region_id);
             }
+            $query->orderBy('position');
             $data = $query->get();
         } else {
             // Return an empty array if type is not 1 or 2

@@ -292,10 +292,11 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
     });
 
     Route::controller(AirlinesController::class)->group(function () {
+        Route::post('all-airline-list', 'cms_data');
         Route::get('airline-list-by-id/{id}', 'data_by_id');
-        Route::post('airline-add', 'store');
-        Route::post('airline-update/{id}', 'update');
-        Route::delete('airline-delete/{id}', 'delete');
+        Route::post('airline-store', 'cms_store');
+        Route::post('airline-update/{id}', 'cms_update');
+        Route::delete('airline-delete/{id}', 'cms_delete');
     });
 
     Route::controller(CateringCompanyController::class)->group(function () {

@@ -39,37 +39,37 @@ class AirlinesController extends Controller
 
         return response()->json($airlines);
     }
-public function airline_list_approved(Request $request)
-{
-    // Default pagination parameters
-    $perPage = $request->input('per_page', 10);
-    $page = $request->input('page', 1);
+    public function airline_list_approved(Request $request)
+    {
+        // Default pagination parameters
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
 
-    // Filter parameters
-    $date_of_approval = $request->input('date_of_approval');
-    $air_type = $request->input('air_type');
-    $station_name = $request->input('station_name');
-    // Query to fetch approved airlines based on the provided filters
-    $airlines = Airline::select('*')
-    ->where('status', 'APPROVED')
-    ->where('station_name', 'like', "%{$station_name}%")
-    ->where('air_type', 'like', "%{$air_type}%") // Using like for partial match
-    ->when($date_of_approval, function ($query, $date_of_approval) {
-        return $query->whereRaw('YEAR(date_of_approval) = ?', [$date_of_approval]);
-    })
-       
-        ->orderBy('date_of_approval', 'DESC')
-        ->paginate($perPage, ['*'], 'page', $page);
+        // Filter parameters
+        $date_of_approval = $request->input('date_of_approval');
+        $air_type = $request->input('air_type');
+        $station_name = $request->input('station_name');
+        // Query to fetch approved airlines based on the provided filters
+        $airlines = Airline::select('*')
+        ->where('status', 'APPROVED')
+        ->where('station_name', 'like', "%{$station_name}%")
+        ->where('air_type', 'like', "%{$air_type}%") // Using like for partial match
+        ->when($date_of_approval, function ($query, $date_of_approval) {
+            return $query->whereRaw('YEAR(date_of_approval) = ?', [$date_of_approval]);
+        })
+        
+            ->orderBy('date_of_approval', 'DESC')
+            ->paginate($perPage, ['*'], 'page', $page);
 
-    // Transforming the collection to format the created_at date
-    $airlines->getCollection()->transform(function ($item) {
-        $item->created_at = date('d-m-Y', strtotime($item->created_at));
-        return $item;
-    });
+        // Transforming the collection to format the created_at date
+        $airlines->getCollection()->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            return $item;
+        });
 
-    // Returning the paginated list of airlines as a JSON response
-    return response()->json($airlines);
-}
+        // Returning the paginated list of airlines as a JSON response
+        return response()->json($airlines);
+    }
 
     public function data(Request $request)
     {
@@ -164,7 +164,7 @@ public function airline_list_approved(Request $request)
             'valid_till', 
             'airline_orders'
         ]);
-//dd($data);
+        //dd($data);
         //$data['created_by'] = Auth::guard('admin')->user()->id;
 
         // // Create new Airline record
@@ -270,5 +270,166 @@ public function airline_list_approved(Request $request)
         // Return the data as JSON
         return response()->json($airlinedata);
     }
+    
+    // CMS Api
+    public function cms_data(Request $request)
+    {
+        $request->validate([
+            'limit' => 'required|integer',
+            'currentPage' => 'required|integer',
+        ]);
 
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $query = Airline::query();
+
+        $data = $query->select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+        if ($data->isNotEmpty()) {
+            $data->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                return $item;
+            });
+        }
+
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'per_page' => $data->perPage(),
+        ]);
+    }
+
+    public function cms_store(Request $request): mixed
+    {
+        // Define validation rules
+        $rules = [
+            'application_id'    => 'required|string|max:255',
+            'entity_name'       => 'required|string|max:255',
+            'cso_acso_name'     => 'required|string|max:255',
+            'cso_acso_email'    => 'required|email|max:255',
+            'station_name'      => 'required|string|max:255',
+            'date_of_approval'  => 'required|date',  // Ensure date format
+            'status'            => 'required|string|max:255',
+            'air_type'          => 'required|string|max:255',
+            'date_of_validity'  => 'required|date',  // Ensure date format
+            'lang_code'         => 'required|string|max:10',  // Make sure it's a string with a reasonable length
+        ];
+
+        // Validate the request
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation Error',
+                'messages' => $validator->errors()->toArray()
+            ], 422);  // 422 Unprocessable Entity
+        }
+
+        // Prepare data for insertion
+        $data = $request->only([
+            'application_id', 'entity_name', 'cso_acso_name', 'cso_acso_email',
+            'station_name', 'date_of_approval', 'status', 'air_type', 
+            'date_of_validity', 'lang_code'
+        ]);
+
+        // Create new Airline record
+        try {
+            $airlinedata = Airline::create($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error creating the airline record.',
+                'message' => $e->getMessage()
+            ], 500);  // 500 Internal Server Error
+        }
+
+        // Return JSON response with success message
+        return response()->json([
+            'data' => $airlinedata,
+            'message' => 'Created successfully.'
+        ], 201);  // 201 Created
+    }
+
+
+    public function cms_update(Request $request, $id): mixed
+    {
+        // Define validation rules
+        $rules = [
+            'application_id'    => 'required|string|max:255',
+            'entity_name'       => 'required|string|max:255',
+            'cso_acso_name'     => 'required|string|max:255',
+            'cso_acso_email'    => 'required|email|max:255',
+            'station_name'      => 'required|string|max:255',
+            'date_of_approval'  => 'required|date',  // Ensure date format
+            'status'            => 'required|string|max:255',
+            'air_type'          => 'required|string|max:255',
+            'date_of_validity'  => 'required|date',  // Ensure date format
+            'lang_code'         => 'required|string|max:10',  // Make sure it's a string with a reasonable length
+        ];
+
+        // Validate the request
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation Error',
+                'messages' => $validator->errors()->toArray()
+            ], 422);  // 422 Unprocessable Entity
+        }
+
+        // Find the existing Airline record by ID
+        $airline = Airline::find($id);
+
+        if (!$airline) {
+            return response()->json([
+                'error' => 'Record not found.',
+                'message' => 'The requested airline record does not exist.'
+            ], 404);  // 404 Not Found
+        }
+
+        // Prepare data for update
+        $data = $request->only([
+            'application_id', 'entity_name', 'cso_acso_name', 'cso_acso_email',
+            'station_name', 'date_of_approval', 'status', 'air_type', 
+            'date_of_validity', 'lang_code'
+        ]);
+
+        // Update the existing Airline record
+        try {
+            $airline->update($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error updating the airline record.',
+                'message' => $e->getMessage()
+            ], 500);  // 500 Internal Server Error
+        }
+
+        // Return JSON response with success message
+        return response()->json([
+            'data' => $airline,
+            'message' => 'Updated successfully.'
+        ], 200);  // 200 OK
+    }
+
+
+    public function cms_delete($id)
+    {
+        // Find the airlinedata by id
+        $airlinedata = Airline::find($id);
+
+        if (!$airlinedata) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
+        }
+
+        // Delete the airlinedata
+        $airlinedata->delete();
+
+        // Return the data as JSON
+        return response()->json(['data' => $airlinedata, 'message' => 'Deleted successfully.'], 200);
+    }
 }
