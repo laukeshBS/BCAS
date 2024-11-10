@@ -14,6 +14,8 @@ export class AuditService {
   private storeApiUrl = environment.apiBaseUrl + 'audit-store';
   private updateApiUrl = environment.apiBaseUrl + 'audit-update';
   private deleteApiUrl = environment.apiBaseUrl + 'audit-delete';
+  private exportPdfApiUrl = environment.apiBaseUrl + 'audit-report-download'; // Laravel backend API endpoint
+
 
   constructor(private http: HttpClient) {}
 
@@ -56,5 +58,16 @@ export class AuditService {
   // Add method to delete an Acts and Plocies
   deleteEvent(id: number): Observable<any> {
     return this.http.delete<any>(`${this.deleteApiUrl}/${id}`, { headers: this.getHeaders2() });
+  }
+  exportPDF(fromDate: string, toDate: string): Observable<Blob> {
+    const exportData = {
+      from_date: fromDate,
+      to_date: toDate,
+    };
+  
+    return this.http.post<Blob>(this.exportPdfApiUrl, exportData, {
+      headers: this.getHeaders2(),  // Ensure the headers are passed
+      responseType: 'blob' as 'json',  // Set response type to 'blob' for PDF
+    });
   }
 }

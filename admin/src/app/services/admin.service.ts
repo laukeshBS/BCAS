@@ -41,6 +41,12 @@ export class AdminService {
     return this.http.post<any>(this.apiUrl, body, { headers: this.getHeaders() });
   }
 
+  // Method to update user status (active/inactive)
+  updateUserStatus(userId: number, status: number): Observable<any> {
+    const url = `${environment.apiBaseUrl}users/${userId}/status`;  // Add the full URL with environment variable
+    return this.http.put(url, { status }, { headers: this.getHeaders() });
+  }
+  
   // Fetch a single event by ID
   getEvent(id: number): Observable<any> {
     return this.http.get<any>(`${this.getbyidapiUrl}/${id}`, { headers: this.getHeaders() });

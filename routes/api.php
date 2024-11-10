@@ -204,6 +204,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::post('adminList', 'index');
         Route::post('admin-list', 'cms_data');
         Route::get('admin-list-by-id/{id}', 'data_by_id');
+        Route::put('users/{user}/status', 'updateStatus');
         Route::post('admin-store', 'Cms_store');
         Route::post('admin-update/{id}', 'Cms_update');
         Route::delete('admin-delete/{id}', 'delete');
@@ -438,6 +439,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
     });
     Route::controller(AuditController::class)->group(function () {
         Route::post('audit-list', 'index');
+        Route::post('audit-report-download', 'exportPDF');
     });
     Route::controller(DashboardController::class)->group(function () {
         Route::get('dashboard-data', 'cms_data');

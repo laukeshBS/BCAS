@@ -16,7 +16,12 @@
             <td>{{ event.name }}</td>
             <td>{{ event.email }}</td>
             <td> {{ event.roleNames }}</td>
-            <td>{{ event.status }}</td>
+            <td><button 
+              (click)="toggleUserStatus(event.id, event.status)"
+              class="btn"
+              [ngClass]="event.status === 3 ? 'btn-danger' : 'btn-success'">
+              {{ event.status === 3 ? 'Deactivate' : 'Active' }}
+            </button></td>
             <td>{{ event.created_at }}</td>
             <td>
               <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
@@ -99,7 +104,11 @@
                   </div>
                 </div>
                 <div class="mb-3">
-                  <label class="form-label">Select Roles</label>
+                  <label class="form-label">Select Roles</label><br>
+                  <input type="checkbox" 
+           [checked]="isAllSelected()" 
+           (change)="toggleSelectAll()" /> 
+    Select All
                   <div *ngFor="let role of roles">
                     <input type="checkbox" 
                            [(ngModel)]="role.selected" 
@@ -169,7 +178,11 @@
                 </div>
               
                 <div class="mb-3">
-                  <label class="form-label">Select Roles</label>
+                  <label class="form-label">Select Roles</label><br>
+                  <input type="checkbox" 
+           [checked]="isAllSelected()" 
+           (change)="toggleSelectAll()" /> 
+    Select All
                   <div *ngFor="let role of roles">
                     <input type="checkbox" 
                            [(ngModel)]="role.selected" 

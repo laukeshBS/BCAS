@@ -17,6 +17,8 @@ export class AuditDatatableComponent {
   events: any[] = [];
   limit = 10; 
   lang_code = 'en'; 
+  fromDate: string = '2024-01-01'; // Example from date
+  toDate: string = '2024-12-31';
 
   constructor(private auditService: AuditService) {}
 
@@ -81,5 +83,35 @@ export class AuditDatatableComponent {
       }
     });
   }
+  exportPDF() {
+    // Start by showing a loading spinner
+  
+    // Call the exportPDF method from the service
+    this.auditService.exportPDF(this.fromDate, this.toDate).subscribe(
+      (response: Blob) => {
+        // Create a temporary URL for the Blob to trigger the file download
+        const url = window.URL.createObjectURL(response);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'audit_report.pdf'; // Specify a default file name
+        a.click();
+        window.URL.revokeObjectURL(url); // Clean up after download
+  
+        // Show success notification or message
+        alert('Report generated successfully.');
+  
+        // Hide loading spinner
+      },
+      (error) => {
+        console.error('Error exporting PDF:', error);
+        alert('An error occurred while generating the PDF. Please try again.');
+  
+        // Hide loading spinner
+      }
+    );
+  }
+  
+  
+  
 
 }
