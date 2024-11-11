@@ -384,4 +384,23 @@ class AdminsController extends Controller
 
         return response()->json(['data' => $data, 'message' => 'Deleted successfully.'], 201);
     }
+    public function updateStatus(Request $request, $userId)
+    {
+        // Find the user by ID
+        $user = Admin::findOrFail($userId);
+
+        // Validate that the status is either 1 (active) or 2 (inactive)
+        $request->validate([
+            'status' => 'required|in:3,2'
+        ]);
+
+        // Update the user's status
+        $user->status = $request->status;
+        $user->save();
+
+        return response()->json([
+            'message' => 'User status updated successfully.',
+            'status' => $user->status === 2 ? 'Active' : 'Inactive'
+        ]);
+    }
 }

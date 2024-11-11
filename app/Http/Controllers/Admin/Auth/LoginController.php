@@ -61,7 +61,7 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        $user = Admin::with('roles')->where('email', $request->email)->first();
+        $user = Admin::with('roles')->where('email', $request->email)->where('status', 2)->first();
 
         $key = 'xWfR9K7h3gD5yTqV'; // Adjust to match the 16-byte key
         $encryptedData = $request->input('password');

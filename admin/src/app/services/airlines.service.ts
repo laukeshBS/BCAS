@@ -3,20 +3,16 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../environments/environment';
 
-
 @Injectable({
   providedIn: 'root'
 })
-export class AdminService {
+export class AirlinesService {
 
-  private apiUrl = environment.apiBaseUrl + 'admin-list';
-  //private apiUrl = environment.apiBaseUrl + 'all_permissions';
-  private getbyidapiUrl = environment.apiBaseUrl + 'admin-list-by-id';
-  private storeApiUrl = environment.apiBaseUrl + 'admin-store';
-  private updateApiUrl = environment.apiBaseUrl + 'admin-update';
-  private deleteApiUrl = environment.apiBaseUrl + 'admin-delete';
-  private getRoleapiUrl = environment.apiBaseUrl + 'roles';
-  private apiUrlRankDropdown = environment.apiBaseUrl + 'rank-dropdown-list';  // API endpoint
+  private apiUrl = environment.apiBaseUrl + 'all-airline-list';
+  private getbyidapiUrl = environment.apiBaseUrl + 'airline-list-by-id';
+  private storeApiUrl = environment.apiBaseUrl + 'airline-store';
+  private updateApiUrl = environment.apiBaseUrl + 'airline-update';
+  private deleteApiUrl = environment.apiBaseUrl + 'airline-delete';
 
   constructor(private http: HttpClient) {}
 
@@ -41,12 +37,6 @@ export class AdminService {
     return this.http.post<any>(this.apiUrl, body, { headers: this.getHeaders() });
   }
 
-  // Method to update user status (active/inactive)
-  updateUserStatus(userId: number, status: number): Observable<any> {
-    const url = `${environment.apiBaseUrl}users/${userId}/status`;  // Add the full URL with environment variable
-    return this.http.put(url, { status }, { headers: this.getHeaders() });
-  }
-  
   // Fetch a single event by ID
   getEvent(id: number): Observable<any> {
     return this.http.get<any>(`${this.getbyidapiUrl}/${id}`, { headers: this.getHeaders() });
@@ -67,14 +57,4 @@ export class AdminService {
     return this.http.delete<any>(`${this.deleteApiUrl}/${id}`, { headers: this.getHeaders2() });
   }
 
-  // Get role
-  getRoles(): Observable<any> {
-    return this.http.get<any>(`${this.getRoleapiUrl}`, { headers: this.getHeaders() });
-  }
-
-  // Get Rank List for dropdow
-  getRankList(): Observable<any> {
-    return this.http.get<any>(`${this.apiUrlRankDropdown}`, { headers: this.getHeaders() });
-  }
 }
-

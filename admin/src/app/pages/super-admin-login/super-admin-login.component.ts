@@ -1,19 +1,20 @@
 import { Component, ViewChild } from '@angular/core';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
-import { CaptchaComponent } from '../../../captcha/captcha.component';
+import { CaptchaComponent } from '../../captcha/captcha.component';
 import * as CryptoJS from 'crypto-js';
 import { RouterModule } from '@angular/router';
 
 @Component({
-  selector: 'app-login',
+  selector: 'app-super-admin-login',
   standalone: true,
   imports: [FormsModule, CommonModule, CaptchaComponent,RouterModule],
-  templateUrl: './login.component.html',
-  styleUrls: ['./login.component.css']
+  templateUrl: './super-admin-login.component.html',
+  styleUrl: './super-admin-login.component.css'
 })
-export class LoginComponent {
+export class SuperAdminLoginComponent {
+
   email: string = '';
   password: string = '';
   errorMessage: string | null = null;
@@ -30,7 +31,7 @@ export class LoginComponent {
     }
 
     // Validate email and password
-    if (this.email ==="superadmin@example.com") {
+    if (this.email !=="superadmin@example.com") {
       alert('Please enter valid Email.');
       return;
     }
@@ -51,5 +52,5 @@ export class LoginComponent {
       return;
     }
   }
-  
+
 }

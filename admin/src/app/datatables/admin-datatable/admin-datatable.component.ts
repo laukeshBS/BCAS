@@ -23,6 +23,7 @@ export class AdminDatatableComponent {
   selectedFileError: string | null = null; // Initialized with null
   roles: any;
   rank: any;
+  users: any;
   
 
   constructor(private adminService: AdminService) {}
@@ -91,17 +92,6 @@ export class AdminDatatableComponent {
   formatEventDates(): void {
     this.events.forEach(event => {
       event.created_at = new Date(event.created_at).toLocaleDateString('en-GB');
-      switch (event.status) {
-        case 1:
-          event.status = 'Active';
-          break;
-        case 2:
-          event.status = 'Deactive';
-          break;
-        default:
-          event.status = '';
-          break;
-      }
       // Get all role names from event.roles
       if (event.roles && Array.isArray(event.roles)) {
         event.roleNames = event.roles.map((role: { name: any; }) => role.name);
@@ -360,6 +350,42 @@ export class AdminDatatableComponent {
   removeHtmlTags(input: string) {
     return input.replace(/<[^>]*>/g, '');
   }
+  // Check if all roles are selected
+  isAllSelected(): boolean {
+    return this.roles.every((role: { selected: any; }) => role.selected);
+  }
+
+  // Toggle Select All functionality
+  toggleSelectAll(): void {
+    const selectAll = !this.isAllSelected();
+    this.roles.forEach((role: { selected: boolean; }) => {
+      role.selected = selectAll;
+    });
+  }
+  // Method to toggle user status
+  toggleUserStatus(userId: number, currentStatus: number): void {
+    const newStatus = currentStatus === 3 ? 2 : 3;
+  
+    this.adminService.updateUserStatus(userId, newStatus).subscribe(
+      (response) => {
+        // const user = this.users.find((u: { id: number; }) => u.id === userId);
+        // if (user) {
+        //   user.status = newStatus;
+        //   user.statusText = newStatus === 2 ? 'Active' : 'Inactive';
+        // }
+  
+        // Log message instead of alert
+        alert('User Status Updated Successfully');
+        this.loadList(); // Reload data
+      },
+      (error) => {
+        console.error('Error updating user status', error);
+        console.log('There was an error updating the user status.');
+      }
+    );
+  }
+  
+
 
   
 }

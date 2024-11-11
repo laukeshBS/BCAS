@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use TCPDF;
+use Carbon\Carbon;
 use App\Models\Admin\Admin;
 use Illuminate\Http\Request;
 use App\Models\Admin\AuditTrail;
@@ -29,27 +31,48 @@ class AuditController extends Controller
             'per_page' => $audit->perPage(),
         ]);
     }
-    public function exportToPdf(Request $request)
-    {
-        // Validate the date inputs
-        $request->validate([
-            'from_date' => 'required|date',
-            'to_date' => 'required|date|after_or_equal:from_date',
-        ]);
+    public function exportPDF(Request $request)
+{
+    // Validate the date inputs
+    $validated = $request->validate([
+        'from_date' => 'required|date',
+        'to_date' => 'required|date|after_or_equal:from_date',
+    ]);
 
-        // Retrieve the data from the database based on the date range
-        $data = AuditTrail::whereBetween('created_at', [$request->from_date, $request->to_date])
-                         ->get(['column1', 'column2', 'column3']); // Specify the columns you need
+    $fromDate = Carbon::parse($request->from_date);
+    $toDate = Carbon::parse($request->to_date);
 
-        // Return empty if no data is found
-        if ($data->isEmpty()) {
-            return response()->json(['message' => 'No data found for the given date range'], 404);
-        }
+    // Query data within the date range
+    $data = AuditTrail::with(['user'])->whereBetween('created_at', [$fromDate, $toDate])
+                     ->get();
 
-        // Prepare the PDF view
-        $pdf = Pdf::loadView('pdf.export', compact('data')); // Make sure to create the PDF view
+    // Generate and return the PDF
+    return $this->generatePDF($data, $fromDate, $toDate);
+}
 
-        // Return the generated PDF as a response
-        return $pdf->download('exported_table.pdf');
-    }
+private function generatePDF($data, $fromDate, $toDate)
+{
+    // File name for the PDF
+    $fileName = 'EXPORT_' . Carbon::now()->format('Y_m_d_H_i_s') . '.pdf';
+
+    // Create PDF content (HTML format)
+    $pdfContent = view('pdf.export', compact('data', 'fromDate', 'toDate'))->render();
+
+    // Initialize TCPDF
+    $pdf = new TCPDF();
+    $pdf->AddPage();
+
+    // Write HTML content into the PDF
+    $pdf->writeHTML($pdfContent);
+
+    // Generate PDF and return as a response with the correct headers
+    return response($pdf->Output($fileName, 'S'), 200)
+        ->header('Content-Type', 'application/pdf')
+        ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
+        ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+}
+
+
 }
