@@ -30,6 +30,7 @@ import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password
 import { VerifyOtpComponent } from './pages/verify-otp/verify-otp.component';
 import { SuperAdminLoginComponent } from './pages/super-admin-login/super-admin-login.component';
 import { AirlinesComponent } from './pages/airlines/airlines.component';
+import { GalleryComponent } from './pages/gallery/gallery.component';
 
 
 export const routes: Routes = [
@@ -60,6 +61,7 @@ export const routes: Routes = [
     { path: 'verify-otp', component: VerifyOtpComponent },
     { path: 'audit', component: AuditComponent, canActivate: [AuthGuard]  },
     { path: 'airlines', component: AirlinesComponent, canActivate: [AuthGuard]  },
+    { path: 'gallery', component: GalleryComponent, canActivate: [AuthGuard]  },
     { path: '**', redirectTo: '/' },
     {
       path: 'restricted',

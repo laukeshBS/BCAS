@@ -32,14 +32,14 @@ class SliderController extends Controller
                     }])
                     ->first();
         // Base URL for the storage folder
-        $baseUrl = url('storage');
+        // $baseUrl = url('storage');
         // Append base URL to media paths
-        $slider->slides->each(function ($slide) use ($baseUrl) {
-            if ($slide->media) {
-                $slide->media = url(Storage::url('app/public/' . $slide->media)) ;
-                // $slide->media = $baseUrl . '/app/public/' . $slide->media;
-            }
-        });
+        // $slider->slides->each(function ($slide) use ($baseUrl) {
+        //     if ($slide->media) {
+        //         $slide->media = url(Storage::url('app/public/' . $slide->media)) ;
+        //         // $slide->media = $baseUrl . '/app/public/' . $slide->media;
+        //     }
+        // });
         return response()->json($slider);
     }
     public function cms_data(Request $request)

@@ -34,9 +34,9 @@ class PermittedProhibitedController extends Controller
                     // Handle invalid date format (set to null or a default value)
                     $item->created_at = null; // or set a default date
                 }
-                if ($item->images) {
-                    $item->images = asset('public/' . $item->images);
-                }
+                // if ($item->images) {
+                //     $item->images = asset('public/' . $item->images);
+                // }
                 return $item;
             });
         }

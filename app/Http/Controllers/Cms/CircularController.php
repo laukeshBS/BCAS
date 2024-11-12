@@ -39,7 +39,7 @@ class CircularController extends Controller
 
         $circulars->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            $item->document = asset('public/documents/' . $item->document) ;
+            // $item->document = asset('public/documents/' . $item->document) ;
             return $item;
         });
 
