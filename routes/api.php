@@ -266,7 +266,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
     });
     Route::controller(OpsSecurityController::class)->group(function(){
         Route::get('opssecurity-list-by-id/{id}','data_by_id');
-        Route::any('opssecurity-add','store');
+        Route::any('opssecurity-store','store');
         Route::post('opssecurity-update/{id}','update');
         Route::delete('opssecurity-delete/{id}','delete');
       

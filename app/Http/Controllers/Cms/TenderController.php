@@ -58,7 +58,14 @@ class TenderController extends Controller
 
         });
     
-        return response()->json($data);
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(), 
+            'total' => $data->total(), 
+            'current_page' => $data->currentPage(), 
+            'last_page' => $data->lastPage(), 
+            'per_page' => $data->perPage(), 
+        ]);
     }
     public function cms_data(Request $request)
     {

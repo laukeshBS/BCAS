@@ -39,43 +39,43 @@ class OpsSecurityController extends Controller
 
         return response()->json($opssecuritys);
     }
-public function opssecurity_list_approved(Request $request)
-{
-    // Default pagination parameters
-    $perPage = $request->input('per_page', 10);
-    $page = $request->input('page', 1);
+    public function opssecurity_list_approved(Request $request)
+    {
+        // Default pagination parameters
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
 
-    // Filter parameters
-    $division = $request->input('division');
-    $sec_type = $request->input('sec_type');
-    $region_name = $request->input('region_name');
-    $airport_name = $request->input('airport_name');
-    // Query to fetch approved opssecuritys based on the provided filters
-    $opssecuritys = OpsSecurity::select('*')
-    ->where('status', 'APPROVED')
-    ->where('sec_type', 'like', "%{$sec_type}%") // Using like for partial match
-    ->when($region_name, function ($query, $region_name) {
-        return $query->where('region_name', $region_name);
-    })
-    ->when($airport_name, function ($query, $airport_name) {
-        return $query->where('airport_name', $airport_name);
-    })
-    ->when($division, function ($query, $division) {
-        return $query->where('division', $division);
-    })
-       
-        ->orderBy('date_of_approval', 'DESC')
-        ->paginate($perPage, ['*'], 'page', $page);
+        // Filter parameters
+        $division = $request->input('division');
+        $sec_type = $request->input('sec_type');
+        $region_name = $request->input('region_name');
+        $airport_name = $request->input('airport_name');
+        // Query to fetch approved opssecuritys based on the provided filters
+        $opssecuritys = OpsSecurity::select('*')
+        ->where('status', 'APPROVED')
+        ->where('sec_type', 'like', "%{$sec_type}%") // Using like for partial match
+        ->when($region_name, function ($query, $region_name) {
+            return $query->where('region_name', $region_name);
+        })
+        ->when($airport_name, function ($query, $airport_name) {
+            return $query->where('airport_name', $airport_name);
+        })
+        ->when($division, function ($query, $division) {
+            return $query->where('division', $division);
+        })
+        
+            ->orderBy('date_of_approval', 'DESC')
+            ->paginate($perPage, ['*'], 'page', $page);
 
-    // Transforming the collection to format the created_at date
-    $opssecuritys->getCollection()->transform(function ($item) {
-        $item->created_at = date('d-m-Y', strtotime($item->created_at));
-        return $item;
-    });
+        // Transforming the collection to format the created_at date
+        $opssecuritys->getCollection()->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            return $item;
+        });
 
-    // Returning the paginated list of opssecuritys as a JSON response
-    return response()->json($opssecuritys);
-}
+        // Returning the paginated list of opssecuritys as a JSON response
+        return response()->json($opssecuritys);
+    }
 
     public function data(Request $request)
     {
@@ -89,8 +89,8 @@ public function opssecurity_list_approved(Request $request)
             ->get();
 
         $data->transform(function ($item) {
-            $item->start_date = date('d-m-Y', strtotime($item->start_date));
-            $item->end_date = date('d-m-Y', strtotime($item->end_date));
+            $item->date_of_approval = date('d-m-Y', strtotime($item->date_of_approval));
+            $item->date_of_validity = date('d-m-Y', strtotime($item->date_of_validity));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
            
             return $item;
@@ -118,7 +118,6 @@ public function opssecurity_list_approved(Request $request)
             ], 404);
         }
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
-      
 
         // Return the data as JSON
         return response()->json($data);
@@ -127,20 +126,20 @@ public function opssecurity_list_approved(Request $request)
     {
         // Define validation rules
         $rules = [
-            'region_name' => 'required|string|max:255',
-            'sr_no' => 'required|numeric',
-            'opssecurity_name' => 'required|string|max:255',
+            'application_id' => 'required|string|max:255',
+            'airport_name' => 'required|string|max:255',
             'entity_name' => 'required|string|max:255',
-            'address' => 'required|string|max:500',
-            'mobile_no' => 'required|numeric',
-            'phone_no' => 'required|numeric',
-            'unique_reference_number' => 'required|string|max:255',
-            'approved_status_clearance' => 'required',
-            'date_of_approval_clearance' => 'required|date',
-            'approved_status_programme' => 'required',
-            'date_of_approval_programme' => 'required|date',
-            'valid_till' => 'required|date',
-            //'opssecurity_orders' => 'required|string|max:255'
+            'region_name' => 'required|string|max:255',
+            'cso_acso_name' => 'required|string|max:500',
+            'cso_acso_email' => 'required|email',
+            'cso_acso_mobile' => 'required|numeric',
+            'station_name' => 'required|string|max:255',
+            'date_of_approval' => 'required|date',
+            'status' => 'required',
+            'division' => 'required',
+            'sec_type' => 'required',
+            'date_of_validity' => 'required|date',
+            'lang_code' => 'required',
         ];
 
         // Validate the request
@@ -155,73 +154,33 @@ public function opssecurity_list_approved(Request $request)
 
         // Prepare data for insertion
         $data = $request->only([
-            'region_name', 
-            'sr_no', 
-            'opssecurity_name', 
-            'entity_name', 
-            'address', 
-            'mobile_no', 
-            'phone_no', 
-            'unique_reference_number', 
-            'approved_status_clearance', 
-            'date_of_approval_clearance', 
-            'approved_status_programme', 
-            'date_of_approval_programme', 
-            'valid_till', 
-            'opssecurity_orders'
+            'application_id','airport_name','entity_name','region_name','cso_acso_name','cso_acso_email','cso_acso_mobile','station_name','date_of_approval','status','division','sec_type','date_of_validity','lang_code',
         ]);
-//dd($data);
-        //$data['created_by'] = Auth::guard('admin')->user()->id;
 
         // // Create new OpsSecurity record
         $opssecuritydata = OpsSecurity::create($data);
 
-        // // Log audit trail
-        // $user_login_id = Auth::guard('admin')->user()->id;
-        // $action_by_role = Auth::guard('admin')->user()->username;
-
-        // $logs_data = [
-        //     'module_item_title' => $request->unique_reference_number,
-        //     'module_item_id' => $opssecuritydata->id,
-        //     'action_by' => $user_login_id,
-        //     'old_data' => json_encode($data),
-        //     'new_data' => json_encode($data),
-        //     'action_name' => 'Add Working Airport',
-        //     'action_type' => 'Working Airport Model',
-        //     'approve_status' => $request->approved_status_clearance,
-        //     'action_by_role' => $action_by_role
-        // ];
-
-        // // Assuming there's a helper function for logging
-        // AuditTrail::log($logs_data);
-
         // Return JSON response
-        return response()->json($opssecuritydata, 201); // 201 Created
+        return response()->json(['data' => $opssecuritydata, 'message' => 'Creted successfully.'], 200);
     }
 
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'title' => 'required|max:255',
-            'description' => 'max:500',
-            'status' => 'required',
-            'lang_code' => 'required',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date',
-            'opssecurity_orders' => 'required|string|max:255',
-            'region_name' => 'required|string|max:255',
-            'sr_no' => 'required|numeric',
-            'opssecurity_name' => 'required|string|max:255',
+            'application_id' => 'required|string|max:255',
+            'airport_name' => 'required|string|max:255',
             'entity_name' => 'required|string|max:255',
-            'address' => 'required|string|max:500',
-            'mobile_no' => 'required|numeric',
-            'phone_no' => 'required|numeric',
-            'unique_reference_number' => 'required|string|max:255',
-            'approved_status_clearance' => 'required|boolean',
-            'date_of_approval_clearance' => 'required|date',
-            'approved_status_programme' => 'required|boolean',
-            'date_of_approval_programme' => 'required|date',
-            'valid_till' => 'required|date'
+            'region_name' => 'required|string|max:255',
+            'cso_acso_name' => 'required|string|max:500',
+            'cso_acso_email' => 'required|email',
+            'cso_acso_mobile' => 'required|numeric',
+            'station_name' => 'required|string|max:255',
+            'date_of_approval' => 'required|date',
+            'status' => 'required',
+            'division' => 'required',
+            'sec_type' => 'required',
+            'date_of_validity' => 'required|date',
+            'lang_code' => 'required',
         ]);
         
 
@@ -233,30 +192,24 @@ public function opssecurity_list_approved(Request $request)
             ], 400);
         }
 
-        $opssecuritydata->title = $validated['title'];
-        $opssecuritydata->description = $validated['description'];
+        $opssecuritydata->application_id = $validated['application_id'];
+        $opssecuritydata->airport_name = $validated['airport_name'];
+        $opssecuritydata->entity_name = $validated['entity_name'];
+        $opssecuritydata->region_name = $validated['region_name'];
+        $opssecuritydata->cso_acso_name = $validated['cso_acso_name'];
+        $opssecuritydata->cso_acso_email = $validated['cso_acso_email'];
+        $opssecuritydata->cso_acso_mobile = $validated['cso_acso_mobile'];
+        $opssecuritydata->station_name = $validated['station_name'];
+        $opssecuritydata->date_of_approval = $validated['date_of_approval'];
         $opssecuritydata->status = $validated['status'];
+        $opssecuritydata->division = $validated['division'];
+        $opssecuritydata->sec_type = $validated['sec_type'];
+        $opssecuritydata->date_of_validity = $validated['date_of_validity'];
         $opssecuritydata->lang_code = $validated['lang_code'];
-        $opssecuritydata->start_date = $validated['start_date'];
-        $opssecuritydata->end_date = $validated['end_date'];
-        $opssecuritydata->opssecurity_orders = $validated['opssecurity_orders'] ?? null;
-        $opssecuritydata->region_name = $validated['region_name'] ?? null;
-        $opssecuritydata->sr_no = $validated['sr_no'] ?? null;
-        $opssecuritydata->opssecurity_name = $validated['opssecurity_name'] ?? null;
-        $opssecuritydata->entity_name = $validated['entity_name'] ?? null;
-        $opssecuritydata->address = $validated['address'] ?? null;
-        $opssecuritydata->mobile_no = $validated['mobile_no'] ?? null;
-        $opssecuritydata->phone_no = $validated['phone_no'] ?? null;
-        $opssecuritydata->unique_reference_number = $validated['unique_reference_number'] ?? null;
-        $opssecuritydata->approved_status_clearance = $validated['approved_status_clearance'] ?? null;
-        $opssecuritydata->date_of_approval_clearance = $validated['date_of_approval_clearance'] ?? null;
-        $opssecuritydata->approved_status_programme = $validated['approved_status_programme'] ?? null;
-        $opssecuritydata->date_of_approval_programme = $validated['date_of_approval_programme'] ?? null;
-        $opssecuritydata->valid_till = $validated['valid_till'] ?? null;
         $opssecuritydata->save();
 
         // Return the data as JSON
-        return response()->json($opssecuritydata);
+        return response()->json(['data' => $opssecuritydata, 'message' => 'Updated successfully.'], 200);
     }
 
     public function delete($id)
@@ -274,7 +227,7 @@ public function opssecurity_list_approved(Request $request)
         $opssecuritydata->delete();
 
         // Return the data as JSON
-        return response()->json($opssecuritydata);
+        return response()->json(['data' => $opssecuritydata, 'message' => 'Deleted successfully.'], 200);
     }
 
 }
