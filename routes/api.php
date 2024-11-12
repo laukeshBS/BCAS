@@ -55,6 +55,10 @@ Route::middleware(['cors', 'throttle:60,1','removePoweredBy'])->group(function (
         Route::post('quarterly-report-online', 'store');
     });
 
+    Route::controller(SecurityQuizController::class)->group(function () {
+        Route::post('quiz-list', 'quiz_list');
+    });
+
     Route::controller(QuarterlyReportOnlineiiFormsController::class)->group(function () {
         Route::post('quarterly-report2-online', 'store');
     });
