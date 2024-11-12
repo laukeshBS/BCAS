@@ -332,7 +332,6 @@ class AirlinesController extends Controller
         ], 201);  // 201 Created
     }
 
-
     public function cms_update(Request $request, $id): mixed
     {
         // Define validation rules
@@ -392,7 +391,6 @@ class AirlinesController extends Controller
             'message' => 'Updated successfully.'
         ], 200);  // 200 OK
     }
-
 
     public function cms_delete($id)
     {

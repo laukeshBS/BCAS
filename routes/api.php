@@ -55,6 +55,10 @@ Route::middleware(['cors', 'throttle:60,1','removePoweredBy'])->group(function (
         Route::post('quarterly-report-online', 'store');
     });
 
+    Route::controller(SecurityQuizController::class)->group(function () {
+        Route::post('quiz-list', 'quiz_list');
+    });
+
     Route::controller(QuarterlyReportOnlineiiFormsController::class)->group(function () {
         Route::post('quarterly-report2-online', 'store');
     });
@@ -124,6 +128,11 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
         Route::post('opssecurity-list-approved', 'opssecurity_list_approved');
         Route::get('opssecurity-list-by-id/{id}', 'data_by_id');
     });
+    Route::controller(OpsiSecurityController::class)->group(function () {
+        Route::post('opsisecurity-list', 'opssecurity_list');
+        Route::post('opsisecurity-list-approved', 'opssecurity_list_approved');
+        Route::get('opsisecurity-list-by-id/{id}', 'data_by_id');
+    });
 
     Route::controller(CircularController::class)->group(function () {
         Route::post('circular-list', 'data');
@@ -168,6 +177,7 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
 
     Route::controller(CateringCompanyController::class)->group(function () {
         Route::post('catering-list', 'catering_list');
+        Route::get('catering-list-by-id/{id}', 'data_by_id');
         Route::post('catering-list-approved', 'catering_list_approved');
     });
 
@@ -242,14 +252,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
       
 
     });
-    
-    Route::controller(CateringCompanyController::class)->group(function(){
-        Route::get('catering-list-by-id/{id}','data_by_id');
-        Route::any('catering-add','store');
-        Route::post('catering-update/{id}','update');
-        Route::delete('catering-delete/{id}','delete');
-      
-    });
+
     Route::controller(ActandpoliciesController::class)->group(function () {
         //Route::post('acts-and-policies-list','data');
         Route::get('acts-and-policies-list-by-id/{id}','data_by_id');
@@ -265,7 +268,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::delete('event-delete/{id}', 'delete');
     });
     Route::controller(OpsSecurityController::class)->group(function(){
-        Route::get('opssecurity-list-by-id/{id}','data_by_id');
+        Route::post('opssecurities-list', 'data');
         Route::any('opssecurity-store','store');
         Route::post('opssecurity-update/{id}','update');
         Route::delete('opssecurity-delete/{id}','delete');
@@ -287,8 +290,6 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::delete('circular-delete/{id}', 'delete');
     });
 
-   Route::controller(CateringCompanyController::class)->group(function () {
-   });
     Route::controller(WorkingAirportsController::class)->group(function () {
         Route::get('airport-list-by-id/{id}', 'data_by_id');
         Route::post('airport-add', 'store');
@@ -305,25 +306,17 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
     });
 
     Route::controller(CateringCompanyController::class)->group(function () {
-
-        Route::get('catering-list-by-id/{id}', 'data_by_id');
-        Route::post('catering-add', 'store');
-        Route::post('catering-update/{id}', 'update');
-        Route::delete('catering-delete/{id}', 'delete');
-    });
-
-    Route::controller(OpsSecurityController::class)->group(function () {
-        Route::get('opssecurity-list-by-id/{id}', 'data_by_id');
-        Route::post('opssecurity-add', 'store');
-        Route::post('opssecurity-update/{id}', 'update');
-        Route::delete('opssecurity-delete/{id}', 'delete');
+        Route::post('caterings-list', 'cms_data');
+        Route::post('catering-store', 'cms_store');
+        Route::post('catering-update/{id}', 'cms_update');
+        Route::delete('catering-delete/{id}', 'cms_delete');
     });
 
     Route::controller(OpsiSecurityController::class)->group(function () {
-        Route::get('opsisecurity-list-by-id/{id}', 'data_by_id');
-        Route::post('opsisecurity-add', 'store');
-        Route::post('opsisecurity-update/{id}', 'update');
-        Route::delete('opsisecurity-delete/{id}', 'delete');
+        Route::post('opsisecurities-list', 'cms_data');
+        Route::post('opsisecurity-store', 'cms_store');
+        Route::post('opsisecurity-update/{id}', 'cms_update');
+        Route::delete('opsisecurity-delete/{id}', 'cms_delete');
     });
     Route::controller(NoticeController::class)->group(function () {
         Route::post('notices-list','cms_data');

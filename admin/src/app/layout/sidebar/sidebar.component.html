@@ -132,6 +132,24 @@
               <p>Gallery</p>
             </a>
           </li>
+          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+            <a [routerLink]="['/ops-security']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>Ops Security</p>
+            </a>
+          </li>
+          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+            <a [routerLink]="['/opsi-security']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>Opsi Security</p>
+            </a>
+          </li>
+          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+            <a [routerLink]="['/catering']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>Catering</p>
+            </a>
+          </li>
           <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/contact']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>

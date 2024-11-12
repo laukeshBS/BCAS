@@ -31,6 +31,9 @@ import { VerifyOtpComponent } from './pages/verify-otp/verify-otp.component';
 import { SuperAdminLoginComponent } from './pages/super-admin-login/super-admin-login.component';
 import { AirlinesComponent } from './pages/airlines/airlines.component';
 import { GalleryComponent } from './pages/gallery/gallery.component';
+import { OpsSecurityComponent } from './pages/ops-security/ops-security.component';
+import { OpsiSecurityComponent } from './pages/opsi-security/opsi-security.component';
+import { CateringComponent } from './pages/catering/catering.component';
 
 
 export const routes: Routes = [
@@ -62,6 +65,9 @@ export const routes: Routes = [
     { path: 'audit', component: AuditComponent, canActivate: [AuthGuard]  },
     { path: 'airlines', component: AirlinesComponent, canActivate: [AuthGuard]  },
     { path: 'gallery', component: GalleryComponent, canActivate: [AuthGuard]  },
+    { path: 'ops-security', component: OpsSecurityComponent, canActivate: [AuthGuard]  },
+    { path: 'opsi-security', component: OpsiSecurityComponent, canActivate: [AuthGuard]  },
+    { path: 'catering', component: CateringComponent, canActivate: [AuthGuard]  },
     { path: '**', redirectTo: '/' },
     {
       path: 'restricted',
