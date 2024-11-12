@@ -59,7 +59,14 @@ class CircularController extends Controller
             return $item;
         });
 
-        return response()->json($circulars);
+        return response()->json([
+            'title' => 'List',
+            'data' => $circulars->items(), 
+            'total' => $circulars->total(), 
+            'current_page' => $circulars->currentPage(), 
+            'last_page' => $circulars->lastPage(), 
+            'per_page' => $circulars->perPage(), 
+        ]);
     }
     
     public function data(Request $request)
@@ -77,11 +84,18 @@ class CircularController extends Controller
             // $item->start_date = date('d-m-Y', strtotime($item->start_date));
             // $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            $item->document = asset('public/documents/' . $item->document) ;
+            // $item->document = asset('public/documents/' . $item->document) ;
             return $item;
         });
 
-        return response()->json($data);
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(), 
+            'total' => $data->total(), 
+            'current_page' => $data->currentPage(), 
+            'last_page' => $data->lastPage(), 
+            'per_page' => $data->perPage(), 
+        ]);
     }
     public function cms_data(Request $request)
     {

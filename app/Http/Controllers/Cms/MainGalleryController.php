@@ -53,7 +53,14 @@ class MainGalleryController extends Controller
             return $item; // Return the transformed item
         });
 
-        return response()->json($data);
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(), 
+            'total' => $data->total(), 
+            'current_page' => $data->currentPage(), 
+            'last_page' => $data->lastPage(), 
+            'per_page' => $data->perPage(), 
+        ]);
     }
 
 

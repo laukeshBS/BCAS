@@ -60,8 +60,16 @@ class EventController extends Controller
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             return $item;
         });
+        // $events->path='';
 
-        return response()->json($events);
+        return response()->json([
+            'title' => 'List',
+            'data' => $events->items(), 
+            'total' => $events->total(), 
+            'current_page' => $events->currentPage(), 
+            'last_page' => $events->lastPage(), 
+            'per_page' => $events->perPage(), 
+        ]);
     }
     public function event_list(Request $request)
     {

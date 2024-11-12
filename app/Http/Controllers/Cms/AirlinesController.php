@@ -164,30 +164,9 @@ class AirlinesController extends Controller
             'valid_till', 
             'airline_orders'
         ]);
-        //dd($data);
-        //$data['created_by'] = Auth::guard('admin')->user()->id;
 
         // // Create new Airline record
         $airlinedata = Airline::create($data);
-
-        // // Log audit trail
-        // $user_login_id = Auth::guard('admin')->user()->id;
-        // $action_by_role = Auth::guard('admin')->user()->username;
-
-        // $logs_data = [
-        //     'module_item_title' => $request->unique_reference_number,
-        //     'module_item_id' => $airlinedata->id,
-        //     'action_by' => $user_login_id,
-        //     'old_data' => json_encode($data),
-        //     'new_data' => json_encode($data),
-        //     'action_name' => 'Add Working Airport',
-        //     'action_type' => 'Working Airport Model',
-        //     'approve_status' => $request->approved_status_clearance,
-        //     'action_by_role' => $action_by_role
-        // ];
-
-        // // Assuming there's a helper function for logging
-        // AuditTrail::log($logs_data);
 
         // Return JSON response
         return response()->json($airlinedata, 201); // 201 Created
