@@ -45,7 +45,7 @@ class VacancyController extends Controller
             // $item->start_date = date('d-m-Y', strtotime($item->start_date));
             // $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            $item->document = asset('public/documents/' . $item->document) ;
+            // $item->document = asset('public/documents/' . $item->document) ;
             return $item;
         });
 

@@ -11,7 +11,7 @@ use App\Http\Controllers\Cms\{
     WorkingAirportsController, QuarterlyReportOnlineiiFormsController,
     CommonController as Common, LanguageController as Lang,OrganizationStructureController,
     Common\CommonTitleController, PermittedProhibitedController,QuizResultController,
-    AvsecTrainingCalendarController,AstiVariousEntityController, QuarterlyReportOnlineFormsController,SecurityQuizController
+    AvsecTrainingCalendarController,AstiVariousEntityController, QuarterlyReportOnlineFormsController,SecurityQuizController,MainGalleryController
 };
 use App\Http\Controllers\Cms\Division\GalleryController;
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
@@ -108,7 +108,7 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
     });
 
     Route::controller(EventController::class)->group(function () {
-        // Route::post('event-list', 'data');
+        Route::post('event-list-frontend', 'event_list_for_frontend');
         Route::get('event-list-by-id/{id}', 'data_by_id');
         Route::post('event-list-for-homepage', 'event_list_for_homepage');
     });
@@ -183,6 +183,11 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
         Route::post('quiz-results', 'store');
         
     });
+    Route::controller(MainGalleryController::class)->group(function(){
+        Route::post('gallery-list','data');
+        Route::get('gallery-list-by-id/{id}','cms_data_by_id');
+    });
+    
     // Route::controller(RolesController::class)->group(function () {
     //     Route::post('roles-list', 'index');
     // });
@@ -420,6 +425,13 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::post('division-gallery-store','store');
         Route::post('division-gallery-update/{id}','update');
         Route::delete('division-gallery-delete/{id}','delete');
+      
+    });
+    Route::controller(MainGalleryController::class)->group(function(){
+        Route::post('gallerys-list','cms_data');
+        Route::post('gallery-store','store');
+        Route::post('gallery-update/{id}','update');
+        Route::delete('gallery-delete/{id}','delete');
       
     });
     Route::controller(DocumentController::class)->group(function(){

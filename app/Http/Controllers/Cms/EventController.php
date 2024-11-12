@@ -38,7 +38,26 @@ class EventController extends Controller
 
         $events->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            $item->document = asset('public/documents/' . $item->document) ;
+            // $item->document = asset('public/documents/' . $item->document) ;
+            return $item;
+        });
+
+        return response()->json($events);
+    }
+    
+    public function event_list_for_frontend(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+        $lang_code = $request->input('lang_code');
+
+        $events = Event::select('*')
+            ->where('lang_code', $lang_code)
+            ->orderBy('id', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $events->getCollection()->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
             return $item;
         });
 
