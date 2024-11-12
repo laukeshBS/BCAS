@@ -46,10 +46,10 @@ class MenuController extends BaseController
         }
 
         // Prepare the base URL for media paths
-        $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
+        // $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
 
-        // Append base URL to media paths in the menu items
-        $this->appendBaseUrlToMedia($menus, $baseUrl);
+        // // Append base URL to media paths in the menu items
+        // $this->appendBaseUrlToMedia($menus, $baseUrl);
 
         // Return the menu list as a successful response
         return response()->json(['success' => true, 'data' => $menus], 200);
@@ -89,10 +89,10 @@ class MenuController extends BaseController
         }
 
         // Prepare the base URL for media paths
-        $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
+        // $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
 
-        // Append base URL to media paths in the menu items
-        $this->appendBaseUrlToMedia($menus, $baseUrl);
+        // // Append base URL to media paths in the menu items
+        // $this->appendBaseUrlToMedia($menus, $baseUrl);
 
         // Return the menu list as a successful response
         return response()->json(['success' => true, 'data' => $menus], 200);
@@ -148,19 +148,19 @@ class MenuController extends BaseController
         ->paginate($perPage, ['*'], 'page', $page);
     
         if ($menus->isNotEmpty()) {
-            $menus->transform(function ($item) {
-                $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                if ($item->doc_upload) {
-                    $item->doc_upload = asset('public/uploads/admin/cmsfiles/menus/' . $item->doc_upload) ;
-                }
-                if ($item->banner_img) {
-                    $item->banner_img = asset('public/uploads/admin/cmsfiles/menus/' . $item->banner_img) ;
-                }
-                if ($item->img_upload) {
-                    $item->img_upload = asset('public/uploads/admin/cmsfiles/menus/' . $item->img_upload) ;
-                }
-                return $item;
-            });
+            // $menus->transform(function ($item) {
+            //     $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            //     if ($item->doc_upload) {
+            //         $item->doc_upload = asset('public/uploads/admin/cmsfiles/menus/' . $item->doc_upload) ;
+            //     }
+            //     if ($item->banner_img) {
+            //         $item->banner_img = asset('public/uploads/admin/cmsfiles/menus/' . $item->banner_img) ;
+            //     }
+            //     if ($item->img_upload) {
+            //         $item->img_upload = asset('public/uploads/admin/cmsfiles/menus/' . $item->img_upload) ;
+            //     }
+            //     return $item;
+            // });
             return response()->json([
                 'title' => 'Menu List',
                 'data' => $menus->items(), // Get items for the current page
@@ -506,31 +506,31 @@ class MenuController extends BaseController
             ->get(); // Use get() to retrieve all matching records
 
             if ($menus->isNotEmpty()) {
-                $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
+                // $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
     
                 // Append base URL to media paths in the `children` relationship
-                $menus->each(function ($menu) use ($baseUrl) {
-                    if ($menu->doc_upload) {
-                        $menu->doc_upload = $baseUrl . '/' . $menu->doc_upload;
-                    }
-                    if ($menu->img_upload) {
-                        $menu->img_upload = $baseUrl . '/' . $menu->img_upload;
-                    }
-                    if ($menu->banner_img) {
-                        $menu->banner_img = $baseUrl . '/' . $menu->banner_img;
-                    }
-                    $menu->children->each(function ($childMenu) use ($baseUrl) {
-                        if ($childMenu->doc_upload) {
-                            $childMenu->doc_upload = $baseUrl . '/' . $childMenu->doc_upload;
-                        }
-                        if ($childMenu->img_upload) {
-                            $childMenu->img_upload = $baseUrl . '/' . $childMenu->img_upload;
-                        }
-                        if ($childMenu->banner_img) {
-                            $childMenu->banner_img = $baseUrl . '/' . $childMenu->banner_img;
-                        }
-                    });
-                });
+                // $menus->each(function ($menu) use ($baseUrl) {
+                //     if ($menu->doc_upload) {
+                //         $menu->doc_upload = $baseUrl . '/' . $menu->doc_upload;
+                //     }
+                //     if ($menu->img_upload) {
+                //         $menu->img_upload = $baseUrl . '/' . $menu->img_upload;
+                //     }
+                //     if ($menu->banner_img) {
+                //         $menu->banner_img = $baseUrl . '/' . $menu->banner_img;
+                //     }
+                //     $menu->children->each(function ($childMenu) use ($baseUrl) {
+                //         if ($childMenu->doc_upload) {
+                //             $childMenu->doc_upload = $baseUrl . '/' . $childMenu->doc_upload;
+                //         }
+                //         if ($childMenu->img_upload) {
+                //             $childMenu->img_upload = $baseUrl . '/' . $childMenu->img_upload;
+                //         }
+                //         if ($childMenu->banner_img) {
+                //             $childMenu->banner_img = $baseUrl . '/' . $childMenu->banner_img;
+                //         }
+                //     });
+                // });
     
                 return $this->sendResponse($menus, 'Menu List For Instructor Retrieved Successfully.');
             } else {
@@ -571,31 +571,31 @@ class MenuController extends BaseController
             ->get(); // Use get() to retrieve all matching records
 
             if ($menus->isNotEmpty()) {
-                $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
+                // $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
     
-                // Append base URL to media paths in the `children` relationship
-                $menus->each(function ($menu) use ($baseUrl) {
-                    if ($menu->doc_upload) {
-                        $menu->doc_upload = $baseUrl . '/' . $menu->doc_upload;
-                    }
-                    if ($menu->img_upload) {
-                        $menu->img_upload = $baseUrl . '/' . $menu->img_upload;
-                    }
-                    if ($menu->banner_img) {
-                        $menu->banner_img = $baseUrl . '/' . $menu->banner_img;
-                    }
-                    $menu->children->each(function ($childMenu) use ($baseUrl) {
-                        if ($childMenu->doc_upload) {
-                            $childMenu->doc_upload = $baseUrl . '/' . $childMenu->doc_upload;
-                        }
-                        if ($childMenu->img_upload) {
-                            $childMenu->img_upload = $baseUrl . '/' . $childMenu->img_upload;
-                        }
-                        if ($childMenu->banner_img) {
-                            $childMenu->banner_img = $baseUrl . '/' . $childMenu->banner_img;
-                        }
-                    });
-                });
+                // // Append base URL to media paths in the `children` relationship
+                // $menus->each(function ($menu) use ($baseUrl) {
+                //     if ($menu->doc_upload) {
+                //         $menu->doc_upload = $baseUrl . '/' . $menu->doc_upload;
+                //     }
+                //     if ($menu->img_upload) {
+                //         $menu->img_upload = $baseUrl . '/' . $menu->img_upload;
+                //     }
+                //     if ($menu->banner_img) {
+                //         $menu->banner_img = $baseUrl . '/' . $menu->banner_img;
+                //     }
+                //     $menu->children->each(function ($childMenu) use ($baseUrl) {
+                //         if ($childMenu->doc_upload) {
+                //             $childMenu->doc_upload = $baseUrl . '/' . $childMenu->doc_upload;
+                //         }
+                //         if ($childMenu->img_upload) {
+                //             $childMenu->img_upload = $baseUrl . '/' . $childMenu->img_upload;
+                //         }
+                //         if ($childMenu->banner_img) {
+                //             $childMenu->banner_img = $baseUrl . '/' . $childMenu->banner_img;
+                //         }
+                //     });
+                // });
     
                 return $this->sendResponse($menus, 'Menu List For Instructor Retrieved Successfully.');
             } else {

@@ -49,7 +49,7 @@ class ContactController extends Controller
             if ($region_id) {
                 $query->where('id', $region_id);
             }
-            $query->orderBy('position');
+            $query->orderBy('position','asc');
             $data = $query->get();
         } else {
             // Return an empty array if type is not 1 or 2
