@@ -79,24 +79,33 @@ class OpsSecurityController extends Controller
 
     public function data(Request $request)
     {
-        $limit = $request->input('limit', 5);
-        $lang_code = $request->input('lang_code');
+        $request->validate([
+            'limit' => 'required|integer',
+            'currentPage' => 'required|integer',
+        ]);
 
-        $data = OpsSecurity::select('*')
-            ->where('lang_code',$lang_code)
-            ->orderBy('id', 'desc')
-            ->limit($limit)
-            ->get();
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
 
-        $data->transform(function ($item) {
-            $item->date_of_approval = date('d-m-Y', strtotime($item->date_of_approval));
-            $item->date_of_validity = date('d-m-Y', strtotime($item->date_of_validity));
-            $item->created_at = date('d-m-Y', strtotime($item->created_at));
-           
-            return $item;
-        });
+        $query = OpsSecurity::query();
 
-        return response()->json($data);
+        $data = $query->select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+        if ($data->isNotEmpty()) {
+            $data->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                return $item;
+            });
+        }
+
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'per_page' => $data->perPage(),
+        ]);
     }
     public function data_by_id($id)
     {

@@ -20,8 +20,10 @@ class TenderController extends Controller
 
     public function data(Request $request)
     {
-        $limit = $request->input('limit');
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
         $lang_code = $request->input('lang_code');
+        
 
 
         // Fetch data from the database
@@ -41,8 +43,8 @@ class TenderController extends Controller
         $data = Tender::select('*')
             ->where('lang_code', $lang_code)
             ->orderBy('id', 'desc')
-            ->limit($limit)
-            ->get();
+            ->limit($perPage)
+            ->paginate($perPage, ['*'], 'page', $page);
     
         if ($data->isEmpty()) {
             return response()->json(['message' => 'No data found'], 404);

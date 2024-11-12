@@ -1,0 +1,404 @@
+<div *ngIf="events.length > 0" style="overflow-x: auto">
+    <button (click)="addEvent()" class="btn btn-outline-primary btn-sm">Add</button>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Regional Office</th>
+            <th>Airport Name</th>
+            <th>Entity Name</th>
+            <th>Date of Security Clearance</th>
+            <th>Date of Security Programme Approval</th>
+            <th>Date of Validity</th>
+            <th>Status</th>
+            <th>Division</th>
+            <th>Language</th>
+            <th>Published Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events">
+            <td>{{ event.regional_office }}</td>
+            <td>{{ event.airport_name }}</td>
+            <td>{{ event.entity_name }}</td>
+            <td>{{ event.date_of_security_clearance }}</td>
+            <td>{{ event.date_of_security_programme_approval }}</td>
+            <td>{{ event.date_of_validity }}</td>
+            <td>{{ event.status }}</td>
+            <td>{{ event.division }}</td>
+            <td>{{ event.lang_code }}</td>
+            <td>{{ event.created_at }}</td>
+            <td>
+              <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
+              <button (click)="deleteEvent(event.id)" class="btn btn-outline-danger btn-sm">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div *ngIf="events.length === 0">
+      <p>Loading.</p>
+    </div>
+    <nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+        <ul class="pagination">
+          <!-- Previous Page -->
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)" [attr.aria-disabled]="currentPage === 1">Previous</a>
+          </li>
+      
+          <!-- Page numbers with ellipsis handling -->
+          <li *ngIf="currentPage > 2" class="page-item">
+            <a class="page-link" (click)="changePage(1)">1</a>
+          </li>
+      
+          <!-- Ellipsis for pages before currentPage -->
+          <li *ngIf="currentPage > 3" class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+      
+          <!-- Display page numbers around the current page -->
+          <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
+            <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+          </li>
+      
+          <!-- Ellipsis for pages after currentPage -->
+          <li *ngIf="currentPage < lastPage - 2" class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+      
+          <!-- Last Page -->
+          <li *ngIf="currentPage < lastPage - 1" class="page-item">
+            <a class="page-link" (click)="changePage(lastPage)">{{ lastPage }}</a>
+          </li>
+      
+          <!-- Next Page -->
+          <li class="page-item" [class.disabled]="currentPage === lastPage">
+            <a class="page-link" (click)="changePage(currentPage + 1)" [attr.aria-disabled]="currentPage === lastPage">Next</a>
+          </li>
+        </ul>
+      </nav>
+      
+    
+    <!-- Bootstrap modal -->
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="min-width: 700px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editEventModalLabel">Edit Circular</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="modifyEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+                <div class="row">
+                  <!-- First Column (Left Side) -->
+                  <div class="col-md-6">
+                    <!-- Regional Office -->
+                    <div class="mb-3">
+                      <label for="regional_office" class="form-label">Regional Office</label>
+                      <input 
+                        type="text" 
+                        id="regional_office" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.regional_office" 
+                        name="regional_office" 
+                        required 
+                        #regional_office="ngModel"
+                      />
+                    </div>
+
+                    <!-- airport Name -->
+                    <div class="mb-3">
+                        <label for="airport_name" class="form-label">Airport Name</label>
+                        <input 
+                          type="text" 
+                          id="airport_name" 
+                          class="form-control" 
+                          [(ngModel)]="selectedEvent.airport_name" 
+                          name="airport_name" 
+                          required 
+                          #airport_name="ngModel"
+                        />
+                      </div>
+              
+                    <!-- Entity Name -->
+                    <div class="mb-3">
+                      <label for="entity_name" class="form-label">Entity Name</label>
+                      <input 
+                        type="text" 
+                        id="entity_name" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.entity_name" 
+                        name="entity_name" 
+                        required 
+                        #entityName="ngModel"
+                      />
+                    </div>
+
+                    <!-- Date of Security Clearance -->
+                    <div class="mb-3">
+                        <label for="date_of_security_clearance" class="form-label">Date of Security Clearance</label>
+                        <input 
+                          type="date" 
+                          id="date_of_security_clearance" 
+                          class="form-control" 
+                          [(ngModel)]="selectedEvent.date_of_security_clearance" 
+                          name="date_of_security_clearance" 
+                          required 
+                          #date_of_security_clearance="ngModel"
+                        />
+                    </div>
+
+                    <!-- Date of Approval -->
+                    <div class="mb-3">
+                        <label for="date_of_security_programme_approval" class="form-label">Date of Approval</label>
+                        <input 
+                          type="date" 
+                          id="date_of_security_programme_approval" 
+                          class="form-control" 
+                          [(ngModel)]="selectedEvent.date_of_security_programme_approval" 
+                          name="date_of_security_programme_approval" 
+                          required 
+                          #dateOfApproval="ngModel"
+                        />
+                    </div>
+
+                  </div>
+              
+                  <!-- Second Column (Right Side) -->
+                  <div class="col-md-6">
+                    <!-- division -->
+                    <div class="mb-3">
+                      <label for="division" class="form-label">Division</label>
+                      <input 
+                        type="text" 
+                        id="division" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.division" 
+                        name="division" 
+                        required 
+                        #division="ngModel"
+                      />
+                    </div>
+              
+                    <!-- Status -->
+                    <div class="mb-3">
+                      <label for="status" class="form-label">Status</label>
+                      <select 
+                        id="status" 
+                        class="form-select" 
+                        [(ngModel)]="selectedEvent.status" 
+                        name="status" 
+                        required
+                        #status="ngModel"
+                      >
+                        <option value="" disabled>Select Status</option>
+                        <option value="1">Draft</option>
+                        <option value="2">Pending</option>
+                        <option value="3">Published</option>
+                      </select>
+                      
+                    </div>
+              
+                    <!-- Date of Validity -->
+                    <div class="mb-3">
+                      <label for="date_of_validity" class="form-label">Date of Validity</label>
+                      <input 
+                        type="date" 
+                        id="date_of_validity" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.date_of_validity" 
+                        name="date_of_validity" 
+                        required 
+                        #dateOfValidity="ngModel"
+                      />
+                    </div>
+              
+                    <!-- Language Code -->
+                    <div class="mb-3">
+                      <label for="lang_code" class="form-label">Language</label>
+                      <select 
+                        id="lang_code" 
+                        class="form-select" 
+                        [(ngModel)]="selectedEvent.lang_code" 
+                        name="lang_code" 
+                        required
+                        #langCode="ngModel"
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>              
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="min-width: 700px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addEventModalLabel">add Circular</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="saveEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+                <div class="row">
+                  <!-- First Column (Left Side) -->
+                  <div class="col-md-6">
+                    <!-- Regional Office -->
+                    <div class="mb-3">
+                      <label for="regional_office" class="form-label">Regional Office</label>
+                      <input 
+                        type="text" 
+                        id="regional_office" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.regional_office" 
+                        name="regional_office" 
+                        required 
+                        #regional_office="ngModel"
+                      />
+                    </div>
+
+                    <!-- airport Name -->
+                    <div class="mb-3">
+                        <label for="airport_name" class="form-label">Airport Name</label>
+                        <input 
+                          type="text" 
+                          id="airport_name" 
+                          class="form-control" 
+                          [(ngModel)]="selectedEvent.airport_name" 
+                          name="airport_name" 
+                          required 
+                          #airport_name="ngModel"
+                        />
+                      </div>
+              
+                    <!-- Entity Name -->
+                    <div class="mb-3">
+                      <label for="entity_name" class="form-label">Entity Name</label>
+                      <input 
+                        type="text" 
+                        id="entity_name" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.entity_name" 
+                        name="entity_name" 
+                        required 
+                        #entityName="ngModel"
+                      />
+                    </div>
+
+                    <!-- Date of Security Clearance -->
+                    <div class="mb-3">
+                        <label for="date_of_security_clearance" class="form-label">Date of Security Clearance</label>
+                        <input 
+                          type="date" 
+                          id="date_of_security_clearance" 
+                          class="form-control" 
+                          [(ngModel)]="selectedEvent.date_of_security_clearance" 
+                          name="date_of_security_clearance" 
+                          required 
+                          #date_of_security_clearance="ngModel"
+                        />
+                    </div>
+
+                    <!-- Date of Approval -->
+                    <div class="mb-3">
+                        <label for="date_of_security_programme_approval" class="form-label">Date of Approval</label>
+                        <input 
+                          type="date" 
+                          id="date_of_security_programme_approval" 
+                          class="form-control" 
+                          [(ngModel)]="selectedEvent.date_of_security_programme_approval" 
+                          name="date_of_security_programme_approval" 
+                          required 
+                          #dateOfApproval="ngModel"
+                        />
+                    </div>
+
+                  </div>
+              
+                  <!-- Second Column (Right Side) -->
+                  <div class="col-md-6">
+                    <!-- division -->
+                    <div class="mb-3">
+                      <label for="division" class="form-label">Division</label>
+                      <input 
+                        type="text" 
+                        id="division" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.division" 
+                        name="division" 
+                        required 
+                        #division="ngModel"
+                      />
+                    </div>
+              
+                    <!-- Status -->
+                    <div class="mb-3">
+                      <label for="status" class="form-label">Status</label>
+                      <select 
+                        id="status" 
+                        class="form-select" 
+                        [(ngModel)]="selectedEvent.status" 
+                        name="status" 
+                        required
+                        #status="ngModel"
+                      >
+                        <option value="" disabled>Select Status</option>
+                        <option value="1">Draft</option>
+                        <option value="2">Pending</option>
+                        <option value="3">Published</option>
+                      </select>
+                      
+                    </div>
+              
+                    <!-- Date of Validity -->
+                    <div class="mb-3">
+                      <label for="date_of_validity" class="form-label">Date of Validity</label>
+                      <input 
+                        type="date" 
+                        id="date_of_validity" 
+                        class="form-control" 
+                        [(ngModel)]="selectedEvent.date_of_validity" 
+                        name="date_of_validity" 
+                        required 
+                        #dateOfValidity="ngModel"
+                      />
+                    </div>
+              
+                    <!-- Language Code -->
+                    <div class="mb-3">
+                      <label for="lang_code" class="form-label">Language</label>
+                      <select 
+                        id="lang_code" 
+                        class="form-select" 
+                        [(ngModel)]="selectedEvent.lang_code" 
+                        name="lang_code" 
+                        required
+                        #langCode="ngModel"
+                      >
+                        <option value="" disabled>Select Language</option>
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form> 
+
+          </div>
+        </div>
+      </div>
+    </div>
+    
