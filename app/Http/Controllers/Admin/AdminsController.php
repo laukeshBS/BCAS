@@ -286,7 +286,8 @@ class AdminsController extends Controller
             'name' => 'required|max:50',
             'email' => 'required|max:100|email',
             'username' => 'required|max:100',
-            'password' => 'required|min:6',
+            'phone'     => 'required',
+            'rank'     => 'nullable',
         ]);
 
         // Create New Admin
@@ -294,8 +295,13 @@ class AdminsController extends Controller
         $admin->name = $request->name;
         $admin->username = $request->username;
         $admin->email = $request->email;
-        $admin->password = Hash::make($request->password);
+        $admin->phone = $request->phone;
+        if ($request->rank) {
+            $admin->rank = $request->rank;
+        }
+        
         $admin->save();
+        
         $lastInsertID = $admin->save();
         $user_login_id=Auth::user()->id;
         $action_by_role=Auth::user()->username;
@@ -339,15 +345,17 @@ class AdminsController extends Controller
             'name' => 'required|max:50',
             'email' => 'required|max:100|email',
             'username' => 'required|max:100',
-            'password' => 'nullable|min:6',
+            'phone'     => 'required',
+            'rank'     => 'nullable',
         ]);
 
 
         $admin->name = $request->name;
         $admin->email = $request->email;
         $admin->username = $request->username;
-        if ($request->password) {
-            $admin->password = Hash::make($request->password);
+        $admin->phone = $request->phone;
+        if ($request->rank) {
+            $admin->rank = $request->rank;
         }
         $admin->save();
 
@@ -375,5 +383,24 @@ class AdminsController extends Controller
         $data->delete();
 
         return response()->json(['data' => $data, 'message' => 'Deleted successfully.'], 201);
+    }
+    public function updateStatus(Request $request, $userId)
+    {
+        // Find the user by ID
+        $user = Admin::findOrFail($userId);
+
+        // Validate that the status is either 1 (active) or 2 (inactive)
+        $request->validate([
+            'status' => 'required|in:3,2'
+        ]);
+
+        // Update the user's status
+        $user->status = $request->status;
+        $user->save();
+
+        return response()->json([
+            'message' => 'User status updated successfully.',
+            'status' => $user->status === 2 ? 'Active' : 'Inactive'
+        ]);
     }
 }

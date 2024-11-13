@@ -11,7 +11,7 @@ use App\Http\Controllers\Cms\{
     WorkingAirportsController, QuarterlyReportOnlineiiFormsController,
     CommonController as Common, LanguageController as Lang,OrganizationStructureController,
     Common\CommonTitleController, PermittedProhibitedController,QuizResultController,
-    AvsecTrainingCalendarController,AstiVariousEntityController, QuarterlyReportOnlineFormsController,SecurityQuizController
+    AvsecTrainingCalendarController,AstiVariousEntityController, QuarterlyReportOnlineFormsController,SecurityQuizController,MainGalleryController
 };
 use App\Http\Controllers\Cms\Division\GalleryController;
 use App\Http\Controllers\Cms\FeedbackController as FeedbackController;
@@ -20,6 +20,10 @@ use App\Http\Controllers\Admin\RolesController;
 use App\Http\Controllers\Admin\AdminsController;
 use App\Http\Controllers\Admin\DocumentController;
 use App\Http\Controllers\Admin\DocumentCategoryController;
+use App\Http\Controllers\Admin\AuditController;
+use App\Http\Controllers\Admin\SecurityQuestionController;
+use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\RankController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,6 +53,10 @@ Route::middleware(['cors', 'throttle:60,1','removePoweredBy'])->group(function (
 
     Route::controller(QuarterlyReportOnlineFormsController::class)->group(function () {
         Route::post('quarterly-report-online', 'store');
+    });
+
+    Route::controller(SecurityQuizController::class)->group(function () {
+        Route::post('quiz-list', 'quiz_list');
     });
 
     Route::controller(QuarterlyReportOnlineiiFormsController::class)->group(function () {
@@ -104,7 +112,7 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
     });
 
     Route::controller(EventController::class)->group(function () {
-        // Route::post('event-list', 'data');
+        Route::post('event-list-frontend', 'event_list_for_frontend');
         Route::get('event-list-by-id/{id}', 'data_by_id');
         Route::post('event-list-for-homepage', 'event_list_for_homepage');
     });
@@ -119,6 +127,11 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
         Route::post('opssecurity-list', 'opssecurity_list');
         Route::post('opssecurity-list-approved', 'opssecurity_list_approved');
         Route::get('opssecurity-list-by-id/{id}', 'data_by_id');
+    });
+    Route::controller(OpsiSecurityController::class)->group(function () {
+        Route::post('opsisecurity-list', 'opssecurity_list');
+        Route::post('opsisecurity-list-approved', 'opssecurity_list_approved');
+        Route::get('opsisecurity-list-by-id/{id}', 'data_by_id');
     });
 
     Route::controller(CircularController::class)->group(function () {
@@ -159,11 +172,13 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
 
     Route::controller(WorkingAirportsController::class)->group(function () {
         Route::post('airport-list', 'airport_list');
+        Route::get('airport-list-by-id/{id}','data_by_id');
         Route::post('airport-list-approved', 'airport_list_approved');
     });
 
     Route::controller(CateringCompanyController::class)->group(function () {
         Route::post('catering-list', 'catering_list');
+        Route::get('catering-list-by-id/{id}', 'data_by_id');
         Route::post('catering-list-approved', 'catering_list_approved');
     });
 
@@ -171,18 +186,29 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
         Route::post('airline-list', 'airline_list');
         Route::post('airline-list-approved', 'airline_list_approved');
     });
-    Route::controller(SecurityQuizController::class)->group(function () {
-        Route::post('quiz-list', 'quiz_list');
+    Route::controller(SecurityQuestionController::class)->group(function () {
+        Route::get('question-list', 'questions');
+        Route::post('re-register', 'reRegister');
+        Route::post('forgot-password', 'forgotPassword');
+        Route::post('otp-verification', 'verifyOtp');
         Route::post('quiz-results', 'store');
         
     });
+    Route::controller(MainGalleryController::class)->group(function(){
+        Route::post('gallery-list','data');
+        Route::get('gallery-list-by-id/{id}','cms_data_by_id');
+    });
+    
+    // Route::controller(RolesController::class)->group(function () {
+    //     Route::post('roles-list', 'index');
+    // });
    
 });
 
 // Admin Routes
 Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])->group(function () {
     Route::controller(RolesController::class)->group(function () {
-        Route::post('roles-list', 'index');
+        Route::post('roles-list', 'cms_data');
         Route::post('roles-store', 'store');
         Route::post('roles-update/{id}','update');
         Route::delete('roles-delete/{id}','destroy');
@@ -194,6 +220,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::post('adminList', 'index');
         Route::post('admin-list', 'cms_data');
         Route::get('admin-list-by-id/{id}', 'data_by_id');
+        Route::put('users/{user}/status', 'updateStatus');
         Route::post('admin-store', 'Cms_store');
         Route::post('admin-update/{id}', 'Cms_update');
         Route::delete('admin-delete/{id}', 'delete');
@@ -226,14 +253,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
       
 
     });
-    
-    Route::controller(CateringCompanyController::class)->group(function(){
-        Route::get('catering-list-by-id/{id}','data_by_id');
-        Route::any('catering-add','store');
-        Route::post('catering-update/{id}','update');
-        Route::delete('catering-delete/{id}','delete');
-      
-    });
+
     Route::controller(ActandpoliciesController::class)->group(function () {
         //Route::post('acts-and-policies-list','data');
         Route::get('acts-and-policies-list-by-id/{id}','data_by_id');
@@ -249,18 +269,17 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::delete('event-delete/{id}', 'delete');
     });
     Route::controller(OpsSecurityController::class)->group(function(){
-        Route::get('opssecurity-list-by-id/{id}','data_by_id');
-        Route::any('opssecurity-add','store');
+        Route::post('opssecurities-list', 'data');
+        Route::any('opssecurity-store','store');
         Route::post('opssecurity-update/{id}','update');
         Route::delete('opssecurity-delete/{id}','delete');
       
     });
     Route::controller(WorkingAirportsController::class)->group(function(){
-       
-        Route::get('airport-list-by-id/{id}','data_by_id');
-        Route::any('airport-add','store');
-        Route::post('airport-update/{id}','update');
-        Route::delete('airport-delete/{id}','delete');
+        Route::post('airports-list', 'cms_data');
+        Route::any('airport-store','cms_store');
+        Route::post('airport-update/{id}','cms_update');
+        Route::delete('airport-delete/{id}','cms_delete');
       
     });
     Route::controller(CircularController::class)->group(function () {
@@ -271,42 +290,26 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::delete('circular-delete/{id}', 'delete');
     });
 
-   Route::controller(CateringCompanyController::class)->group(function () {
-   });
-    Route::controller(WorkingAirportsController::class)->group(function () {
-        Route::get('airport-list-by-id/{id}', 'data_by_id');
-        Route::post('airport-add', 'store');
-        Route::post('airport-update/{id}', 'update');
-        Route::delete('airport-delete/{id}', 'delete');
-    });
-
     Route::controller(AirlinesController::class)->group(function () {
+        Route::post('all-airline-list', 'cms_data');
         Route::get('airline-list-by-id/{id}', 'data_by_id');
-        Route::post('airline-add', 'store');
-        Route::post('airline-update/{id}', 'update');
-        Route::delete('airline-delete/{id}', 'delete');
+        Route::post('airline-store', 'cms_store');
+        Route::post('airline-update/{id}', 'cms_update');
+        Route::delete('airline-delete/{id}', 'cms_delete');
     });
 
     Route::controller(CateringCompanyController::class)->group(function () {
-
-        Route::get('catering-list-by-id/{id}', 'data_by_id');
-        Route::post('catering-add', 'store');
-        Route::post('catering-update/{id}', 'update');
-        Route::delete('catering-delete/{id}', 'delete');
-    });
-
-    Route::controller(OpsSecurityController::class)->group(function () {
-        Route::get('opssecurity-list-by-id/{id}', 'data_by_id');
-        Route::post('opssecurity-add', 'store');
-        Route::post('opssecurity-update/{id}', 'update');
-        Route::delete('opssecurity-delete/{id}', 'delete');
+        Route::post('caterings-list', 'cms_data');
+        Route::post('catering-store', 'cms_store');
+        Route::post('catering-update/{id}', 'cms_update');
+        Route::delete('catering-delete/{id}', 'cms_delete');
     });
 
     Route::controller(OpsiSecurityController::class)->group(function () {
-        Route::get('opsisecurity-list-by-id/{id}', 'data_by_id');
-        Route::post('opsisecurity-add', 'store');
-        Route::post('opsisecurity-update/{id}', 'update');
-        Route::delete('opsisecurity-delete/{id}', 'delete');
+        Route::post('opsisecurities-list', 'cms_data');
+        Route::post('opsisecurity-store', 'cms_store');
+        Route::post('opsisecurity-update/{id}', 'cms_update');
+        Route::delete('opsisecurity-delete/{id}', 'cms_delete');
     });
     Route::controller(NoticeController::class)->group(function () {
         Route::post('notices-list','cms_data');
@@ -355,6 +358,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::get('division-list-by-id/{id}','data_by_id');
         Route::post('division-update/{id}', 'update');
         Route::delete('division-delete/{id}', 'delete');
+        Route::get('division-dropdown-list/{lang_code}','division_dropdown_list');
     });
 
     Route::controller(RegionController::class)->group(function () {
@@ -364,6 +368,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::get('region-list-by-id/{id}','data_by_id');
         Route::post('region-update/{id}','update');
         Route::delete('region-delete/{id}','delete');
+        Route::get('region-dropdown-list/{lang_code}','region_dropdown_list');
     });
 
     Route::controller(CommonTitleController::class)->group(function () {
@@ -408,6 +413,13 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::delete('division-gallery-delete/{id}','delete');
       
     });
+    Route::controller(MainGalleryController::class)->group(function(){
+        Route::post('gallerys-list','cms_data');
+        Route::post('gallery-store','store');
+        Route::post('gallery-update/{id}','update');
+        Route::delete('gallery-delete/{id}','delete');
+      
+    });
     Route::controller(DocumentController::class)->group(function(){
         Route::post('admin-document-list','data');
         Route::get('admin-document-by-id/{id}','data_by_id');
@@ -424,6 +436,16 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::delete('admin-document-category-delete/{id}','delete');
         Route::get('admin-document-category','document_categories');
     });
-    
+    Route::controller(AuditController::class)->group(function () {
+        Route::post('audit-list', 'index');
+        Route::post('audit-report-download', 'exportPDF');
+    });
+    Route::controller(DashboardController::class)->group(function () {
+        Route::get('dashboard-data', 'cms_data');
+        Route::get('dashboard-count-data', 'cms_count_data');
+    });
+    Route::controller(RankController::class)->group(function () {
+        Route::get('rank-dropdown-list', 'dropdown_list');
+    });
 });
 

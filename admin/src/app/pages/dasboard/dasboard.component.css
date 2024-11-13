@@ -1,0 +1,55 @@
+.card-d {
+  background: #379f3a;
+  padding: 12px;
+  display: inline-block;
+  width: 100%;
+  margin: 0 0 20px;
+  border-radius: 4px;
+}
+.wrapper-w {
+  padding: 20px;
+}
+.two{
+background: #20a8d8
+}
+.three{
+background: #ee5c5b
+}
+.four{
+background: #4c4c56
+}
+.five{
+background: #e5882a;
+}
+.six{
+background: #2827ff;
+}
+.seven{
+background: #fd4645;
+}
+.eight{
+background: #033443;
+}
+h6 {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+}
+p {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.chart-w {
+  border: 1px solid #d3d3d3;
+  min-height: 400px;
+}
+.chart-w h6 {
+  color: #333 !important;
+  font-size: 14px !important;
+  font-weight: 600;
+  background: #fff;
+  padding: 10px;
+  border-bottom: 1px solid #d3d3d3;
+}

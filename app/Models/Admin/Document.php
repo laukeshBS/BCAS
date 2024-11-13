@@ -20,6 +20,12 @@ class Document extends Model
     {
         return $this->belongsToMany(Role::class, 'document_role');
     }
-
-
+    public function documentCategory()
+    {
+        return $this->belongsToMany(DocumentCategory::class, 'document_category_id');
+    }
+    public function ranks()
+    {
+        return $this->belongsToMany(Rank::class, 'rank_has_document', 'document_id', 'rank_id');
+    }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { SlideService } from '../../services/slide.service';
+import { environment } from '../../environments/environment';
 
 declare var bootstrap: any;
 
@@ -30,6 +31,7 @@ export class SlideDatatableComponent {
   fileToUploadBanner: File | null = null;
   fileToUploadImg: File | null = null;
   userId: number | null = null;
+  apiBasePath='';
 
   constructor(private slideService: SlideService) {}
 
@@ -38,6 +40,7 @@ export class SlideDatatableComponent {
   }
 
   loadList(): void {
+    this.apiBasePath=environment.apiDocBaseUrl;
     this.loading = true; // Start loading
     this.slideService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
       this.events = data.data;
@@ -81,11 +84,11 @@ export class SlideDatatableComponent {
           event.status = '';
           break;
       }
-      if (event.document!='') {
-        event.document = '<a href="'+event.document+'">'+event.title+' Document</a>';
-      }else{
-        event.document = '';
-      }
+      // if (event.media!='') {
+      //   event.media = '<a href="'+this.apiBasePath+'public/documents/'+event.media+'">'+event.title+' Document</a>';
+      // }else{
+      //   event.media = '';
+      // }
     });
   }
 

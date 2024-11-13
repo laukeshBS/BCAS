@@ -1,0 +1,62 @@
+<div *ngIf="events.length > 0" style="overflow-x: auto">
+  <form (ngSubmit)="exportPDF()" #exportForm="ngForm" class="row">
+    <div class="form-group col-md-4">
+      <label for="fromDate">From Date</label>
+      <input type="date" id="fromDate" [(ngModel)]="fromDate" name="fromDate" required />
+    </div>
+    
+    <div class="form-group col-md-4">
+      <label for="toDate">To Date</label>
+      <input type="date" id="toDate" [(ngModel)]="toDate" name="toDate" required />
+    </div>
+    <div class="">
+      <button type="submit" class="btn btn-primary">Export PDF</button>
+    </div>
+    
+  </form>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Action Name</th>
+            <th>Title</th>
+            <th>Action By</th>
+            <th style="max-width: 300px;">Old Data / Request</th>
+            <th style="max-width: 300px;">New Data / Response</th>
+            <th>Audit Date</th>
+            <th>IP Address</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events">
+            <td>{{ event.action_name }}</td>
+            <td>{{ event.module_item_title }}</td>
+            <td>{{ event.user.name}}</td>
+            <td style="max-width: 300px;">{{ event.old_data }}</td>
+            <td style="max-width: 300px;">{{ event.new_data }}</td>
+            <td>{{ event.action_date }}</td>
+            <td>{{ event.ip_address }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div *ngIf="events.length === 0">
+      <p>Loading.</p>
+    </div>
+    <nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+      <ul class="pagination">
+        <li class="page-item" [class.disabled]="currentPage === 1">
+          <a class="page-link" (click)="changePage(currentPage - 1)" [attr.aria-disabled]="currentPage === 1">Previous</a>
+        </li>
+        
+        <li *ngFor="let page of [].constructor(lastPage); let i = index" class="page-item" [class.active]="i + 1 === currentPage">
+          <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+        </li>
+        
+        <li class="page-item" [class.disabled]="currentPage === lastPage">
+          <a class="page-link" (click)="changePage(currentPage + 1)" [attr.aria-disabled]="currentPage === lastPage">Next</a>
+        </li>
+      </ul>
+    </nav>
+
+    

@@ -125,4 +125,8 @@ class DivisionController extends Controller
 
         return response()->json($division);
     }
+    public function division_dropdown_list($lang_code)
+    {
+        return Division::where('lang_code', $lang_code)->get();
+    }
 }

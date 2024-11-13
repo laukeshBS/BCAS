@@ -2,6 +2,7 @@
 /public/hot
 /public/storage
 /storage/*.key
+/storage/framework/cache/data/
 /vendor
 .env
 .env.backup
@@ -10,3 +11,7 @@ Homestead.json
 Homestead.yaml
 npm-debug.log
 yarn-error.log
+/storage/framework/cache
+/storage/framework
+storage/framework/cache/data/53/c9/53c9aae19ee1f0e0dcfa738e8868c6cb1d775cac
+/storage/framework/cache

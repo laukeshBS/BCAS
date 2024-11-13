@@ -51,7 +51,7 @@ class NoticeController extends Controller
 
         $notices->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            $item->document = asset('public/documents/' . $item->document) ;
+            // $item->document = asset('public/documents/' . $item->document) ;
             return $item;
         });
 
@@ -62,16 +62,23 @@ class NoticeController extends Controller
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page');
 
-        $notices = Notice::select('*')
+        $data = Notice::select('*')
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
-        $notices->getCollection()->transform(function ($item) {
+        $data->getCollection()->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             return $item;
         });
 
-        return response()->json($notices);
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(), 
+            'total' => $data->total(), 
+            'current_page' => $data->currentPage(), 
+            'last_page' => $data->lastPage(), 
+            'per_page' => $data->perPage(), 
+        ]);
     }
     public function data(Request $request)
     {
@@ -88,11 +95,18 @@ class NoticeController extends Controller
             $item->start_date = date('d-m-Y', strtotime($item->start_date));
             $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            $item->document = asset('public/documents/' . $item->document) ;
+            // $item->document = asset('public/documents/' . $item->document) ;
             return $item;
         });
 
-        return response()->json($data);
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(), 
+            'total' => $data->total(), 
+            'current_page' => $data->currentPage(), 
+            'last_page' => $data->lastPage(), 
+            'per_page' => $data->perPage(), 
+        ]);
     }
     public function cms_data(Request $request)
     {
@@ -103,9 +117,9 @@ class NoticeController extends Controller
         if ($slider->isNotEmpty()) {
             $slider->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                if ($item->document) {
-                    $item->document = asset('public/documents/'.$item->document);
-                }
+                // if ($item->document) {
+                //     $item->document = asset('public/documents/'.$item->document);
+                // }
                 return $item;
             });
         }
@@ -141,7 +155,7 @@ class NoticeController extends Controller
         // $data->start_date = date('d-m-Y', strtotime($data->start_date));
         // $data->end_date = date('d-m-Y', strtotime($data->end_date));
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
-        $data->document = asset('public/documents/' . $data->document) ;
+        // $data->document = asset('public/documents/' . $data->document) ;
 
         // Return the data as JSON
         return response()->json($data);

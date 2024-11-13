@@ -16,7 +16,12 @@
             <td>{{ event.name }}</td>
             <td>{{ event.email }}</td>
             <td> {{ event.roleNames }}</td>
-            <td>{{ event.status }}</td>
+            <td><button 
+              (click)="toggleUserStatus(event.id, event.status)"
+              class="btn"
+              [ngClass]="event.status === 3 ? 'btn-danger' : 'btn-success'">
+              {{ event.status === 3 ? 'Deactivate' : 'Active' }}
+            </button></td>
             <td>{{ event.created_at }}</td>
             <td>
               <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
@@ -80,25 +85,30 @@
                     <div *ngIf="email.errors?.['email']">Invalid email format.</div>
                   </div>
                 </div>
-              
                 <div class="mb-3">
-                  <label for="password" class="form-label">Password</label>
-                  <input type="password" id="password" class="form-control" [(ngModel)]="selectedEvent.password" name="password" required #password="ngModel"/>
-                  <div *ngIf="password.invalid && (password.dirty || password.touched)" class="text-danger">
-                    <div *ngIf="password.errors?.['required']">Password is required.</div>
+                  <label for="phone" class="form-label">Phone</label>
+                  <input type="number" id="phone" class="form-control" [(ngModel)]="selectedEvent.phone" name="phone" required #phone="ngModel" maxlength="10"/>
+                  <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger">
+                    <div *ngIf="phone.errors?.['required']">phone is required.</div>
+                    <div *ngIf="phone.errors?.['phone']">Invalid phone format.</div>
                   </div>
                 </div>
-              
+
                 <div class="mb-3">
-                  <label for="confirmPassword" class="form-label">Confirm Password</label>
-                  <input type="password" id="confirmPassword" class="form-control" [(ngModel)]="selectedEvent.confirmPassword" name="confirmPassword" required #confirmPassword="ngModel"/>
-                  <div *ngIf="confirmPassword.invalid && (confirmPassword.dirty || confirmPassword.touched)" class="text-danger">
-                    <div *ngIf="confirmPassword.errors?.['required']">Confirm Password is required.</div>
+                  <label for="rank" class="form-label">Rank Id</label>
+                  <select id="rank" class="form-select" [(ngModel)]="selectedEvent.rank" name="rank" required #rank="ngModel">
+                      <option value="" disabled>Select Rank</option>
+                  </select>
+                  <div *ngIf="rank.invalid && (rank.dirty || rank.touched)" class="text-danger">
+                      <div *ngIf="rank.errors?.['required']">Rank is required.</div>
                   </div>
                 </div>
-              
                 <div class="mb-3">
-                  <label class="form-label">Select Roles</label>
+                  <label class="form-label">Select Roles</label><br>
+                  <input type="checkbox" 
+           [checked]="isAllSelected()" 
+           (change)="toggleSelectAll()" /> 
+    Select All
                   <div *ngFor="let role of roles">
                     <input type="checkbox" 
                            [(ngModel)]="role.selected" 
@@ -147,25 +157,32 @@
                     <div *ngIf="email.errors?.['required']">Email is required.</div>
                   </div>
                 </div>
-              
+
                 <div class="mb-3">
-                  <label for="password" class="form-label">Password</label>
-                  <input type="password" id="password" class="form-control" [(ngModel)]="selectedEvent.password" name="password" required #password="ngModel"/>
-                  <div *ngIf="password.invalid && (password.dirty || password.touched)" class="text-danger">
-                    <div *ngIf="password.errors?.['required']">Password is required.</div>
+                  <label for="phone" class="form-label">Phone</label>
+                  <input type="number" id="phone" class="form-control" [(ngModel)]="selectedEvent.phone" name="phone" required #phone="ngModel" maxlength="10"/>
+                  <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger">
+                    <div *ngIf="phone.errors?.['required']">phone is required.</div>
+                    <div *ngIf="phone.errors?.['phone']">Invalid phone format.</div>
                   </div>
                 </div>
 
                 <div class="mb-3">
-                    <label for="confirmPassword" class="form-label">Confirm Password</label>
-                    <input type="password" id="confirmPassword" class="form-control" [(ngModel)]="selectedEvent.confirmPassword" name="confirmPassword" required #confirmPassword="ngModel"/>
-                    <div *ngIf="confirmPassword.invalid && (confirmPassword.dirty || confirmPassword.touched)" class="text-danger">
-                      <div *ngIf="confirmPassword.errors?.['required']">Confirm Password is required.</div>
-                    </div>
+                  <label for="addrank" class="form-label">Rank Id</label>
+                  <select id="addrank" class="form-select" [(ngModel)]="selectedEvent.rank" name="rank" required #rank="ngModel">
+                      <option value="" disabled>Select Rank</option>
+                  </select>
+                  <div *ngIf="rank.invalid && (rank.dirty || rank.touched)" class="text-danger">
+                      <div *ngIf="rank.errors?.['required']">Rank is required.</div>
+                  </div>
                 </div>
               
                 <div class="mb-3">
-                  <label class="form-label">Select Roles</label>
+                  <label class="form-label">Select Roles</label><br>
+                  <input type="checkbox" 
+           [checked]="isAllSelected()" 
+           (change)="toggleSelectAll()" /> 
+    Select All
                   <div *ngFor="let role of roles">
                     <input type="checkbox" 
                            [(ngModel)]="role.selected" 

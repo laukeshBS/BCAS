@@ -38,11 +38,38 @@ class EventController extends Controller
 
         $events->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            $item->document = asset('public/documents/' . $item->document) ;
+            // $item->document = asset('public/documents/' . $item->document) ;
             return $item;
         });
 
         return response()->json($events);
+    }
+    
+    public function event_list_for_frontend(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+        $lang_code = $request->input('lang_code');
+
+        $events = Event::select('*')
+            ->where('lang_code', $lang_code)
+            ->orderBy('id', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $events->getCollection()->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            return $item;
+        });
+        // $events->path='';
+
+        return response()->json([
+            'title' => 'List',
+            'data' => $events->items(), 
+            'total' => $events->total(), 
+            'current_page' => $events->currentPage(), 
+            'last_page' => $events->lastPage(), 
+            'per_page' => $events->perPage(), 
+        ]);
     }
     public function event_list(Request $request)
     {
@@ -90,9 +117,9 @@ class EventController extends Controller
         if ($events->isNotEmpty()) {
             $events->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                if ($item->document) {
-                    $item->document = asset('public/documents/'.$item->document);
-                }
+                // if ($item->document) {
+                //     $item->document = asset('public/documents/'.$item->document);
+                // }
                 return $item;
             });
         }
@@ -130,7 +157,7 @@ class EventController extends Controller
         $data->start_date = date('d-m-Y', strtotime($data->start_date));
         $data->end_date = date('d-m-Y', strtotime($data->end_date));
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
-        $data->document = asset('public/documents/' . $data->document) ;
+        // $data->document = asset('public/documents/' . $data->document) ;
 
         // Return the data as JSON
         return response()->json($data);

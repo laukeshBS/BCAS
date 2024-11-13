@@ -1,14 +1,16 @@
 <div class="captcha-container">
-    <div class="captcha-display">
-      <p class="captcha-text">{{ captchaText }}</p>
+  <div class="row">
+    <div class="col-md-3">
+        <div class="captcha-text">{{ captchaText }}</div>
     </div>
-    <input 
-      type="text" 
-      [(ngModel)]="userInput" 
-      placeholder="Enter CAPTCHA" 
-      class="captcha-input"
-    />
-    <button (click)="generateCaptcha()" class="refresh-button">Refresh CAPTCHA</button>
+    <div class="col-md-7">
+        <input type="text" [(ngModel)]="userInput" placeholder="Enter CAPTCHA" class="captcha-input" />
+    </div>
+    <div class="col-md-2">
+        <button (click)="generateCaptcha()" class="refresh-button"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+    </div>
+  </div>
+
     <div *ngIf="userInput && userInput.length > 0" class="captcha-hint">
       Please enter the CAPTCHA above.
     </div>

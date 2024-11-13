@@ -61,7 +61,7 @@ class LoginController extends Controller
             'password' => 'required',
         ]);
 
-        $user = Admin::with('roles')->where('email', $request->email)->first();
+        $user = Admin::with('roles')->where('email', $request->email)->where('status', 2)->first();
 
         $key = 'xWfR9K7h3gD5yTqV'; // Adjust to match the 16-byte key
         $encryptedData = $request->input('password');
@@ -78,6 +78,21 @@ class LoginController extends Controller
             $user->api_token = $token; // If using api_token column
             $user->save();
 
+            $logs_data = array(
+                'module_item_title'     =>  'Login Successfull',
+                'module_item_id'        =>  $user->id,
+                'action_by'             =>  $user->id,
+                'old_data'              =>  $request,
+                'new_data'              =>  $user,
+                'action_name'           =>  'Login Attempt',
+                //'page_category'         =>  '',
+                'lang_id'               =>   "en",
+                'action_type'        	=>  'User Login',
+                'approve_status'        =>  0,
+                'action_by_role'        =>  $user->username
+            );
+            audit_trails($logs_data);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Successfully logged in!',
@@ -88,7 +103,20 @@ class LoginController extends Controller
                 ],
             ], 200);
         }
-
+        $logs_data = array(
+            'module_item_title'     =>  'Login Unsuccessfull',
+            'module_item_id'        =>  0,
+            'action_by'             =>  0,
+            'old_data'              =>  $request,
+            'new_data'              =>  response()->json(['success' => false,'message' => 'Invalid email or password'], 401),
+            'action_name'           =>  'Login Attempt',
+            //'page_category'         =>  '',
+            'lang_id'               =>   "en",
+            'action_type'        	=>  'User Login',
+            'approve_status'        =>  0,
+            'action_by_role'        =>  ''
+        );
+        audit_trails($logs_data);
         return response()->json([
             'success' => false,
             'message' => 'Invalid email or password',

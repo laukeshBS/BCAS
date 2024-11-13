@@ -1,4 +1,4 @@
-import { Component, ElementRef, Renderer2, AfterViewInit } from '@angular/core';
+import { Component, ElementRef, Renderer2, AfterViewInit,CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AdminDocumentService } from '../../services/admin-document.service';  // Import the service
 import { PermissionsService } from '../../services/permissions.service';
 import { CommonModule } from '@angular/common';
@@ -12,6 +12,7 @@ declare var bootstrap: any;
   selector: 'app-admin-document-datatable',
   standalone: true,
   imports: [CommonModule, FormsModule],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './admin-document-datatable.component.html',
   styleUrl: './admin-document-datatable.component.css'
 })
@@ -31,6 +32,7 @@ export class AdminDocumentDatatableComponent {
   fileToUploadImg: File | null = null;
   userId: number | null = null;
   userRoleIds: number[] | [] = [];
+  userRankId: number = 0;
   categories: { [key: string]: string } = {};
   roles: any;
   selectedRoles: string[] = [];
@@ -38,6 +40,13 @@ export class AdminDocumentDatatableComponent {
   selectedRoleIds: any[] = [];
   documentUrl: SafeResourceUrl | null = null; // Change to SafeResourceUrl
   private modal: HTMLElement | null = null; // Store modal reference
+  isOpen = false;
+  isOpen2 = false;
+  i: any;
+  j: any;
+  rank: any;
+  rankArray: any;
+  selectedRank: any;
 
   constructor(private AdminDocumentService: AdminDocumentService, private permissionsService: PermissionsService, private renderer: Renderer2, private el: ElementRef, private sanitizer: DomSanitizer) {}
 
@@ -45,6 +54,7 @@ export class AdminDocumentDatatableComponent {
     this.loadroles();
     this.loadUserId();
     this.loadCategories();
+    this.loadRank();
     this.loadList();
   }
 
@@ -58,8 +68,12 @@ export class AdminDocumentDatatableComponent {
       if (Array.isArray(user.roles)) {
         this.userRoleIds = user.roles.map((role: { id: any; }) => role.id); // Extracting only the role IDs
         
+        
       } else {
           this.userRoleIds = []; // Reset to an empty array if not valid
+      }
+      if (user.rank) {
+        this.userRankId=user.rank;
       }
     } else {
       console.warn('No user data found in localStorage');
@@ -69,6 +83,22 @@ export class AdminDocumentDatatableComponent {
     this.AdminDocumentService.documentCategory().subscribe(
       (data) => {
         this.categories = data.data; // Assuming the response is an object with id as keys and name as values
+      },
+      (error) => {
+        console.error('Error fetching categories:', error);
+      }
+    );
+  }
+  loadRank(): void {
+    this.AdminDocumentService.getRankList().subscribe(
+      (data) => {
+        this.rank = data.data;
+        if (this.rank && typeof this.rank === 'object') {
+          this.rankArray = Object.entries(this.rank).map(([id, name]) => ({ id, name }));
+        } else {
+          console.error('Rank is not defined or is not an object:', this.rank);
+          this.rankArray = []; // Reset to an empty array if not valid
+        }
       },
       (error) => {
         console.error('Error fetching categories:', error);
@@ -94,7 +124,7 @@ export class AdminDocumentDatatableComponent {
 
   loadList(): void {
     this.loading = true; // Start loading
-    this.AdminDocumentService.allList(this.limit, this.lang_code, this.currentPage, this.userRoleIds ).subscribe(data => {
+    this.AdminDocumentService.allList(this.limit, this.lang_code, this.currentPage, this.userRoleIds, this.userRankId ).subscribe(data => {
       this.events = data.data;
       this.totalItems = data.total; // Assuming the API returns total items
       this.lastPage = Math.ceil(this.totalItems / this.limit);
@@ -155,8 +185,9 @@ export class AdminDocumentDatatableComponent {
   editEvent(id: number): void {
     this.AdminDocumentService.getEvent(id).subscribe(data => {
       this.selectedEvent = data;
-      // Set selectedRoleIds based on the fetched data
-      this.selectedRoleIds = data.roleIds.map((id: any) => String(id)) || [];
+      // Set selectedRoles based on the fetched data
+      this.selectedRoles = data.roleIds.map((id: any) => String(id)) || [];
+      this.selectedRank = data.rankIds.map((id: any) => String(id)) || [];
       this.openEditModal();
     });
   }
@@ -164,7 +195,12 @@ export class AdminDocumentDatatableComponent {
   addEvent(): void {
     const modalElement = document.getElementById('addEventModal');
     if (modalElement) {
-        this.selectedEvent = { document_category: '', doc_name: '', doc_type: '', status: '', position: '', start_date: '', end_date: '' };
+        this.selectedEvent = {};
+        this.selectedRoles =[];
+        this.selectedRank =[];
+        this.isOpen =false;
+        this.isOpen2 =false;
+        
         const documentCategoryId = document.getElementById('document_category') as HTMLSelectElement;
 
         // Clear existing options
@@ -176,67 +212,10 @@ export class AdminDocumentDatatableComponent {
 
         // Populate the select element with categories
         for (const [id, name] of Object.entries(this.categories)) {
-            const option = document.createElement('option');
-            option.value = id;
-            option.textContent = name;
-            documentCategoryId.appendChild(option);
-        }
-
-        // Populate role checkboxes
-        const rolesContainer = document.getElementById('rolesContainer') as HTMLElement;
-        rolesContainer.innerHTML = ''; // Clear existing checkboxes
-
-        // Create "Select All" checkbox
-        const selectAllCheckbox = document.createElement('input');
-        selectAllCheckbox.type = 'checkbox';
-        selectAllCheckbox.id = 'selectAllRoles';
-        selectAllCheckbox.addEventListener('change', (event) => {
-            const isChecked = (event.target as HTMLInputElement).checked;
-            const checkboxes = rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllRoles)');
-            checkboxes.forEach((checkbox) => {
-                const inputCheckbox = checkbox as HTMLInputElement; // Cast to HTMLInputElement
-                inputCheckbox.checked = isChecked; // Set checked state
-                if (isChecked && !this.selectedRoles.includes(inputCheckbox.value)) {
-                    this.selectedRoles.push(inputCheckbox.value); // Add to selected roles
-                } else if (!isChecked) {
-                    this.selectedRoles = this.selectedRoles.filter(role => role !== inputCheckbox.value); // Remove from selected roles
-                }
-            });
-        });
-
-        const selectAllLabel = document.createElement('label');
-        selectAllLabel.htmlFor = 'selectAllRoles';
-        selectAllLabel.textContent = 'Select All Roles';
-
-        rolesContainer.appendChild(selectAllCheckbox);
-        rolesContainer.appendChild(selectAllLabel);
-        rolesContainer.appendChild(document.createElement('br')); // For spacing
-
-        if (this.rolesArray && Array.isArray(this.rolesArray)) {
-            this.rolesArray.forEach((role: { id: string; name: string; }) => {
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `add_${role.id}`;
-                checkbox.value = role.id;
-                checkbox.checked = this.selectedRoles.includes(role.id);
-
-                // Use a method to handle checkbox changes
-                checkbox.addEventListener('change', (event) => {
-                    this.handleRoleChange(event, role.id);
-                    // Update "Select All" checkbox state based on individual checkbox states
-                    selectAllCheckbox.checked = Array.from(rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllRoles)')).every((cb) => (cb as HTMLInputElement).checked);
-                });
-
-                const label = document.createElement('label');
-                label.htmlFor = role.id;
-                label.textContent = role.name;
-
-                rolesContainer.appendChild(checkbox);
-                rolesContainer.appendChild(label);
-                rolesContainer.appendChild(document.createElement('br')); // For spacing
-            });
-        } else {
-            console.error('Roles is not defined or is not an array');
+          const option = document.createElement('option');
+          option.value = id;
+          option.textContent = name;
+          documentCategoryId.appendChild(option);
         }
 
         const modal = new bootstrap.Modal(modalElement);
@@ -246,40 +225,38 @@ export class AdminDocumentDatatableComponent {
 
   
   // Method to handle role checkbox changes
-  handleRoleChange(event: Event, roleId: string | undefined): void {
-    if (event.target instanceof HTMLInputElement && roleId) { // Check if roleId is defined
-        const idWithoutPrefix = roleId.split('_').pop(); // Remove prefix
+  // handleRoleChange(event: Event, roleId: string | undefined): void {
+  //   if (event.target instanceof HTMLInputElement && roleId) { // Check if roleId is defined
+  //       const idWithoutPrefix = roleId.split('_').pop(); // Remove prefix
 
-        // Ensure idWithoutPrefix is a string
-        if (typeof idWithoutPrefix === 'string') {
-            if (event.target.checked) {
-                this.selectedRoleIds.push(idWithoutPrefix);
-            } else {
-                this.selectedRoleIds = this.selectedRoleIds.filter((id: string) => id !== idWithoutPrefix);
-            }
-        }
-    }
-  }
+  //       // Ensure idWithoutPrefix is a string
+  //       if (typeof idWithoutPrefix === 'string') {
+  //           if (event.target.checked) {
+  //               this.selectedRoleIds.push(idWithoutPrefix);
+  //           } else {
+  //               this.selectedRoleIds = this.selectedRoleIds.filter((id: string) => id !== idWithoutPrefix);
+  //           }
+  //       }
+  //   }
+  // }
 
 
   saveEvent(): void {
+    console.log('Selected Event:', this.selectedEvent);  // Log selectedEvent for debugging
+    
     // Validate the form data
     const requiredFields = [
-      'doc_name',
-      'doc_type',
-      'status',
-      'position',
-      'start_date',
-      'end_date',
+        'doc_name', 'doc_type', 'status', 'position', 'start_date', 'end_date',
     ];
 
-    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
-  
+    // Check for missing required fields
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field] && this.selectedEvent[field] !== 0);
     if (missingFields.length > 0) {
-      alert(`Missing required fields: ${missingFields.join(', ')}`);
-      return;
+        alert(`Missing required fields: ${missingFields.join(', ')}`);
+        return;
     }
-  
+
+    // Prepare FormData
     const formData = new FormData();
     formData.append('document_category_id', this.selectedEvent.document_category_id);
     formData.append('doc_name', this.selectedEvent.doc_name);
@@ -289,42 +266,73 @@ export class AdminDocumentDatatableComponent {
     formData.append('position', this.selectedEvent.position);
     formData.append('start_date', this.selectedEvent.start_date);
     formData.append('end_date', this.selectedEvent.end_date);
-  
-    // Append selected roles to formData
-    this.selectedRoleIds.forEach((roleId: string | Blob) => {
-      formData.append('roles[]', roleId); // Use roles[] for array input
-    });
-  
-    // Validate and append file only if it's present
-    if (this.fileToUpload) {
-      const validFileTypes = ['application/pdf']; // Example types
-      const maxFileSize = 5 * 1024 * 1024; // 5MB
-  
-      if (!validFileTypes.includes(this.fileToUpload.type)) {
-        alert('Invalid file type');
-        return;
-      }
-      if (this.fileToUpload.size > maxFileSize) {
-        alert('File size exceeds the limit of 5MB');
-        return;
-      }
-      
-      const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_'); // Replace spaces with underscores
-        
-      formData.append('document', this.fileToUpload, sanitizedFileName);
+
+    // Log formData content before submission
+    // console.log('Form Data:', this.selectedEvent);
+
+    // Append selected roles to formData (if any)
+    if (this.selectedRoles && this.selectedRoles.length > 0) {
+        this.selectedRoles.forEach((roleId: string | Blob) => {
+            formData.append('roles[]', roleId);  // Ensure 'roles[]' matches backend API
+        });
+    } else {
+        alert('No roles selected');
     }
-  
+
+    // Append selected ranks to formData (if any)
+    if (this.selectedRank && this.selectedRank.length > 0) {
+      this.selectedRank.forEach((rankId: string | Blob) => {
+          formData.append('ranks[]', rankId);  // Ensure 'ranks[]' matches backend API
+      });
+    } else {
+        alert('No ranks selected');
+    }
+
+    // Validate and append file if it's present
+    if (this.fileToUpload) {
+        const validFileTypes = ['application/pdf'];  // Example: Only PDF files allowed
+        const maxFileSize = 5 * 1024 * 1024;  // 5MB size limit
+
+        // Validate file type
+        if (!validFileTypes.includes(this.fileToUpload.type)) {
+            alert('Invalid file type. Only PDF files are allowed.');
+            return;
+        }
+
+        // Validate file size
+        if (this.fileToUpload.size > maxFileSize) {
+            alert('File size exceeds the limit of 5MB.');
+            return;
+        }
+
+        const sanitizedFileName = this.fileToUpload.name.replace(/\s+/g, '_');  // Replace spaces with underscores
+
+        formData.append('doc', this.fileToUpload, sanitizedFileName);
+    } else {
+        console.log('No file selected');
+    }
+
+    // Send the request to the backend
     this.AdminDocumentService.storeEvent(formData).subscribe(
-      (event: HttpEvent<any>) => {
-        this.loadList(); // Refresh the list of events
-        this.closeAddModal(); // Close the modal or form
-      },
-      error => {
-        alert('Error saving event: '+error.message || error);
-        // Optionally, display an error message to the user
-      }
+        (event: HttpEvent<any>) => {
+            console.log('Event saved successfully:', event);
+            this.loadList();  // Refresh the list of events
+            this.closeAddModal();  // Close the modal or form
+        },
+        error => {
+            // Handle error response from backend
+            if (error.status === 422) {
+                // Log detailed error message from the backend
+                console.error('Backend Validation Errors:', error.error);
+                alert('Error saving event: ' + (error.error?.message || 'Unknown error'));
+            } else {
+                console.error('Error saving event:', error);
+                alert('Error saving event: ' + (error.message || error));
+            }
+        }
     );
-  }
+}
+
   
 
   modifyEvent(): void {
@@ -356,9 +364,18 @@ export class AdminDocumentDatatableComponent {
     formData.append('end_date', this.selectedEvent.end_date);
 
     // Append selected roles to formData
-    this.selectedRoleIds.forEach((roleId: string | Blob) => {
+    this.selectedRoles.forEach((roleId: string | Blob) => {
       formData.append('roles[]', roleId); // Use roles[] for array input
     });
+
+     // Append selected ranks to formData (if any)
+     if (this.selectedRank && this.selectedRank.length > 0) {
+      this.selectedRank.forEach((rankId: string | Blob) => {
+          formData.append('ranks[]', rankId);  // Ensure 'ranks[]' matches backend API
+      });
+    } else {
+        alert('No ranks selected');
+    }
 
     // Append file only if it's present
     if (this.fileToUpload) {
@@ -401,6 +418,8 @@ export class AdminDocumentDatatableComponent {
   openEditModal(): void {
     const modalElement = document.getElementById('editEventModal');
     if (modalElement) {
+      this.isOpen =false;
+      this.isOpen2 =false;
         const documentCategoryId = document.getElementById('document_category_id') as HTMLSelectElement;
 
         // Clear existing options
@@ -412,64 +431,6 @@ export class AdminDocumentDatatableComponent {
             option.value = id;
             option.textContent = name;
             documentCategoryId.appendChild(option);
-        }
-
-        // Populate role checkboxes
-        const rolesContainer = document.getElementById('rolesEditContainer') as HTMLElement;
-        rolesContainer.innerHTML = ''; // Clear existing checkboxes
-
-        // Create "Select All" checkbox
-        const selectAllCheckbox = document.createElement('input');
-        selectAllCheckbox.type = 'checkbox';
-        selectAllCheckbox.id = 'selectAllEditRoles';
-        selectAllCheckbox.addEventListener('change', (event) => {
-            const isChecked = (event.target as HTMLInputElement).checked;
-            const checkboxes = rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllEditRoles)');
-            checkboxes.forEach((checkbox) => {
-                const inputCheckbox = checkbox as HTMLInputElement; // Cast to HTMLInputElement
-                inputCheckbox.checked = isChecked; // Set checked state
-                if (isChecked && !this.selectedRoleIds.includes(inputCheckbox.value)) {
-                    this.selectedRoleIds.push(inputCheckbox.value); // Add to selected roles
-                } else if (!isChecked) {
-                    this.selectedRoleIds = this.selectedRoleIds.filter(role => role !== inputCheckbox.value); // Remove from selected roles
-                }
-            });
-        });
-
-        const selectAllLabel = document.createElement('label');
-        selectAllLabel.htmlFor = 'selectAllEditRoles';
-        selectAllLabel.textContent = 'Select All Roles';
-
-        rolesContainer.appendChild(selectAllCheckbox);
-        rolesContainer.appendChild(selectAllLabel);
-        rolesContainer.appendChild(document.createElement('br')); // For spacing
-
-        if (this.rolesArray && Array.isArray(this.rolesArray)) {
-            this.rolesArray.forEach((role: { id: string; name: string }) => {
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.id = `edit_${role.id}`;
-                checkbox.value = role.id;
-                // Check if the role is in the selectedRoleIds array
-                checkbox.checked = this.selectedRoleIds.includes(String(role.id));
-
-                // Use a method to handle checkbox changes
-                checkbox.addEventListener('change', (event) => {
-                    this.handleRoleChange(event, role.id);
-                    // Update "Select All" checkbox state based on individual checkbox states
-                    selectAllCheckbox.checked = Array.from(rolesContainer.querySelectorAll('input[type="checkbox"]:not(#selectAllEditRoles)')).every((cb) => (cb as HTMLInputElement).checked);
-                });
-
-                const label = document.createElement('label');
-                label.htmlFor = `edit_${role.id}`; // Use the updated ID here
-                label.textContent = role.name;
-
-                rolesContainer.appendChild(checkbox);
-                rolesContainer.appendChild(label);
-                rolesContainer.appendChild(document.createElement('br')); // For spacing
-            });
-        } else {
-            console.error('Roles is not defined or is not an array');
         }
 
         const modal = new bootstrap.Modal(modalElement);
@@ -592,29 +553,74 @@ export class AdminDocumentDatatableComponent {
     }
   }
   
-// Checks if the user has the given permission
-hasPermission(permission: string): boolean {
-  return this.permissionsService.hasPermission(permission);
-}
-
-// Checks if the user has any of the given permissions
-hasAnyPermission(permissions: string[]): boolean {
-  return this.permissionsService.hasAnyPermission(permissions);
-}
-
-disableDownloadAndPrint(event: Event): void {
-  const iframe = event.target as HTMLIFrameElement;
-  const iframeWindow = iframe.contentWindow;
-
-  if (iframeWindow) {
-    iframeWindow.document.addEventListener('contextmenu', (e) => e.preventDefault());
-    iframeWindow.document.addEventListener('keydown', (e) => {
-      if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
-        e.preventDefault();
-      }
-    });
+  // Checks if the user has the given permission
+  hasPermission(permission: string): boolean {
+    return this.permissionsService.hasPermission(permission);
   }
-}
 
+  // Checks if the user has any of the given permissions
+  hasAnyPermission(permissions: string[]): boolean {
+    return this.permissionsService.hasAnyPermission(permissions);
+  }
+
+  disableDownloadAndPrint(event: Event): void {
+    const iframe = event.target as HTMLIFrameElement;
+    const iframeWindow = iframe.contentWindow;
+
+    if (iframeWindow) {
+      iframeWindow.document.addEventListener('contextmenu', (e) => e.preventDefault());
+      iframeWindow.document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && (e.key === 'p' || e.key === 'P')) {
+          e.preventDefault();
+        }
+      });
+    }
+  }
+
+  toggleDropdown() {
+    this.isOpen = !this.isOpen;
+  }
+
+  toggleSelectAll(event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    this.selectedRoles = isChecked ? this.rolesArray.map((role: { id: any; }) => role.id) : [];
+    console.log(this.selectedRoles );
+  }
+
+  toggleSelection(roleId: string): void {
+      const index = this.selectedRoles.indexOf(roleId);
+      if (index === -1) {
+          this.selectedRoles.push(roleId);
+      } else {
+          this.selectedRoles.splice(index, 1);
+      }
+  }
+
+  isSelected(roleId: string): boolean {
+      return this.selectedRoles.includes(roleId);
+  }
+
+  toggleDropdown2() {
+    this.isOpen2 = !this.isOpen2;
+  }
+
+  toggleSelectAll2(event: Event): void {
+    const isChecked = (event.target as HTMLInputElement).checked;
+    this.selectedRank = isChecked ? this.rankArray.map((rank: { id: any; }) => rank.id) : [];
+    console.log(this.selectedRank );
+  }
+
+  toggleSelection2(rankId: string): void {
+      const index = this.selectedRank.indexOf(rankId);
+      if (index === -1) {
+          this.selectedRank.push(rankId);
+      } else {
+          this.selectedRank.splice(index, 1);
+      }
+  }
+
+  isSelected2(rankId: string): boolean {
+      return this.selectedRank.includes(rankId);
+  }
   
 }

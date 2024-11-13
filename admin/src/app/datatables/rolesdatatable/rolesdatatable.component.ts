@@ -18,12 +18,15 @@ export class RolesdatatableComponent implements OnInit {
   events: any[] = [];
   selectedEvent: any = {};
   fileToUpload: File | null = null;
-  limit = 5;
-  lang_code = 'en';
+  limit = 10;
+  lang_code = '';
   selectedFile: any;
   selectedFileError: string | null = null;
-  lastPage: any;
-  currentPage: any;
+  currentPage: number = 1; // Current page for
+  totalItems: number = 0; // Total items to calculate total pages
+  loading: boolean = false;
+  lastPage: number = 0; // Last page]
+  userId: number | null = null;
 
   constructor(private rolesService: RolesService) {}
 
@@ -79,10 +82,28 @@ export class RolesdatatableComponent implements OnInit {
 
   // Load the list of roles
   loadList(): void {
-    this.rolesService.allList(this.limit, this.lang_code).subscribe(data => {
-      this.events = data.roles.data;
+    this.loading = true; // Start loading
+    this.rolesService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
+      this.events = data.data;
+      this.totalItems = data.total; // Assuming the API returns total items
+      this.lastPage = Math.ceil(this.totalItems / this.limit);
       this.formatEventDates();
+      this.loading = false; // Stop loading
+    }, error => {
+      console.error('Error loading events:', error);
+      this.loading = false; // Stop loading on error
     });
+  }
+  // Change page method
+  changePage(page: number): void {
+    if (page < 1 || page > this.lastPage) return; // Prevent out of bounds
+    this.currentPage = page;
+    this.loadList(); // Reload data
+  }
+
+  // Total pages calculation
+  totalPages(): number {
+    return Math.ceil(this.totalItems / this.limit);
   }
 
   // Format event dates and statuses
@@ -131,13 +152,22 @@ export class RolesdatatableComponent implements OnInit {
 
   // Add new role
   addEvent(): void {
-    this.openModal('addEventModal');
+    const modalElement = document.getElementById('addEventModal');
+    if (modalElement) {
+      this.selectedEvent = {};
+      const modal = new bootstrap.Modal(modalElement);
+      modal.show();
+    }
+  }
+
+  removeHtmlTags(input: string) {
+    return input.replace(/<[^>]*>/g, '');
   }
 
   // Save new role
   saveEvent(): void {
     if (!this.roleData.name.trim()) {
-      console.error('Role Name is required.');
+      alert('Role Name is required.');
       return;
     }
 
@@ -146,11 +176,11 @@ export class RolesdatatableComponent implements OnInit {
       .map((permission: any) => permission.id);
 
     if (selectedPermissions.length === 0) {
-      console.error('No permissions selected');
+      alert('No permissions selected');
       return;
     }
 
-    const roleData = { name: this.roleData.name, permissions: selectedPermissions };
+    const roleData = { name: this.removeHtmlTags(this.roleData.name), permissions: selectedPermissions };
 
     this.rolesService.createRole(roleData).subscribe(
       response => {
@@ -169,7 +199,7 @@ export class RolesdatatableComponent implements OnInit {
       .flatMap(group => group.permissions.filter((permission: { selected: any }) => permission.selected))
       .map((permission: { name: any }) => permission.name);
 
-    const updatedRoleData = { name: this.roleData.name, permissions: selectedPermissions };
+    const updatedRoleData = { name: this.removeHtmlTags(this.roleData.name), permissions: selectedPermissions };
 
     this.rolesService.updateEvent(this.roleData.id, updatedRoleData).subscribe(
       response => {
@@ -208,13 +238,6 @@ export class RolesdatatableComponent implements OnInit {
         this.selectedFileError = '';
       }
     }
-  }
-
-  // Pagination control
-  changePage(page: number): void {
-    if (page < 1 || page > this.lastPage) return;
-    this.currentPage = page;
-    this.loadList();
   }
 
   // Close the "Add" modal

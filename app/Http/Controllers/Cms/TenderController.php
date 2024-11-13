@@ -20,8 +20,10 @@ class TenderController extends Controller
 
     public function data(Request $request)
     {
-        $limit = $request->input('limit');
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
         $lang_code = $request->input('lang_code');
+        
 
 
         // Fetch data from the database
@@ -41,8 +43,8 @@ class TenderController extends Controller
         $data = Tender::select('*')
             ->where('lang_code', $lang_code)
             ->orderBy('id', 'desc')
-            ->limit($limit)
-            ->get();
+            ->limit($perPage)
+            ->paginate($perPage, ['*'], 'page', $page);
     
         if ($data->isEmpty()) {
             return response()->json(['message' => 'No data found'], 404);
@@ -52,13 +54,20 @@ class TenderController extends Controller
             $item->start_date = date('d-m-Y', strtotime($item->start_date));
             $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            $item->document = asset('public/documents/' . $item->document);
+            // $item->document = asset('public/documents/' . $item->document);
 
             return $item; // Return the transformed item
 
         });
     
-        return response()->json($data);
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(), 
+            'total' => $data->total(), 
+            'current_page' => $data->currentPage(), 
+            'last_page' => $data->lastPage(), 
+            'per_page' => $data->perPage(), 
+        ]);
     }
     public function cms_data(Request $request)
     {
@@ -69,9 +78,9 @@ class TenderController extends Controller
         if ($slider->isNotEmpty()) {
             $slider->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                if ($item->document) {
-                    $item->document = asset('public/documents/'.$item->document);
-                }
+                // if ($item->document) {
+                //     $item->document = asset('public/documents/'.$item->document);
+                // }
                 return $item;
             });
         }
@@ -108,7 +117,7 @@ class TenderController extends Controller
         // $data->start_date = date('d-m-Y', strtotime($data->start_date));
         // $data->end_date = date('d-m-Y', strtotime($data->end_date));
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
-        $data->document = asset('public/documents/' . $data->document) ;
+        // $data->document = asset('public/documents/' . $data->document) ;
 
         // Return the data as JSON
         return response()->json($data);

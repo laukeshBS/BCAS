@@ -24,6 +24,17 @@ import { AdminDocumentCategoryComponent } from './pages/admin-document-category/
 import { DasboardComponent } from './pages/dasboard/dasboard.component';
 import { ContactComponent } from './pages/contact/contact.component';
 import { AdminComponent } from './pages/admin/admin.component';
+import { AuditComponent } from './pages/audit/audit.component';
+import { FirstTimeLoginComponent } from './pages/first-time-login/first-time-login.component';
+import { ForgotPasswordComponent } from './pages/forgot-password/forgot-password.component';
+import { VerifyOtpComponent } from './pages/verify-otp/verify-otp.component';
+import { SuperAdminLoginComponent } from './pages/super-admin-login/super-admin-login.component';
+import { AirlinesComponent } from './pages/airlines/airlines.component';
+import { GalleryComponent } from './pages/gallery/gallery.component';
+import { OpsSecurityComponent } from './pages/ops-security/ops-security.component';
+import { OpsiSecurityComponent } from './pages/opsi-security/opsi-security.component';
+import { CateringComponent } from './pages/catering/catering.component';
+import { AirportComponent } from './pages/airport/airport.component';
 
 
 export const routes: Routes = [
@@ -47,8 +58,19 @@ export const routes: Routes = [
     { path: 'admin-doc', component: AdminDocumentComponent, canActivate: [AuthGuard]  },
     { path: 'admin-doc-categories', component: AdminDocumentCategoryComponent, canActivate: [AuthGuard]  },
     { path: 'user', component: AdminComponent, canActivate: [AuthGuard]  },
-    { path: 'login', component: LoginComponent, canActivate: [NoAuthGuard]  },
-    { path: '**', redirectTo: '/login' },
+    { path: '', component: LoginComponent, canActivate: [NoAuthGuard]  },
+    { path: 'super-admin-login', component: SuperAdminLoginComponent, canActivate: [NoAuthGuard]  },
+    { path: 're-registration', component: FirstTimeLoginComponent, canActivate: [NoAuthGuard]  },
+    { path: 'forget-password', component: ForgotPasswordComponent, canActivate: [NoAuthGuard]  },
+    { path: 'verify-otp', component: VerifyOtpComponent },
+    { path: 'audit', component: AuditComponent, canActivate: [AuthGuard]  },
+    { path: 'airlines', component: AirlinesComponent, canActivate: [AuthGuard]  },
+    { path: 'gallery', component: GalleryComponent, canActivate: [AuthGuard]  },
+    { path: 'ops-security', component: OpsSecurityComponent, canActivate: [AuthGuard]  },
+    { path: 'opsi-security', component: OpsiSecurityComponent, canActivate: [AuthGuard]  },
+    { path: 'catering', component: CateringComponent, canActivate: [AuthGuard]  },
+    { path: 'airport', component: AirportComponent, canActivate: [AuthGuard]  },
+    { path: '**', redirectTo: '/' },
     {
       path: 'restricted',
       loadChildren: () => import('./restricted/restricted.module').then(m => m.RestrictedModule)

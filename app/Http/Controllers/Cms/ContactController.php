@@ -40,9 +40,8 @@ class ContactController extends Controller
             $query = Division::with('contacts')->where('lang_code', $lang_code);
             if ($division_id) {
                 $query->where('id', $division_id);
-            }else{
-                $query->orderBy('position');
             }
+            $query->orderBy('position');
             $data = $query->get();
         } else if ($type == 2) {
             // Query for Region model
@@ -50,6 +49,7 @@ class ContactController extends Controller
             if ($region_id) {
                 $query->where('id', $region_id);
             }
+            $query->orderBy('position','asc');
             $data = $query->get();
         } else {
             // Return an empty array if type is not 1 or 2
@@ -72,7 +72,7 @@ class ContactController extends Controller
         // Get parameters from the request with defaults
         $approve_status = $request->input('status');
         $lang_code = $request->input('lang_code');
-        $perPage = $request->input('limit', 5); // Default limit to 5
+        $perPage = $request->input('limit', 10); // Default limit to 5
         $page = $request->input('currentPage', 1); // Default page number to 1
 
         // Initialize query builder

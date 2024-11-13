@@ -21,7 +21,6 @@ class CateringCompanyController extends Controller
         });
     }
 
-  
     public function catering_list(Request $request)
     {
        // dd('here');
@@ -39,38 +38,39 @@ class CateringCompanyController extends Controller
 
         return response()->json($catering);
     }
-public function catering_list_approved(Request $request)
-{
-    // Default pagination parameters
-    $perPage = $request->input('per_page', 10);
-    $page = $request->input('page', 1);
 
-    // Filter parameters
-    $airport_name = $request->input('airport_name');
-    $regional_office = $request->input('regional_office');
+    public function catering_list_approved(Request $request)
+    {
+        // Default pagination parameters
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
 
-    // Query to fetch approved catering based on the provided filters
-    $catering = CateringCompany::select('*')
-    ->where('status', 'APPROVED')
-    ->when($airport_name, function ($query, $airport_name) {
-        return $query->where('entity_name', $airport_name);
-    })
-    ->when($regional_office, function ($query, $regional_office) {
-        return $query->where('regional_office', $regional_office);
-    })
-   
-        ->orderBy('date_of_security_programme_approval', 'DESC')
-        ->paginate($perPage, ['*'], 'page', $page);
+        // Filter parameters
+        $airport_name = $request->input('airport_name');
+        $regional_office = $request->input('regional_office');
 
-    // Transforming the collection to format the created_at date
-    $catering->getCollection()->transform(function ($item) {
-        $item->created_at = date('d-m-Y', strtotime($item->created_at));
-        return $item;
-    });
+        // Query to fetch approved catering based on the provided filters
+        $catering = CateringCompany::select('*')
+        ->where('status', 'APPROVED')
+        ->when($airport_name, function ($query, $airport_name) {
+            return $query->where('entity_name', $airport_name);
+        })
+        ->when($regional_office, function ($query, $regional_office) {
+            return $query->where('regional_office', $regional_office);
+        })
+    
+            ->orderBy('date_of_security_programme_approval', 'DESC')
+            ->paginate($perPage, ['*'], 'page', $page);
 
-    // Returning the paginated list of catering as a JSON response
-    return response()->json($catering);
-}
+        // Transforming the collection to format the created_at date
+        $catering->getCollection()->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            return $item;
+        });
+
+        // Returning the paginated list of catering as a JSON response
+        return response()->json($catering);
+    }
 
     public function data(Request $request)
     {
@@ -93,6 +93,7 @@ public function catering_list_approved(Request $request)
 
         return response()->json($data);
     }
+
     public function data_by_id($id)
     {
         // Validate the ID
@@ -118,6 +119,7 @@ public function catering_list_approved(Request $request)
         // Return the data as JSON
         return response()->json($data);
     }
+    
     public function store(Request $request): mixed
     {
         // Define validation rules
@@ -165,7 +167,6 @@ public function catering_list_approved(Request $request)
             'valid_till', 
             'catering_orders'
         ]);
-//dd($data);
         //$data['created_by'] = Auth::guard('admin')->user()->id;
 
         // // Create new CateringCompany record
@@ -272,4 +273,160 @@ public function catering_list_approved(Request $request)
         return response()->json($cateringdata);
     }
 
+    // CMS Api
+    public function cms_data(Request $request)
+    {
+        $request->validate([
+            'limit' => 'required|integer',
+            'currentPage' => 'required|integer',
+        ]);
+
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $query = CateringCompany::query();
+
+        $data = $query->select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+        if ($data->isNotEmpty()) {
+            $data->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                return $item;
+            });
+        }
+
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'per_page' => $data->perPage(),
+        ]);
+    }
+
+    public function cms_store(Request $request): mixed
+    {
+        // Define validation rules
+        $rules = [
+            'regional_office'    => 'required|string|max:255',
+            'airport_name'       => 'required|string|max:255',
+            'entity_name'     => 'required|string|max:255',
+            'date_of_security_clearance'    => 'required|date',
+            'date_of_security_programme_approval'  => 'required|date',  // Ensure date format
+            'status'            => 'required|string|max:255',
+            'division'          => 'required|string|max:255',
+            'date_of_validity'  => 'required|date',  // Ensure date format
+            'lang_code'         => 'required|string|max:10',  // Make sure it's a string with a reasonable length
+        ];
+
+        // Validate the request
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation Error',
+                'messages' => $validator->errors()->toArray()
+            ], 422);  // 422 Unprocessable Entity
+        }
+
+        // Prepare data for insertion
+        $data = $request->only([
+            'regional_office','airport_name','entity_name','date_of_security_clearance','date_of_security_programme_approval','status','division','date_of_validity','lang_code'
+        ]);
+
+        // Create new Airline record
+        try {
+            $airlinedata = CateringCompany::create($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error creating the airline record.',
+                'message' => $e->getMessage()
+            ], 500);  // 500 Internal Server Error
+        }
+
+        // Return JSON response with success message
+        return response()->json([
+            'data' => $airlinedata,
+            'message' => 'Created successfully.'
+        ], 201);  // 201 Created
+    }
+
+    public function cms_update(Request $request, $id): mixed
+    {
+        // Define validation rules
+        $rules = [
+            'regional_office'    => 'required|string|max:255',
+            'airport_name'       => 'required|string|max:255',
+            'entity_name'     => 'required|string|max:255',
+            'date_of_security_clearance'    => 'required|date',
+            'date_of_security_programme_approval'  => 'required|date',  // Ensure date format
+            'status'            => 'required|string|max:255',
+            'division'          => 'required|string|max:255',
+            'date_of_validity'  => 'required|date',  // Ensure date format
+            'lang_code'         => 'required|string|max:10',  // Make sure it's a string with a reasonable length
+        ];
+
+        // Validate the request
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation Error',
+                'messages' => $validator->errors()->toArray()
+            ], 422);  // 422 Unprocessable Entity
+        }
+
+        // Find the existing Airline record by ID
+        $airline = CateringCompany::find($id);
+
+        if (!$airline) {
+            return response()->json([
+                'error' => 'Record not found.',
+                'message' => 'The requested airline record does not exist.'
+            ], 404);  // 404 Not Found
+        }
+
+        // Prepare data for update
+        $data = $request->only([
+            'regional_office','airport_name','entity_name','date_of_security_clearance','date_of_security_programme_approval','status','division','date_of_validity','lang_code'
+        ]);
+
+        // Update the existing Airline record
+        try {
+            $airline->update($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error updating the airline record.',
+                'message' => $e->getMessage()
+            ], 500);  // 500 Internal Server Error
+        }
+
+        // Return JSON response with success message
+        return response()->json([
+            'data' => $airline,
+            'message' => 'Updated successfully.'
+        ], 200);  // 200 OK
+    }
+
+    public function cms_delete($id)
+    {
+        // Find the airlinedata by id
+        $airlinedata = CateringCompany::find($id);
+
+        if (!$airlinedata) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
+        }
+
+        // Delete the airlinedata
+        $airlinedata->delete();
+
+        // Return the data as JSON
+        return response()->json(['data' => $airlinedata, 'message' => 'Deleted successfully.'], 200);
+    }
+
 }
+
+

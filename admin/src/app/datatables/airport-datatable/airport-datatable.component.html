@@ -1,0 +1,689 @@
+<div *ngIf="events.length > 0" style="overflow-x: auto">
+    <button (click)="addEvent()" class="btn btn-outline-primary btn-sm">Add</button>
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Airport Orders</th>
+            <th>Region Name</th>
+            <th>Entity Name</th>
+            <th>airport Name</th>
+            <th>Sr No</th>
+            <th>Address</th>
+            <th>Mobile</th>
+            <th>Phone</th>
+            <th>Unique Reference Number</th>
+            <th>Approved Status Clearance</th>
+            <th>Language</th>
+            <th>Date of Approval Clearance</th>
+            <th>Approved Status Programme</th>
+            <th>Date of Approval Programme</th>
+            <th>Valid Till</th>
+            <th>Published Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events">
+            <td>{{ event.airport_orders }}</td>
+            <td>{{ event.region_name }}</td>
+            <td>{{ event.entity_name }}</td>
+            <td>{{ event.airport_name }}</td>
+            <td>{{ event.sr_no }}</td>
+            <td>{{ event.address }}</td>
+            <td>{{ event.mobile_no }}</td>
+            <td>{{ event.phone_no }}</td>
+            <td>{{ event.unique_reference_number }}</td>
+            <td>{{ event.approved_status_clearance }}</td>
+            <td>{{ event.lang_code }}</td>
+            <td>{{ event.date_of_approval_clearance }}</td>
+            <td>{{ event.approved_status_programme }}</td>
+            <td>{{ event.date_of_approval_programme }}</td>
+            <td>{{ event.valid_till }}</td>
+            <td>{{ event.created_at }}</td>
+            <td>
+              <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
+              <button (click)="deleteEvent(event.id)" class="btn btn-outline-danger btn-sm">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    
+    <div *ngIf="events.length === 0">
+      <p>Loading.</p>
+    </div>
+    <nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+        <ul class="pagination">
+          <!-- Previous Page -->
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)" [attr.aria-disabled]="currentPage === 1">Previous</a>
+          </li>
+      
+          <!-- Page numbers with ellipsis handling -->
+          <li *ngIf="currentPage > 2" class="page-item">
+            <a class="page-link" (click)="changePage(1)">1</a>
+          </li>
+      
+          <!-- Ellipsis for pages before currentPage -->
+          <li *ngIf="currentPage > 3" class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+      
+          <!-- Display page numbers around the current page -->
+          <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
+            <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+          </li>
+      
+          <!-- Ellipsis for pages after currentPage -->
+          <li *ngIf="currentPage < lastPage - 2" class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+      
+          <!-- Last Page -->
+          <li *ngIf="currentPage < lastPage - 1" class="page-item">
+            <a class="page-link" (click)="changePage(lastPage)">{{ lastPage }}</a>
+          </li>
+      
+          <!-- Next Page -->
+          <li class="page-item" [class.disabled]="currentPage === lastPage">
+            <a class="page-link" (click)="changePage(currentPage + 1)" [attr.aria-disabled]="currentPage === lastPage">Next</a>
+          </li>
+        </ul>
+      </nav>
+      
+    
+    <!-- Bootstrap modal -->
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="min-width: 700px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editEventModalLabel">Edit Circular</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="modifyEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+                <div class="row">
+                    <!-- First Column (Left Side) -->
+                    <div class="col-md-6">
+                
+                      <!-- Airport Orders -->
+                      <div class="mb-3">
+                        <label for="airport_orders" class="form-label">Airport Orders</label>
+                        <input 
+                          type="text" 
+                          id="airport_orders" 
+                          class="form-control" 
+                          name="airport_orders" 
+                          [(ngModel)]="selectedEvent.airport_orders" 
+                          required 
+                          maxlength="255" 
+                          #airport_orders="ngModel">
+                        <div *ngIf="airport_orders.invalid && (airport_orders.dirty || airport_orders.touched)" class="text-danger">
+                          <div *ngIf="airport_orders.errors?.['required']">Airport Orders is required.</div>
+                          <div *ngIf="airport_orders.errors?.['maxlength']">Airport Orders must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Region Name -->
+                      <div class="mb-3">
+                        <label for="region_name" class="form-label">Region Name</label>
+                        <input 
+                          type="text" 
+                          id="region_name" 
+                          class="form-control" 
+                          name="region_name" 
+                          [(ngModel)]="selectedEvent.region_name" 
+                          required 
+                          maxlength="255" 
+                          #region_name="ngModel">
+                        <div *ngIf="region_name.invalid && (region_name.dirty || region_name.touched)" class="text-danger">
+                          <div *ngIf="region_name.errors?.['required']">Region Name is required.</div>
+                          <div *ngIf="region_name.errors?.['maxlength']">Region Name must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Language Code -->
+                      <div class="mb-3">
+                        <label for="lang_code" class="form-label">Language Code</label>
+                        <select 
+                          id="lang_code" 
+                          class="form-select" 
+                          name="lang_code" 
+                          [(ngModel)]="selectedEvent.lang_code" 
+                          required 
+                          #lang_code="ngModel">
+                          <option value="">Select Language</option>
+                          <option value="en">English</option>
+                          <option value="hi">Hindi</option>
+                        </select>
+                        <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
+                          <div *ngIf="lang_code.errors?.['required']">Language Code is required.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Serial Number -->
+                      <div class="mb-3">
+                        <label for="sr_no" class="form-label">Serial Number</label>
+                        <input 
+                          type="number" 
+                          id="sr_no" 
+                          class="form-control" 
+                          name="sr_no" 
+                          [(ngModel)]="selectedEvent.sr_no" 
+                          required 
+                          maxlength="255" 
+                          #sr_no="ngModel">
+                        <div *ngIf="sr_no.invalid && (sr_no.dirty || sr_no.touched)" class="text-danger">
+                          <div *ngIf="sr_no.errors?.['required']">Serial Number is required.</div>
+                          <div *ngIf="sr_no.errors?.['maxlength']">Serial Number must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Airport Name -->
+                      <div class="mb-3">
+                        <label for="airport_name" class="form-label">Airport Name</label>
+                        <input 
+                          type="text" 
+                          id="airport_name" 
+                          class="form-control" 
+                          name="airport_name" 
+                          [(ngModel)]="selectedEvent.airport_name" 
+                          required 
+                          maxlength="255" 
+                          #airport_name="ngModel">
+                        <div *ngIf="airport_name.invalid && (airport_name.dirty || airport_name.touched)" class="text-danger">
+                          <div *ngIf="airport_name.errors?.['required']">Airport Name is required.</div>
+                          <div *ngIf="airport_name.errors?.['maxlength']">Airport Name must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Entity Name -->
+                      <div class="mb-3">
+                        <label for="entity_name" class="form-label">Entity Name</label>
+                        <input 
+                          type="text" 
+                          id="entity_name" 
+                          class="form-control" 
+                          name="entity_name" 
+                          [(ngModel)]="selectedEvent.entity_name" 
+                          required 
+                          maxlength="255" 
+                          #entity_name="ngModel">
+                        <div *ngIf="entity_name.invalid && (entity_name.dirty || entity_name.touched)" class="text-danger">
+                          <div *ngIf="entity_name.errors?.['required']">Entity Name is required.</div>
+                          <div *ngIf="entity_name.errors?.['maxlength']">Entity Name must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                    </div>
+                
+                    <!-- Second Column (Right Side) -->
+                    <div class="col-md-6">
+                
+                      <!-- Address -->
+                      <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <input 
+                          type="text" 
+                          id="address" 
+                          class="form-control" 
+                          name="address" 
+                          [(ngModel)]="selectedEvent.address" 
+                          required 
+                          maxlength="255" 
+                          #address="ngModel">
+                        <div *ngIf="address.invalid && (address.dirty || address.touched)" class="text-danger">
+                          <div *ngIf="address.errors?.['required']">Address is required.</div>
+                          <div *ngIf="address.errors?.['maxlength']">Address must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Mobile Number -->
+                      <div class="mb-3">
+                        <label for="mobile_no" class="form-label">Mobile Number</label>
+                        <input 
+                          type="number" 
+                          id="mobile_no" 
+                          class="form-control" 
+                          name="mobile_no" 
+                          [(ngModel)]="selectedEvent.mobile_no" 
+                          required 
+                          pattern="^\d{10}$" 
+                          #mobile_no="ngModel" max="10">
+                        <div *ngIf="mobile_no.invalid && (mobile_no.dirty || mobile_no.touched)" class="text-danger">
+                          <div *ngIf="mobile_no.errors?.['required']">Mobile Number is required.</div>
+                          <div *ngIf="mobile_no.errors?.['pattern']">Please enter a valid 10-digit mobile number.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Phone Number -->
+                      <div class="mb-3">
+                        <label for="phone_no" class="form-label">Phone Number</label>
+                        <input 
+                          type="number" 
+                          id="phone_no" 
+                          class="form-control" 
+                          name="phone_no" 
+                          [(ngModel)]="selectedEvent.phone_no" 
+                          maxlength="15" 
+                          #phone_no="ngModel" max="10">
+                        <div *ngIf="phone_no.invalid && (phone_no.dirty || phone_no.touched)" class="text-danger">
+                          <div *ngIf="phone_no.errors?.['maxlength']">Phone Number must be less than 15 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Unique Reference Number -->
+                      <div class="mb-3">
+                        <label for="unique_reference_number" class="form-label">Unique Reference Number</label>
+                        <input 
+                          type="text" 
+                          id="unique_reference_number" 
+                          class="form-control" 
+                          name="unique_reference_number" 
+                          [(ngModel)]="selectedEvent.unique_reference_number" 
+                          required 
+                          maxlength="255" 
+                          #unique_reference_number="ngModel">
+                        <div *ngIf="unique_reference_number.invalid && (unique_reference_number.dirty || unique_reference_number.touched)" class="text-danger">
+                          <div *ngIf="unique_reference_number.errors?.['required']">Unique Reference Number is required.</div>
+                          <div *ngIf="unique_reference_number.errors?.['maxlength']">Unique Reference Number must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Approved Status Clearance -->
+                      <div class="mb-3">
+                        <label for="approved_status_clearance" class="form-label">Approved Status Clearance</label>
+                        <select 
+                          id="approved_status_clearance" 
+                          class="form-select" 
+                          name="approved_status_clearance" 
+                          [(ngModel)]="selectedEvent.approved_status_clearance" 
+                          required 
+                          #approved_status_clearance="ngModel">
+                          <option value="">Select Status</option>
+                          <option value="1">Approved</option>
+                          <option value="2">Pending</option>
+                          <option value="3">Rejected</option>
+                        </select>
+                        <div *ngIf="approved_status_clearance.invalid && (approved_status_clearance.dirty || approved_status_clearance.touched)" class="text-danger">
+                          <div *ngIf="approved_status_clearance.errors?.['required']">Approved Status Clearance is required.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Date of Approval Clearance -->
+                      <div class="mb-3">
+                        <label for="date_of_approval_clearance" class="form-label">Date of Approval Clearance</label>
+                        <input 
+                          type="date" 
+                          id="date_of_approval_clearance" 
+                          class="form-control" 
+                          name="date_of_approval_clearance" 
+                          [(ngModel)]="selectedEvent.date_of_approval_clearance" 
+                          required 
+                          #date_of_approval_clearance="ngModel">
+                        <div *ngIf="date_of_approval_clearance.invalid && (date_of_approval_clearance.dirty || date_of_approval_clearance.touched)" class="text-danger">
+                          <div *ngIf="date_of_approval_clearance.errors?.['required']">Date of Approval Clearance is required.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Approved Status Programme -->
+                      <div class="mb-3">
+                        <label for="approved_status_programme" class="form-label">Approved Status Programme</label>
+                        <select 
+                          id="approved_status_programme" 
+                          class="form-select" 
+                          name="approved_status_programme" 
+                          [(ngModel)]="selectedEvent.approved_status_programme" 
+                          required 
+                          #approved_status_programme="ngModel">
+                          <option value="">Select Status</option>
+                          <option value="1">Approved</option>
+                          <option value="2">Pending</option>
+                          <option value="3">Rejected</option>
+                        </select>
+                        <div *ngIf="approved_status_programme.invalid && (approved_status_programme.dirty || approved_status_programme.touched)" class="text-danger">
+                          <div *ngIf="approved_status_programme.errors?.['required']">Approved Status Programme is required.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Date of Approval Programme -->
+                      <div class="mb-3">
+                        <label for="date_of_approval_programme" class="form-label">Date of Approval Programme</label>
+                        <input 
+                          type="date" 
+                          id="date_of_approval_programme" 
+                          class="form-control" 
+                          name="date_of_approval_programme" 
+                          [(ngModel)]="selectedEvent.date_of_approval_programme" 
+                          required 
+                          #date_of_approval_programme="ngModel">
+                        <div *ngIf="date_of_approval_programme.invalid && (date_of_approval_programme.dirty || date_of_approval_programme.touched)" class="text-danger">
+                          <div *ngIf="date_of_approval_programme.errors?.['required']">Date of Approval Programme is required.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Valid Till -->
+                      <div class="mb-3">
+                        <label for="valid_till" class="form-label">Valid Till</label>
+                        <input 
+                          type="date" 
+                          id="valid_till" 
+                          class="form-control" 
+                          name="valid_till" 
+                          [(ngModel)]="selectedEvent.valid_till" 
+                          required 
+                          #valid_till="ngModel">
+                        <div *ngIf="valid_till.invalid && (valid_till.dirty || valid_till.touched)" class="text-danger">
+                          <div *ngIf="valid_till.errors?.['required']">Valid Till date is required.</div>
+                        </div>
+                      </div>
+                
+                    </div>
+                  </div>
+              
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>              
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="min-width: 700px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addEventModalLabel">add Circular</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="saveEvent()" #orderForm="ngForm">
+                <div class="row">
+                  <!-- First Column (Left Side) -->
+                  <div class="col-md-6">
+              
+                    <!-- Airport Orders -->
+                    <div class="mb-3">
+                      <label for="airport_orders" class="form-label">Airport Orders</label>
+                      <input 
+                        type="text" 
+                        id="airport_orders" 
+                        class="form-control" 
+                        name="airport_orders" 
+                        [(ngModel)]="selectedEvent.airport_orders" 
+                        required 
+                        maxlength="255" 
+                        #airport_orders="ngModel">
+                      <div *ngIf="airport_orders.invalid && (airport_orders.dirty || airport_orders.touched)" class="text-danger">
+                        <div *ngIf="airport_orders.errors?.['required']">Airport Orders is required.</div>
+                        <div *ngIf="airport_orders.errors?.['maxlength']">Airport Orders must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Region Name -->
+                    <div class="mb-3">
+                      <label for="region_name" class="form-label">Region Name</label>
+                      <input 
+                        type="text" 
+                        id="region_name" 
+                        class="form-control" 
+                        name="region_name" 
+                        [(ngModel)]="selectedEvent.region_name" 
+                        required 
+                        maxlength="255" 
+                        #region_name="ngModel">
+                      <div *ngIf="region_name.invalid && (region_name.dirty || region_name.touched)" class="text-danger">
+                        <div *ngIf="region_name.errors?.['required']">Region Name is required.</div>
+                        <div *ngIf="region_name.errors?.['maxlength']">Region Name must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Language Code -->
+                    <div class="mb-3">
+                      <label for="lang_code" class="form-label">Language Code</label>
+                      <select 
+                        id="lang_code" 
+                        class="form-select" 
+                        name="lang_code" 
+                        [(ngModel)]="selectedEvent.lang_code" 
+                        required 
+                        #lang_code="ngModel">
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                      </select>
+                      <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
+                        <div *ngIf="lang_code.errors?.['required']">Language Code is required.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Serial Number -->
+                    <div class="mb-3">
+                      <label for="sr_no" class="form-label">Serial Number</label>
+                      <input 
+                        type="number" 
+                        id="sr_no" 
+                        class="form-control" 
+                        name="sr_no" 
+                        [(ngModel)]="selectedEvent.sr_no" 
+                        required 
+                        maxlength="255" 
+                        #sr_no="ngModel">
+                      <div *ngIf="sr_no.invalid && (sr_no.dirty || sr_no.touched)" class="text-danger">
+                        <div *ngIf="sr_no.errors?.['required']">Serial Number is required.</div>
+                        <div *ngIf="sr_no.errors?.['maxlength']">Serial Number must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Airport Name -->
+                    <div class="mb-3">
+                      <label for="airport_name" class="form-label">Airport Name</label>
+                      <input 
+                        type="text" 
+                        id="airport_name" 
+                        class="form-control" 
+                        name="airport_name" 
+                        [(ngModel)]="selectedEvent.airport_name" 
+                        required 
+                        maxlength="255" 
+                        #airport_name="ngModel">
+                      <div *ngIf="airport_name.invalid && (airport_name.dirty || airport_name.touched)" class="text-danger">
+                        <div *ngIf="airport_name.errors?.['required']">Airport Name is required.</div>
+                        <div *ngIf="airport_name.errors?.['maxlength']">Airport Name must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Entity Name -->
+                    <div class="mb-3">
+                      <label for="entity_name" class="form-label">Entity Name</label>
+                      <input 
+                        type="text" 
+                        id="entity_name" 
+                        class="form-control" 
+                        name="entity_name" 
+                        [(ngModel)]="selectedEvent.entity_name" 
+                        required 
+                        maxlength="255" 
+                        #entity_name="ngModel">
+                      <div *ngIf="entity_name.invalid && (entity_name.dirty || entity_name.touched)" class="text-danger">
+                        <div *ngIf="entity_name.errors?.['required']">Entity Name is required.</div>
+                        <div *ngIf="entity_name.errors?.['maxlength']">Entity Name must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                  </div>
+              
+                  <!-- Second Column (Right Side) -->
+                  <div class="col-md-6">
+              
+                    <!-- Address -->
+                    <div class="mb-3">
+                      <label for="address" class="form-label">Address</label>
+                      <input 
+                        type="text" 
+                        id="address" 
+                        class="form-control" 
+                        name="address" 
+                        [(ngModel)]="selectedEvent.address" 
+                        required 
+                        maxlength="255" 
+                        #address="ngModel">
+                      <div *ngIf="address.invalid && (address.dirty || address.touched)" class="text-danger">
+                        <div *ngIf="address.errors?.['required']">Address is required.</div>
+                        <div *ngIf="address.errors?.['maxlength']">Address must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Mobile Number -->
+                    <div class="mb-3">
+                      <label for="mobile_no" class="form-label">Mobile Number</label>
+                      <input 
+                        type="number" 
+                        id="mobile_no" 
+                        class="form-control" 
+                        name="mobile_no" 
+                        [(ngModel)]="selectedEvent.mobile_no" 
+                        required 
+                        pattern="^\d{10}$" 
+                        #mobile_no="ngModel" max="10">
+                      <div *ngIf="mobile_no.invalid && (mobile_no.dirty || mobile_no.touched)" class="text-danger">
+                        <div *ngIf="mobile_no.errors?.['required']">Mobile Number is required.</div>
+                        <div *ngIf="mobile_no.errors?.['pattern']">Please enter a valid 10-digit mobile number.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Phone Number -->
+                    <div class="mb-3">
+                      <label for="phone_no" class="form-label">Phone Number</label>
+                      <input 
+                        type="number" 
+                        id="phone_no" 
+                        class="form-control" 
+                        name="phone_no" 
+                        [(ngModel)]="selectedEvent.phone_no" 
+                        maxlength="15" 
+                        #phone_no="ngModel" max="10">
+                      <div *ngIf="phone_no.invalid && (phone_no.dirty || phone_no.touched)" class="text-danger">
+                        <div *ngIf="phone_no.errors?.['maxlength']">Phone Number must be less than 15 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Unique Reference Number -->
+                    <div class="mb-3">
+                      <label for="unique_reference_number" class="form-label">Unique Reference Number</label>
+                      <input 
+                        type="text" 
+                        id="unique_reference_number" 
+                        class="form-control" 
+                        name="unique_reference_number" 
+                        [(ngModel)]="selectedEvent.unique_reference_number" 
+                        required 
+                        maxlength="255" 
+                        #unique_reference_number="ngModel">
+                      <div *ngIf="unique_reference_number.invalid && (unique_reference_number.dirty || unique_reference_number.touched)" class="text-danger">
+                        <div *ngIf="unique_reference_number.errors?.['required']">Unique Reference Number is required.</div>
+                        <div *ngIf="unique_reference_number.errors?.['maxlength']">Unique Reference Number must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Approved Status Clearance -->
+                    <div class="mb-3">
+                      <label for="approved_status_clearance" class="form-label">Approved Status Clearance</label>
+                      <select 
+                        id="approved_status_clearance" 
+                        class="form-select" 
+                        name="approved_status_clearance" 
+                        [(ngModel)]="selectedEvent.approved_status_clearance" 
+                        required 
+                        #approved_status_clearance="ngModel">
+                        <option value="">Select Status</option>
+                        <option value="1">Approved</option>
+                        <option value="2">Pending</option>
+                        <option value="3">Rejected</option>
+                      </select>
+                      <div *ngIf="approved_status_clearance.invalid && (approved_status_clearance.dirty || approved_status_clearance.touched)" class="text-danger">
+                        <div *ngIf="approved_status_clearance.errors?.['required']">Approved Status Clearance is required.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Date of Approval Clearance -->
+                    <div class="mb-3">
+                      <label for="date_of_approval_clearance" class="form-label">Date of Approval Clearance</label>
+                      <input 
+                        type="date" 
+                        id="date_of_approval_clearance" 
+                        class="form-control" 
+                        name="date_of_approval_clearance" 
+                        [(ngModel)]="selectedEvent.date_of_approval_clearance" 
+                        required 
+                        #date_of_approval_clearance="ngModel">
+                      <div *ngIf="date_of_approval_clearance.invalid && (date_of_approval_clearance.dirty || date_of_approval_clearance.touched)" class="text-danger">
+                        <div *ngIf="date_of_approval_clearance.errors?.['required']">Date of Approval Clearance is required.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Approved Status Programme -->
+                    <div class="mb-3">
+                      <label for="approved_status_programme" class="form-label">Approved Status Programme</label>
+                      <select 
+                        id="approved_status_programme" 
+                        class="form-select" 
+                        name="approved_status_programme" 
+                        [(ngModel)]="selectedEvent.approved_status_programme" 
+                        required 
+                        #approved_status_programme="ngModel">
+                        <option value="">Select Status</option>
+                        <option value="1">Approved</option>
+                        <option value="2">Pending</option>
+                        <option value="3">Rejected</option>
+                      </select>
+                      <div *ngIf="approved_status_programme.invalid && (approved_status_programme.dirty || approved_status_programme.touched)" class="text-danger">
+                        <div *ngIf="approved_status_programme.errors?.['required']">Approved Status Programme is required.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Date of Approval Programme -->
+                    <div class="mb-3">
+                      <label for="date_of_approval_programme" class="form-label">Date of Approval Programme</label>
+                      <input 
+                        type="date" 
+                        id="date_of_approval_programme" 
+                        class="form-control" 
+                        name="date_of_approval_programme" 
+                        [(ngModel)]="selectedEvent.date_of_approval_programme" 
+                        required 
+                        #date_of_approval_programme="ngModel">
+                      <div *ngIf="date_of_approval_programme.invalid && (date_of_approval_programme.dirty || date_of_approval_programme.touched)" class="text-danger">
+                        <div *ngIf="date_of_approval_programme.errors?.['required']">Date of Approval Programme is required.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Valid Till -->
+                    <div class="mb-3">
+                      <label for="valid_till" class="form-label">Valid Till</label>
+                      <input 
+                        type="date" 
+                        id="valid_till" 
+                        class="form-control" 
+                        name="valid_till" 
+                        [(ngModel)]="selectedEvent.valid_till" 
+                        required 
+                        #valid_till="ngModel">
+                      <div *ngIf="valid_till.invalid && (valid_till.dirty || valid_till.touched)" class="text-danger">
+                        <div *ngIf="valid_till.errors?.['required']">Valid Till date is required.</div>
+                      </div>
+                    </div>
+              
+                  </div>
+                </div>
+              
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </form>
+              
+
+          </div>
+        </div>
+      </div>
+    </div>
+    
