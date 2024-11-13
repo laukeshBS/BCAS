@@ -84,7 +84,23 @@ export class AuditDatatableComponent {
     });
   }
   exportPDF() {
+    // Get today's date and the date 7 days ago
+    const today = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+  
+    // Convert fromDate and toDate to Date objects (assuming they are strings)
+    const fromDateObj = new Date(this.fromDate);
+    const toDateObj = new Date(this.toDate);
+  
+    // Check if the fromDate and toDate are within the last 7 days
+    if (fromDateObj < sevenDaysAgo || toDateObj > today) {
+      alert('You can only export data for the last 7 days.');
+      return; // Exit the function if the date range is invalid
+    }
+  
     // Start by showing a loading spinner
+    // (You may want to implement the spinner logic here)
   
     // Call the exportPDF method from the service
     this.auditService.exportPDF(this.fromDate, this.toDate).subscribe(
@@ -101,15 +117,18 @@ export class AuditDatatableComponent {
         alert('Report generated successfully.');
   
         // Hide loading spinner
+        // (Hide the spinner here if you have implemented one)
       },
       (error) => {
         console.error('Error exporting PDF:', error);
         alert('An error occurred while generating the PDF. Please try again.');
   
         // Hide loading spinner
+        // (Hide the spinner here if you have implemented one)
       }
     );
   }
+  
   
   
   

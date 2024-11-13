@@ -14,22 +14,29 @@
     <table>
         <thead>
             <tr>
-                <th>Action By</th>
-                <th>Old Data / Request</th>
-                <th>New Data / Response</th>
-                <th>IP</th>
-                <th>Date</th>
-                
+                <th>Action Name</th>
+                <th>Title</th>
+                <th>Username</th>
+                <th>Name</th>
+                <th>Eamil</th>
+                <th>Phone</th>
+                <th style="max-width: 300px;">Request</th>
+                <th>Audit Date</th>
+                <th>IP Address</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($data as $row)
                 <tr>
+                    <td>{{ @$row->action_name }}</td>
+                    <td>{{ @$row->module_item_title }}</td>
+                    <td>{{ @$row->user->username }}</td>
                     <td>{{ @$row->user->name }}</td>
-                    <td>{{ $row->old_data }}</td>
+                    <td>{{ @$row->user->email }}</td>
+                    <td>{{ @$row->user->phone }}</td>
                     <td>{{ $row->new_data }}</td>
-                    <td>{{ $row->ip_address }}</td>
                     <td>{{ $row->action_date }}</td>
+                    <td>{{ $row->ip_address }}</td>
                 </tr>
             @endforeach
         </tbody>
