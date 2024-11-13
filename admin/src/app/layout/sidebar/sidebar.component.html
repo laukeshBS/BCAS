@@ -150,6 +150,12 @@
               <p>Catering</p>
             </a>
           </li>
+          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+            <a [routerLink]="['/airport']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>Airport</p>
+            </a>
+          </li>
           <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/contact']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>

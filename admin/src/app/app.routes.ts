@@ -34,6 +34,7 @@ import { GalleryComponent } from './pages/gallery/gallery.component';
 import { OpsSecurityComponent } from './pages/ops-security/ops-security.component';
 import { OpsiSecurityComponent } from './pages/opsi-security/opsi-security.component';
 import { CateringComponent } from './pages/catering/catering.component';
+import { AirportComponent } from './pages/airport/airport.component';
 
 
 export const routes: Routes = [
@@ -68,6 +69,7 @@ export const routes: Routes = [
     { path: 'ops-security', component: OpsSecurityComponent, canActivate: [AuthGuard]  },
     { path: 'opsi-security', component: OpsiSecurityComponent, canActivate: [AuthGuard]  },
     { path: 'catering', component: CateringComponent, canActivate: [AuthGuard]  },
+    { path: 'airport', component: AirportComponent, canActivate: [AuthGuard]  },
     { path: '**', redirectTo: '/' },
     {
       path: 'restricted',
