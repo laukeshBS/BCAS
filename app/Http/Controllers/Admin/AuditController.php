@@ -43,7 +43,7 @@ class AuditController extends Controller
     $toDate = Carbon::parse($request->to_date);
 
     // Query data within the date range
-    $data = AuditTrail::with(['user'])->whereBetween('created_at', [$fromDate, $toDate])
+    $data = AuditTrail::with(['user:id,username,name,email,phone'])->whereBetween('created_at', [$fromDate, $toDate])
                      ->get();
 
     // Generate and return the PDF

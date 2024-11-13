@@ -19,9 +19,11 @@
           <tr>
             <th>Action Name</th>
             <th>Title</th>
-            <th>Action By</th>
-            <th style="max-width: 300px;">Old Data / Request</th>
-            <th style="max-width: 300px;">New Data / Response</th>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Eamil</th>
+            <th>Phone</th>
+            <th style="max-width: 300px;">Request</th>
             <th>Audit Date</th>
             <th>IP Address</th>
           </tr>
@@ -30,8 +32,10 @@
           <tr *ngFor="let event of events">
             <td>{{ event.action_name }}</td>
             <td>{{ event.module_item_title }}</td>
+            <td>{{ event.user.username}}</td>
             <td>{{ event.user.name}}</td>
-            <td style="max-width: 300px;">{{ event.old_data }}</td>
+            <td>{{ event.user.email}}</td>
+            <td>{{ event.user.phone}}</td>
             <td style="max-width: 300px;">{{ event.new_data }}</td>
             <td>{{ event.action_date }}</td>
             <td>{{ event.ip_address }}</td>
