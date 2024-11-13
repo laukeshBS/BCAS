@@ -22,6 +22,30 @@ class SecurityQuizController  extends Controller
         });
     }
 
+    public function quiz_list(Request $request)
+    {
+        $lang= $request->lang_code;
+        // Fetching the quiz data from the database
+        $data = SecurityQuiz::where('lang_code',$lang)->inRandomOrder()->limit(10)->get();
+    
+        // Transforming the data to match the desired format
+        $formattedData = $data->map(function($quiz) {
+            return [
+                'question' => $quiz->question,
+                'options' => [
+                    $quiz->A,
+                    $quiz->B,
+                    $quiz->C,
+                    $quiz->D
+                ],
+                'answer' => $quiz->answer // In this case 'A', 'B', 'C', or 'D'
+            ];
+        });
+    
+        // Returning the formatted data as JSON
+        return response()->json($formattedData);
+    }
+
     // SecurityQuiz
     public function data(Request $request)
     {

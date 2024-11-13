@@ -26,7 +26,8 @@ class VacancyController extends Controller
 
     public function data(Request $request)
     {
-        $limit = $request->input('limit');
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
         $lang_code = $request->input('lang_code');
 
         if (!$lang_code) {
@@ -39,13 +40,10 @@ class VacancyController extends Controller
         if (!empty($limit)) {
             $query->limit($limit);
         }
-        $data = $query->get();
+        $data = $query->paginate($perPage, ['*'], 'page', $page);
 
         $data->transform(function ($item) {
-            // $item->start_date = date('d-m-Y', strtotime($item->start_date));
-            // $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            // $item->document = asset('public/documents/' . $item->document) ;
             return $item;
         });
 
