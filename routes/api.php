@@ -129,8 +129,8 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
         Route::get('opssecurity-list-by-id/{id}', 'data_by_id');
     });
     Route::controller(OpsiSecurityController::class)->group(function () {
-        Route::post('opsisecurity-list', 'opssecurity_list');
-        Route::post('opsisecurity-list-approved', 'opssecurity_list_approved');
+        Route::post('opsisecurity-list', 'opsisecurity_list');
+        Route::post('opsisecurity-list-approved', 'opsisecurity_list_approved');
         Route::get('opsisecurity-list-by-id/{id}', 'data_by_id');
     });
 
