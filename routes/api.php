@@ -172,6 +172,7 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
 
     Route::controller(WorkingAirportsController::class)->group(function () {
         Route::post('airport-list', 'airport_list');
+        Route::get('airport-list-by-id/{id}','data_by_id');
         Route::post('airport-list-approved', 'airport_list_approved');
     });
 
@@ -275,11 +276,10 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
       
     });
     Route::controller(WorkingAirportsController::class)->group(function(){
-       
-        Route::get('airport-list-by-id/{id}','data_by_id');
-        Route::any('airport-add','store');
-        Route::post('airport-update/{id}','update');
-        Route::delete('airport-delete/{id}','delete');
+        Route::post('airports-list', 'cms_data');
+        Route::any('airport-store','cms_store');
+        Route::post('airport-update/{id}','cms_update');
+        Route::delete('airport-delete/{id}','cms_delete');
       
     });
     Route::controller(CircularController::class)->group(function () {
@@ -288,13 +288,6 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::get('circular-list-by-id/{id}', 'data_by_id');
         Route::post('circular-update/{id}', 'update');
         Route::delete('circular-delete/{id}', 'delete');
-    });
-
-    Route::controller(WorkingAirportsController::class)->group(function () {
-        Route::get('airport-list-by-id/{id}', 'data_by_id');
-        Route::post('airport-add', 'store');
-        Route::post('airport-update/{id}', 'update');
-        Route::delete('airport-delete/{id}', 'delete');
     });
 
     Route::controller(AirlinesController::class)->group(function () {
