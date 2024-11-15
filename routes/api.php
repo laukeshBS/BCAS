@@ -113,12 +113,14 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
 
     Route::controller(EventController::class)->group(function () {
         Route::post('event-list-frontend', 'event_list_for_frontend');
+        Route::post('archive-event-list', 'archive');
         Route::get('event-list-by-id/{id}', 'data_by_id');
         Route::post('event-list-for-homepage', 'event_list_for_homepage');
     });
 
     Route::controller(NoticeController::class)->group(function () {
         Route::post('notice-list', 'notice_list');
+        Route::post('archive-notice-list', 'archive');
         Route::post('notice-list-for-homepage', 'notice_list_for_homepage');
         Route::get('notice-list-by-id/{id}', 'data_by_id');
     });
@@ -136,6 +138,7 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
 
     Route::controller(CircularController::class)->group(function () {
         Route::post('circular-list', 'data');
+        Route::post('archive-circular-list', 'archive');
         Route::post('circular-list-for-homepage', 'circular_list_for_homepage');
     });
 
@@ -145,6 +148,7 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
 
     Route::controller(VacancyController::class)->group(function () {
         Route::post('vacancy-list', 'data');
+        Route::post('vacancy-archive-list', 'archive');
     });
 
     Route::controller(DivisionController::class)->group(function () {
@@ -158,6 +162,7 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
 
     Route::controller(TenderController::class)->group(function () {
         Route::post('tender-list', 'data');
+        Route::post('tender-archive-list', 'archive');
         Route::get('tender-details/{id}', 'data_by_id');
     });
 
