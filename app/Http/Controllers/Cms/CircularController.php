@@ -30,9 +30,10 @@ class CircularController extends Controller
     {
         $limit = $request->input('limit', 5);
         $lang_code = $request->input('lang_code');
-
+        $date=date('Y-m-d');
         $circulars = Circular::select('*')
             ->where('lang_code',$lang_code)
+            ->where('end_date','>', $date)
             ->orderBy('id', 'desc')
             ->limit($limit)
             ->get();
@@ -45,22 +46,24 @@ class CircularController extends Controller
 
         return response()->json($circulars);
     }
-    public function circular_list(Request $request)
+    
+    public function archive(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('limit', 10);
         $page = $request->input('page', 1);
         $lang_code = $request->input('lang_code','en');
-
+        $date=date('Y-m-d');
         $circulars = Circular::select('*')
             ->orderBy('id', 'desc')
             ->where('lang_code', $lang_code)
+            ->where('end_date','<', $date)
             ->paginate($perPage, ['*'], 'page', $page);
-
+ 
         $circulars->getCollection()->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
             return $item;
         });
-
+ 
         return response()->json([
             'title' => 'List',
             'data' => $circulars->items(),
@@ -73,30 +76,28 @@ class CircularController extends Controller
     
     public function data(Request $request)
     {
-        $limit = $request->input('limit', 5);
-        $lang_code = $request->input('lang_code');
-
-        $data = Circular::select('*')
-            ->where('lang_code',$lang_code)
+        $perPage = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+        $lang_code = $request->input('lang_code','en');
+        $date=date('Y-m-d');
+        $circulars = Circular::select('*')
             ->orderBy('id', 'desc')
-            ->limit($limit)
-            ->get();
-
-        $data->transform(function ($item) {
-            // $item->start_date = date('d-m-Y', strtotime($item->start_date));
-            // $item->end_date = date('d-m-Y', strtotime($item->end_date));
+            ->where('lang_code', $lang_code)
+            ->where('end_date','>', $date)
+            ->paginate($perPage, ['*'], 'page', $page);
+ 
+        $circulars->getCollection()->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            // $item->document = asset('public/documents/' . $item->document) ;
             return $item;
         });
-
+ 
         return response()->json([
             'title' => 'List',
-            'data' => $data->items(), 
-            'total' => $data->total(), 
-            'current_page' => $data->currentPage(), 
-            'last_page' => $data->lastPage(), 
-            'per_page' => $data->perPage(), 
+            'data' => $circulars->items(),
+            'total' => $circulars->total(),
+            'current_page' => $circulars->currentPage(),
+            'last_page' => $circulars->lastPage(),
+            'per_page' => $circulars->perPage(),
         ]);
     }
     public function cms_data(Request $request)
