@@ -1,0 +1,501 @@
+<button (click)="addEvent()" class="btn btn-outline-primary btn-sm">Add</button>
+<div *ngIf="events.length > 0" style="overflow-x: auto">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Region Name</th>
+                <th>E-File No</th>
+                <th>ASTI Name</th>
+                <th>ASTI Location</th>
+                <th>Date of Approval</th>
+                <th>In Principle Provisional</th>
+                <th>BCAS Date of Approval</th>
+                <th>Approved by BCAS</th>
+                <th>Letter No</th>
+                <th>Language Code</th>
+                <th>Published Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let event of events">
+                <td>{{ event.region_name }}</td>
+                <td>{{ event.e_file_no }}</td>
+                <td>{{ event.asti_name }}</td>
+                <td>{{ event.asti_location }}</td>
+                <td>{{ event.date_of_approval }}</td>
+                <td>{{ event.in_principle_provisional }}</td>
+                <td>{{ event.bcas_date_of_approval }}</td>
+                <td>{{ event.approved_by_bcas }}</td>
+                <td>{{ event.letter_no }}</td>
+                <td>{{ event.lang_code }}</td>
+                <td>{{ event.created_at }}</td>
+                <td>
+                    <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
+                    <button (click)="deleteEvent(event.id)" class="btn btn-outline-danger btn-sm">Delete</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+    </div>
+    
+    <div *ngIf="loading==true">
+      <p>Loading...</p>
+    </div>
+    
+    <div *ngIf="loading==false && events.length === 0">
+      <p>No events found.</p>
+    </div>
+      <!-- Optionally, you can show the events here if the length is > 0 -->
+    <nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+        <ul class="pagination">
+          <!-- Previous Page -->
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)" [attr.aria-disabled]="currentPage === 1">Previous</a>
+          </li>
+      
+          <!-- Page numbers with ellipsis handling -->
+          <li *ngIf="currentPage > 2" class="page-item">
+            <a class="page-link" (click)="changePage(1)">1</a>
+          </li>
+      
+          <!-- Ellipsis for pages before currentPage -->
+          <li *ngIf="currentPage > 3" class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+      
+          <!-- Display page numbers around the current page -->
+          <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
+            <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+          </li>
+      
+          <!-- Ellipsis for pages after currentPage -->
+          <li *ngIf="currentPage < lastPage - 2" class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+      
+          <!-- Last Page -->
+          <li *ngIf="currentPage < lastPage - 1" class="page-item">
+            <a class="page-link" (click)="changePage(lastPage)">{{ lastPage }}</a>
+          </li>
+      
+          <!-- Next Page -->
+          <li class="page-item" [class.disabled]="currentPage === lastPage">
+            <a class="page-link" (click)="changePage(currentPage + 1)" [attr.aria-disabled]="currentPage === lastPage">Next</a>
+          </li>
+        </ul>
+    </nav>
+      
+    
+    <!-- Bootstrap modal -->
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="min-width: 700px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editEventModalLabel">Edit Circular</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="modifyEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+                <div class="row">
+                  <!-- First Column (Left Side) -->
+                  <div class="col-md-6">
+              
+                    <!-- Region Name -->
+                    <div class="mb-3">
+                      <label for="region_name" class="form-label">Region Name</label>
+                      <input 
+                        type="text" 
+                        id="region_name" 
+                        class="form-control" 
+                        name="region_name" 
+                        [(ngModel)]="selectedEvent.region_name" 
+                        required 
+                        maxlength="255" 
+                        #region_name="ngModel">
+                      <div *ngIf="region_name.invalid && (region_name.dirty || region_name.touched)" class="text-danger">
+                        <div *ngIf="region_name.errors?.['required']">Region Name is required.</div>
+                        <div *ngIf="region_name.errors?.['maxlength']">Region Name must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- E-File Number -->
+                    <div class="mb-3">
+                      <label for="e_file_no" class="form-label">E-File Number</label>
+                      <input 
+                        type="text" 
+                        id="e_file_no" 
+                        class="form-control" 
+                        name="e_file_no" 
+                        [(ngModel)]="selectedEvent.e_file_no" 
+                        required 
+                        maxlength="255" 
+                        #e_file_no="ngModel">
+                      <div *ngIf="e_file_no.invalid && (e_file_no.dirty || e_file_no.touched)" class="text-danger">
+                        <div *ngIf="e_file_no.errors?.['required']">E-File Number is required.</div>
+                        <div *ngIf="e_file_no.errors?.['maxlength']">E-File Number must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- ASTI Name -->
+                    <div class="mb-3">
+                      <label for="asti_name" class="form-label">ASTI Name</label>
+                      <input 
+                        type="text" 
+                        id="asti_name" 
+                        class="form-control" 
+                        name="asti_name" 
+                        [(ngModel)]="selectedEvent.asti_name" 
+                        required 
+                        maxlength="255" 
+                        #asti_name="ngModel">
+                      <div *ngIf="asti_name.invalid && (asti_name.dirty || asti_name.touched)" class="text-danger">
+                        <div *ngIf="asti_name.errors?.['required']">ASTI Name is required.</div>
+                        <div *ngIf="asti_name.errors?.['maxlength']">ASTI Name must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- ASTI Location -->
+                    <div class="mb-3">
+                      <label for="asti_location" class="form-label">ASTI Location</label>
+                      <input 
+                        type="text" 
+                        id="asti_location" 
+                        class="form-control" 
+                        name="asti_location" 
+                        [(ngModel)]="selectedEvent.asti_location" 
+                        required 
+                        maxlength="255" 
+                        #asti_location="ngModel">
+                      <div *ngIf="asti_location.invalid && (asti_location.dirty || asti_location.touched)" class="text-danger">
+                        <div *ngIf="asti_location.errors?.['required']">ASTI Location is required.</div>
+                        <div *ngIf="asti_location.errors?.['maxlength']">ASTI Location must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Date of Approval -->
+                    <div class="mb-3">
+                      <label for="date_of_approval" class="form-label">Date of Approval</label>
+                      <input 
+                        type="date" 
+                        id="date_of_approval" 
+                        class="form-control" 
+                        name="date_of_approval" 
+                        [(ngModel)]="selectedEvent.date_of_approval" 
+                        required 
+                        #date_of_approval="ngModel">
+                      <div *ngIf="date_of_approval.invalid && (date_of_approval.dirty || date_of_approval.touched)" class="text-danger">
+                        <div *ngIf="date_of_approval.errors?.['required']">Date of Approval is required.</div>
+                      </div>
+                    </div>
+              
+                  </div>
+              
+                  <!-- Second Column (Right Side) -->
+                  <div class="col-md-6">
+              
+                    <!-- In Principle Provisional -->
+                    <div class="mb-3">
+                      <label for="in_principle_provisional" class="form-label">In Principle Provisional</label>
+                      <input 
+                        type="text" 
+                        id="in_principle_provisional" 
+                        class="form-control" 
+                        name="in_principle_provisional" 
+                        [(ngModel)]="selectedEvent.in_principle_provisional" 
+                        required 
+                        maxlength="255" 
+                        #in_principle_provisional="ngModel">
+                      <div *ngIf="in_principle_provisional.invalid && (in_principle_provisional.dirty || in_principle_provisional.touched)" class="text-danger">
+                        <div *ngIf="in_principle_provisional.errors?.['required']">In Principle Provisional is required.</div>
+                        <div *ngIf="in_principle_provisional.errors?.['maxlength']">In Principle Provisional must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- BCAS Date of Approval -->
+                    <div class="mb-3">
+                      <label for="bcas_date_of_approval" class="form-label">BCAS Date of Approval</label>
+                      <input 
+                        type="date" 
+                        id="bcas_date_of_approval" 
+                        class="form-control" 
+                        name="bcas_date_of_approval" 
+                        [(ngModel)]="selectedEvent.bcas_date_of_approval" 
+                        required 
+                        #bcas_date_of_approval="ngModel">
+                      <div *ngIf="bcas_date_of_approval.invalid && (bcas_date_of_approval.dirty || bcas_date_of_approval.touched)" class="text-danger">
+                        <div *ngIf="bcas_date_of_approval.errors?.['required']">BCAS Date of Approval is required.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Approved by BCAS -->
+                    <div class="mb-3">
+                      <label for="approved_by_bcas" class="form-label">Approved by BCAS</label>
+                      <input 
+                        type="text" 
+                        id="approved_by_bcas" 
+                        class="form-control" 
+                        name="approved_by_bcas" 
+                        [(ngModel)]="selectedEvent.approved_by_bcas" 
+                        required 
+                        maxlength="255" 
+                        #approved_by_bcas="ngModel">
+                      <div *ngIf="approved_by_bcas.invalid && (approved_by_bcas.dirty || approved_by_bcas.touched)" class="text-danger">
+                        <div *ngIf="approved_by_bcas.errors?.['required']">Approved by BCAS is required.</div>
+                        <div *ngIf="approved_by_bcas.errors?.['maxlength']">Approved by BCAS must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Letter Number -->
+                    <div class="mb-3">
+                      <label for="letter_no" class="form-label">Letter Number</label>
+                      <input 
+                        type="text" 
+                        id="letter_no" 
+                        class="form-control" 
+                        name="letter_no" 
+                        [(ngModel)]="selectedEvent.letter_no" 
+                        required 
+                        maxlength="255" 
+                        #letter_no="ngModel">
+                      <div *ngIf="letter_no.invalid && (letter_no.dirty || letter_no.touched)" class="text-danger">
+                        <div *ngIf="letter_no.errors?.['required']">Letter Number is required.</div>
+                        <div *ngIf="letter_no.errors?.['maxlength']">Letter Number must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Language Code -->
+                    <div class="mb-3">
+                      <label for="lang_code" class="form-label">Language Code</label>
+                      <select 
+                        id="lang_code" 
+                        class="form-select" 
+                        name="lang_code" 
+                        [(ngModel)]="selectedEvent.lang_code" 
+                        required 
+                        #lang_code="ngModel">
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                      </select>
+                      <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
+                        <div *ngIf="lang_code.errors?.['required']">Language Code is required.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>            
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="min-width: 700px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addEventModalLabel">add Circular</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="saveEvent()" #orderForm="ngForm">
+                <div class="row">
+                    <!-- First Column (Left Side) -->
+                    <div class="col-md-6">
+                
+                      <!-- Region Name -->
+                      <div class="mb-3">
+                        <label for="region_name" class="form-label">Region Name</label>
+                        <input 
+                          type="text" 
+                          id="region_name" 
+                          class="form-control" 
+                          name="region_name" 
+                          [(ngModel)]="selectedEvent.region_name" 
+                          required 
+                          maxlength="255" 
+                          #region_name="ngModel">
+                        <div *ngIf="region_name.invalid && (region_name.dirty || region_name.touched)" class="text-danger">
+                          <div *ngIf="region_name.errors?.['required']">Region Name is required.</div>
+                          <div *ngIf="region_name.errors?.['maxlength']">Region Name must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- E-File Number -->
+                      <div class="mb-3">
+                        <label for="e_file_no" class="form-label">E-File Number</label>
+                        <input 
+                          type="text" 
+                          id="e_file_no" 
+                          class="form-control" 
+                          name="e_file_no" 
+                          [(ngModel)]="selectedEvent.e_file_no" 
+                          required 
+                          maxlength="255" 
+                          #e_file_no="ngModel">
+                        <div *ngIf="e_file_no.invalid && (e_file_no.dirty || e_file_no.touched)" class="text-danger">
+                          <div *ngIf="e_file_no.errors?.['required']">E-File Number is required.</div>
+                          <div *ngIf="e_file_no.errors?.['maxlength']">E-File Number must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- ASTI Name -->
+                      <div class="mb-3">
+                        <label for="asti_name" class="form-label">ASTI Name</label>
+                        <input 
+                          type="text" 
+                          id="asti_name" 
+                          class="form-control" 
+                          name="asti_name" 
+                          [(ngModel)]="selectedEvent.asti_name" 
+                          required 
+                          maxlength="255" 
+                          #asti_name="ngModel">
+                        <div *ngIf="asti_name.invalid && (asti_name.dirty || asti_name.touched)" class="text-danger">
+                          <div *ngIf="asti_name.errors?.['required']">ASTI Name is required.</div>
+                          <div *ngIf="asti_name.errors?.['maxlength']">ASTI Name must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- ASTI Location -->
+                      <div class="mb-3">
+                        <label for="asti_location" class="form-label">ASTI Location</label>
+                        <input 
+                          type="text" 
+                          id="asti_location" 
+                          class="form-control" 
+                          name="asti_location" 
+                          [(ngModel)]="selectedEvent.asti_location" 
+                          required 
+                          maxlength="255" 
+                          #asti_location="ngModel">
+                        <div *ngIf="asti_location.invalid && (asti_location.dirty || asti_location.touched)" class="text-danger">
+                          <div *ngIf="asti_location.errors?.['required']">ASTI Location is required.</div>
+                          <div *ngIf="asti_location.errors?.['maxlength']">ASTI Location must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Date of Approval -->
+                      <div class="mb-3">
+                        <label for="date_of_approval" class="form-label">Date of Approval</label>
+                        <input 
+                          type="date" 
+                          id="date_of_approval" 
+                          class="form-control" 
+                          name="date_of_approval" 
+                          [(ngModel)]="selectedEvent.date_of_approval" 
+                          required 
+                          #date_of_approval="ngModel">
+                        <div *ngIf="date_of_approval.invalid && (date_of_approval.dirty || date_of_approval.touched)" class="text-danger">
+                          <div *ngIf="date_of_approval.errors?.['required']">Date of Approval is required.</div>
+                        </div>
+                      </div>
+                
+                    </div>
+                
+                    <!-- Second Column (Right Side) -->
+                    <div class="col-md-6">
+                
+                      <!-- In Principle Provisional -->
+                      <div class="mb-3">
+                        <label for="in_principle_provisional" class="form-label">In Principle Provisional</label>
+                        <input 
+                          type="text" 
+                          id="in_principle_provisional" 
+                          class="form-control" 
+                          name="in_principle_provisional" 
+                          [(ngModel)]="selectedEvent.in_principle_provisional" 
+                          required 
+                          maxlength="255" 
+                          #in_principle_provisional="ngModel">
+                        <div *ngIf="in_principle_provisional.invalid && (in_principle_provisional.dirty || in_principle_provisional.touched)" class="text-danger">
+                          <div *ngIf="in_principle_provisional.errors?.['required']">In Principle Provisional is required.</div>
+                          <div *ngIf="in_principle_provisional.errors?.['maxlength']">In Principle Provisional must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- BCAS Date of Approval -->
+                      <div class="mb-3">
+                        <label for="bcas_date_of_approval" class="form-label">BCAS Date of Approval</label>
+                        <input 
+                          type="date" 
+                          id="bcas_date_of_approval" 
+                          class="form-control" 
+                          name="bcas_date_of_approval" 
+                          [(ngModel)]="selectedEvent.bcas_date_of_approval" 
+                          required 
+                          #bcas_date_of_approval="ngModel">
+                        <div *ngIf="bcas_date_of_approval.invalid && (bcas_date_of_approval.dirty || bcas_date_of_approval.touched)" class="text-danger">
+                          <div *ngIf="bcas_date_of_approval.errors?.['required']">BCAS Date of Approval is required.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Approved by BCAS -->
+                      <div class="mb-3">
+                        <label for="approved_by_bcas" class="form-label">Approved by BCAS</label>
+                        <input 
+                          type="text" 
+                          id="approved_by_bcas" 
+                          class="form-control" 
+                          name="approved_by_bcas" 
+                          [(ngModel)]="selectedEvent.approved_by_bcas" 
+                          required 
+                          maxlength="255" 
+                          #approved_by_bcas="ngModel">
+                        <div *ngIf="approved_by_bcas.invalid && (approved_by_bcas.dirty || approved_by_bcas.touched)" class="text-danger">
+                          <div *ngIf="approved_by_bcas.errors?.['required']">Approved by BCAS is required.</div>
+                          <div *ngIf="approved_by_bcas.errors?.['maxlength']">Approved by BCAS must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Letter Number -->
+                      <div class="mb-3">
+                        <label for="letter_no" class="form-label">Letter Number</label>
+                        <input 
+                          type="text" 
+                          id="letter_no" 
+                          class="form-control" 
+                          name="letter_no" 
+                          [(ngModel)]="selectedEvent.letter_no" 
+                          required 
+                          maxlength="255" 
+                          #letter_no="ngModel">
+                        <div *ngIf="letter_no.invalid && (letter_no.dirty || letter_no.touched)" class="text-danger">
+                          <div *ngIf="letter_no.errors?.['required']">Letter Number is required.</div>
+                          <div *ngIf="letter_no.errors?.['maxlength']">Letter Number must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Language Code -->
+                      <div class="mb-3">
+                        <label for="lang_code" class="form-label">Language Code</label>
+                        <select 
+                          id="lang_code" 
+                          class="form-select" 
+                          name="lang_code" 
+                          [(ngModel)]="selectedEvent.lang_code" 
+                          required 
+                          #lang_code="ngModel">
+                          <option value="">Select Language</option>
+                          <option value="en">English</option>
+                          <option value="hi">Hindi</option>
+                        </select>
+                        <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
+                          <div *ngIf="lang_code.errors?.['required']">Language Code is required.</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </form>
+              
+
+          </div>
+        </div>
+      </div>
+    </div>
+    

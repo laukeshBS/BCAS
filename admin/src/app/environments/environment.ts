@@ -7,4 +7,5 @@ export const environment = {
 
   apiBaseUrl: 'http://localhost/bcas/api/',
   apiDocBaseUrl: 'http://localhost/bcas/',
+
 };

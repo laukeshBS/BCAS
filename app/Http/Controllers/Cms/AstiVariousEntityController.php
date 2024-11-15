@@ -39,32 +39,32 @@ class AstiVariousEntityController extends Controller
 
         return response()->json($airports);
     }
-public function asti_list_approved(Request $request)
-{
-    // Default pagination parameters
-    $perPage = $request->input('per_page', 10);
-    $page = $request->input('page', 1);
+    public function asti_list_approved(Request $request)
+    {
+        // Default pagination parameters
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
 
-    // Filter parameters
-    $lang_code = $request->input('lang_code');
-    
+        // Filter parameters
+        $lang_code = $request->input('lang_code');
+        
 
-    // Query to fetch approved airports based on the provided filters
-    $airports = AstiVariousEntity::select('*')
-        //->where('in_principle_provisional', 'APPROVED')  
-        ->where('lang_code',$lang_code)
-        ->orderBy('region_name', 'ASC')
-        ->paginate($perPage, ['*'], 'page', $page);
+        // Query to fetch approved airports based on the provided filters
+        $airports = AstiVariousEntity::select('*')
+            //->where('in_principle_provisional', 'APPROVED')  
+            ->where('lang_code',$lang_code)
+            ->orderBy('region_name', 'ASC')
+            ->paginate($perPage, ['*'], 'page', $page);
 
-    // Transforming the collection to format the created_at date
-    $airports->getCollection()->transform(function ($item) {
-        $item->created_at = date('d-m-Y', strtotime($item->created_at));
-        return $item;
-    });
+        // Transforming the collection to format the created_at date
+        $airports->getCollection()->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            return $item;
+        });
 
-    // Returning the paginated list of airports as a JSON response
-    return response()->json($airports);
-}
+        // Returning the paginated list of airports as a JSON response
+        return response()->json($airports);
+    }
 
     public function data(Request $request)
     {
@@ -159,7 +159,6 @@ public function asti_list_approved(Request $request)
             'valid_till', 
             'airport_orders'
         ]);
-//dd($data);
         //$data['created_by'] = Auth::guard('admin')->user()->id;
 
         // // Create new AstiVariousEntity record
@@ -264,6 +263,164 @@ public function asti_list_approved(Request $request)
 
         // Return the data as JSON
         return response()->json($airportdata);
+    }
+
+    // CMS Api
+    public function cms_data(Request $request)
+    {
+        $request->validate([
+            'limit' => 'required|integer',
+            'currentPage' => 'required|integer',
+        ]);
+
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $query = AstiVariousEntity::query();
+
+        $data = $query->select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+        if ($data->isNotEmpty()) {
+            $data->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                return $item;
+            });
+        }
+
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'per_page' => $data->perPage(),
+        ]);
+    }
+
+    public function cms_store(Request $request): mixed
+    {
+        // Define validation rules
+        $rules = [
+            'region_name'    => 'required|string|max:255',
+            'e_file_no'       => 'required',
+            'asti_name'     => 'required|string|max:255',
+            'asti_location'    => 'required|max:255',
+            'in_principle_provisional'      => 'required|string|max:255',
+            'date_of_approval'  => 'required|date',
+            'bcas_date_of_approval'            => 'required|date',
+            'approved_by_bcas'          => 'required|string|max:255',
+            'letter_no'  => 'required',
+            'lang_code'         => 'required|string|max:10',
+        ];
+
+        $request->merge(['created_by' => auth()->id()]);
+
+        // Validate the request
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation Error',
+                'messages' => $validator->errors()->toArray()
+            ], 422);  // 422 Unprocessable Entity
+        }
+
+        // Prepare data for insertion
+        $data = $request->only([
+            'region_name','e_file_no','asti_name','asti_location','date_of_approval','in_principle_provisional','bcas_date_of_approval','approved_by_bcas','letter_no','lang_code','created_by',
+        ]);
+
+        // Create new Airline record
+        try {
+            $airlinedata = AstiVariousEntity::create($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error creating the airline record.',
+                'message' => $e->getMessage()
+            ], 500);  // 500 Internal Server Error
+        }
+
+        // Return JSON response with success message
+        return response()->json([
+            'data' => $airlinedata,
+            'message' => 'Created successfully.'
+        ], 201);  // 201 Created
+    }
+
+    public function cms_update(Request $request, $id): mixed
+    {
+        // Define validation rules
+        $rules = [
+            'region_name'    => 'required|string|max:255',
+            'e_file_no'       => 'required',
+            'asti_name'     => 'required|string|max:255',
+            'asti_location'    => 'required|max:255',
+            'in_principle_provisional'      => 'required|string|max:255',
+            'date_of_approval'  => 'required|date',
+            'bcas_date_of_approval'            => 'required|date',
+            'approved_by_bcas'          => 'required|string|max:255',
+            'letter_no'  => 'required',
+            'lang_code'         => 'required|string|max:10',
+        ];
+
+        // Validate the request
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation Error',
+                'messages' => $validator->errors()->toArray()
+            ], 422);  // 422 Unprocessable Entity
+        }
+
+        // Find the existing Airline record by ID
+        $airline = AstiVariousEntity::find($id);
+
+        if (!$airline) {
+            return response()->json([
+                'error' => 'Record not found.',
+                'message' => 'The requested record does not exist.'
+            ], 404);  // 404 Not Found
+        }
+
+        // Prepare data for update
+        $data = $request->only([
+            'region_name','e_file_no','asti_name','asti_location','date_of_approval','in_principle_provisional','bcas_date_of_approval','approved_by_bcas','letter_no','lang_code'
+        ]);
+
+        // Update the existing Airline record
+        try {
+            $airline->update($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error updating the record.',
+                'message' => $e->getMessage()
+            ], 500);  // 500 Internal Server Error
+        }
+
+        // Return JSON response with success message
+        return response()->json([
+            'data' => $airline,
+            'message' => 'Updated successfully.'
+        ], 200);  // 200 OK
+    }
+
+    public function cms_delete($id)
+    {
+        // Find the airlinedata by id
+        $airlinedata = AstiVariousEntity::find($id);
+
+        if (!$airlinedata) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
+        }
+
+        // Delete the airlinedata
+        $airlinedata->delete();
+
+        // Return the data as JSON
+        return response()->json(['data' => $airlinedata, 'message' => 'Deleted successfully.'], 200);
     }
 
 }
