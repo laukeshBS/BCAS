@@ -32,11 +32,15 @@ export class SlideDatatableComponent {
   fileToUploadImg: File | null = null;
   userId: number | null = null;
   apiBasePath='';
+  sliders: any;
 
   constructor(private slideService: SlideService) {}
 
   ngOnInit(): void {
     this.loadList();
+    this.slideService.getSliderDropdown().subscribe((data) => {
+      this.sliders = data;
+    });
   }
 
   loadList(): void {
@@ -110,9 +114,24 @@ export class SlideDatatableComponent {
   }
 
   saveEvent(): void {
-    // Validate the form data
-    if (!this.selectedEvent.slider_id || !this.selectedEvent.title || !this.selectedEvent.status || !this.selectedEvent.lang_code || !this.selectedEvent.media_type || !this.selectedEvent.order_index) {
-      console.error('Missing required fields');
+    // Validate the form data 
+    const requiredFields = [
+      'slider_id',
+      'title',
+      'status',
+      'lang_code',
+      'media_type',
+      'order_index',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+    
+    if (!this.fileToUpload) {
+      missingFields.push('media');
+    }
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -143,8 +162,19 @@ export class SlideDatatableComponent {
 
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.slider_id || !this.selectedEvent.title || !this.selectedEvent.status || !this.selectedEvent.lang_code || !this.selectedEvent.media_type || !this.selectedEvent.order_index) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'slider_id',
+      'title',
+      'status',
+      'lang_code',
+      'media_type',
+      'order_index',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 

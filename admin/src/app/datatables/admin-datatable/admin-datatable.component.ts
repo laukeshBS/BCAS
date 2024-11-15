@@ -104,14 +104,25 @@ export class AdminDatatableComponent {
   editEvent(id: number): void {
     this.adminService.getEvent(id).subscribe(data => {
       this.selectedEvent = data;
-      // Update roles based on the selectedEvent's roles
-      if (this.selectedEvent.roles && Array.isArray(this.selectedEvent.roles)) {
-        this.roles.forEach((role: { selected: any; id: any; }) => {
-          role.selected = this.selectedEvent.roles.includes(role.id);
+      // Ensure roleIds is an array and exists in the selectedEvent
+      if (this.selectedEvent.roleIds && Array.isArray(this.selectedEvent.roleIds)) {
+      
+        // Loop through all roles and mark them as selected if their id is included in selectedEvent.roleIds
+        this.roles.forEach((role: { selected: boolean; id: any }) => {
+          const roleIdNumber = Number(role.id);
+      
+          role.selected = this.selectedEvent.roleIds.includes(Number(roleIdNumber));
+          console.log(role.selected);
         });
-      }else {
-        alert('No roles found or invalid roles data in the selected event.');
+      } else {
+        this.roles.forEach((role: { selected: boolean }) => {
+          role.selected = false;
+        });
       }
+      
+
+
+
       const rankInput = document.getElementById('rank') as HTMLSelectElement;
       // Check if this.rank is an object and loop through it
       if (this.rank && typeof this.rank === 'object') {
@@ -238,7 +249,18 @@ export class AdminDatatableComponent {
         this.closeAddModal(); // Close the modal or form
       },
       error => {
-        alert('Error updating event: ' + JSON.stringify(error.error));
+        // Handle errors
+        if (error.error && error.error.errors) {
+          // If validation errors are returned from the backend (e.g., Laravel 422)
+          let errorMessage = '';
+          for (const field in error.error.errors) {
+            errorMessage += `${field}: ${error.error.errors[field].join(', ')}\n`;
+          }
+          alert(errorMessage);
+        } else {
+          // Generic error message for server-side issues
+          alert((error.error?.message || 'Unknown error'));
+        }
       }
     );
   }
@@ -300,7 +322,18 @@ export class AdminDatatableComponent {
         this.closeEditModal(); // Close the modal or form
       },
       error => {
-        alert('Error updating event: ' + JSON.stringify(error.error));
+        // Handle errors
+        if (error.error && error.error.errors) {
+          // If validation errors are returned from the backend (e.g., Laravel 422)
+          let errorMessage = '';
+          for (const field in error.error.errors) {
+            errorMessage += `${field}: ${error.error.errors[field].join(', ')}\n`;
+          }
+          alert(errorMessage);
+        } else {
+          // Generic error message for server-side issues
+          alert((error.error?.message || 'Unknown error'));
+        }
       }
     );
   }

@@ -7,10 +7,10 @@
                 <th>Description</th>
                 <th>Document</th>
                 <th>Status</th>
-                <th>Category Id</th>
+                <th>Category</th>
                 <!-- <th>Position</th> -->
-                <th>Start Date</th>
-                <th>End Date</th>
+                <!-- <th>Start Date</th> -->
+                <!-- <th>End Date</th> -->
                 <th>Published Date</th>
                 <th *ngIf="hasAnyPermission(['admin-document.update'])">Action</th>
             </tr>
@@ -18,17 +18,17 @@
         <tbody>
             <tr *ngFor="let event of events">
                 <td>{{ event.doc_name }}</td>
-                <td>{{ event.description }}</td>
+                <td>{{ event.description || '' }}</td>
                 <td>
                     <a *ngIf="event?.documentLink" (click)="viewDocument(event.documentLink.id)">
                         {{ event.documentLink.name }} Document
                       </a>
                 </td>
                 <td>{{ event.status }}</td>
-                <td>{{ event.document_category_id }}</td>
+                <td>{{ event.category_name }}</td>
                 <!-- <td>{{ event.position }}</td> -->
-                <td>{{ event.start_date }}</td>
-                <td>{{ event.end_date }}</td>
+                <!-- <td>{{ event.start_date }}</td> -->
+                <!-- <td>{{ event.end_date }}</td> -->
                 <td>{{ event.created_at }}</td>
                 <td>
                     <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1" *ngIf="hasAnyPermission(['admin-document.update'])">Edit</button>

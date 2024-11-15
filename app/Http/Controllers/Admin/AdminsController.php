@@ -284,8 +284,8 @@ class AdminsController extends Controller
         // Validation Data
         $request->validate([
             'name' => 'required|max:50',
-            'email' => 'required|max:100|email',
-            'username' => 'required|max:100',
+            'email' => 'required|max:100|email|unique:mysql_admin.admins',
+            'username' => 'required|max:100|unique:mysql_admin.admins',
             'phone'     => 'required',
             'rank'     => 'nullable',
         ]);

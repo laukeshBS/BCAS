@@ -22,7 +22,7 @@ class Document extends Model
     }
     public function documentCategory()
     {
-        return $this->belongsToMany(DocumentCategory::class, 'document_category_id');
+        return $this->belongsTo(DocumentCategory::class, 'document_category_id');
     }
     public function ranks()
     {

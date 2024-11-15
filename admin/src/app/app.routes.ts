@@ -35,6 +35,10 @@ import { OpsSecurityComponent } from './pages/ops-security/ops-security.componen
 import { OpsiSecurityComponent } from './pages/opsi-security/opsi-security.component';
 import { CateringComponent } from './pages/catering/catering.component';
 import { AirportComponent } from './pages/airport/airport.component';
+import { AstiComponent } from './pages/asti/asti.component';
+import { AvsecTrainingCalenderComponent } from './pages/avsec-training-calender/avsec-training-calender.component';
+import { QuizComponent } from './pages/quiz/quiz.component';
+import { OrganizationStructureComponent } from './pages/organization-structure/organization-structure.component';
 
 
 export const routes: Routes = [
@@ -70,6 +74,10 @@ export const routes: Routes = [
     { path: 'opsi-security', component: OpsiSecurityComponent, canActivate: [AuthGuard]  },
     { path: 'catering', component: CateringComponent, canActivate: [AuthGuard]  },
     { path: 'airport', component: AirportComponent, canActivate: [AuthGuard]  },
+    { path: 'asti', component: AstiComponent, canActivate: [AuthGuard]  },
+    { path: 'avsec-training-calender', component: AvsecTrainingCalenderComponent, canActivate: [AuthGuard]  },
+    { path: 'quiz', component: QuizComponent, canActivate: [AuthGuard]  },
+    { path: 'organization-structure', component: OrganizationStructureComponent, canActivate: [AuthGuard]  },
     { path: '**', redirectTo: '/' },
     {
       path: 'restricted',

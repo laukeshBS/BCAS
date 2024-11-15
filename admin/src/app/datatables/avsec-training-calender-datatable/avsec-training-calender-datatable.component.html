@@ -1,0 +1,724 @@
+<div *ngIf="events.length > 0" style="overflow-x: auto">
+    <button (click)="addEvent()" class="btn btn-outline-primary btn-sm">Add</button>
+    <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>avSec Training</th>
+            <th>January</th>
+            <th>February</th>
+            <th>March</th>
+            <th>April</th>
+            <th>May</th>
+            <th>June</th>
+            <th>July</th>
+            <th>August</th>
+            <th>September</th>
+            <th>October</th>
+            <th>November</th>
+            <th>December</th>
+            <th>Status</th>
+            <th>Remarks</th>
+            <th>Positions</th>
+            <th>Language Code</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let event of events">
+            <td>{{ event.avSec_training }}</td>
+            <td>{{ event.January }}</td>
+            <td>{{ event.February }}</td>
+            <td>{{ event.March }}</td>
+            <td>{{ event.April }}</td>
+            <td>{{ event.May }}</td>
+            <td>{{ event.June }}</td>
+            <td>{{ event.July }}</td>
+            <td>{{ event.August }}</td>
+            <td>{{ event.September }}</td>
+            <td>{{ event.October }}</td>
+            <td>{{ event.November }}</td>
+            <td>{{ event.December }}</td>
+            <td>{{ event.status }}</td>
+            <td>{{ event.remarks }}</td>
+            <td>{{ event.positions }}</td>
+            <td>{{ event.lang_code }}</td>
+            <td>
+              <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
+              <button (click)="deleteEvent(event.id)" class="btn btn-outline-danger btn-sm">Delete</button>
+            </td>
+          </tr>
+        </tbody>
+    </table>
+
+    </div>
+    
+    <div *ngIf="loading==true">
+      <p>Loading...</p>
+    </div>
+    
+    <div *ngIf="loading==false && events.length === 0">
+      <p>No events found.</p>
+    </div>
+    <nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+        <ul class="pagination">
+          <!-- Previous Page -->
+          <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)" [attr.aria-disabled]="currentPage === 1">Previous</a>
+          </li>
+      
+          <!-- Page numbers with ellipsis handling -->
+          <li *ngIf="currentPage > 2" class="page-item">
+            <a class="page-link" (click)="changePage(1)">1</a>
+          </li>
+      
+          <!-- Ellipsis for pages before currentPage -->
+          <li *ngIf="currentPage > 3" class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+      
+          <!-- Display page numbers around the current page -->
+          <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
+            <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+          </li>
+      
+          <!-- Ellipsis for pages after currentPage -->
+          <li *ngIf="currentPage < lastPage - 2" class="page-item disabled">
+            <span class="page-link">...</span>
+          </li>
+      
+          <!-- Last Page -->
+          <li *ngIf="currentPage < lastPage - 1" class="page-item">
+            <a class="page-link" (click)="changePage(lastPage)">{{ lastPage }}</a>
+          </li>
+      
+          <!-- Next Page -->
+          <li class="page-item" [class.disabled]="currentPage === lastPage">
+            <a class="page-link" (click)="changePage(currentPage + 1)" [attr.aria-disabled]="currentPage === lastPage">Next</a>
+          </li>
+        </ul>
+      </nav>
+      
+    
+    <!-- Bootstrap modal -->
+    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="min-width: 700px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editEventModalLabel">Edit Circular</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="modifyEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+                <div class="row">
+                  <!-- First Column (Left Side) -->
+                  <div class="col-md-6">
+              
+                    <!-- AVSEC Training -->
+                    <div class="mb-3">
+                      <label for="avSec_training" class="form-label">AVSEC Training</label>
+                      <input 
+                        type="text" 
+                        id="avSec_training" 
+                        class="form-control" 
+                        name="avSec_training" 
+                        [(ngModel)]="selectedEvent.avSec_training" 
+                        required 
+                        maxlength="255" 
+                        #avSec_training="ngModel">
+                      <div *ngIf="avSec_training.invalid && (avSec_training.dirty || avSec_training.touched)" class="text-danger">
+                        <div *ngIf="avSec_training.errors?.['required']">AVSEC Training is required.</div>
+                        <div *ngIf="avSec_training.errors?.['maxlength']">AVSEC Training must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Remarks -->
+                    <div class="mb-3">
+                      <label for="remarks" class="form-label">Remarks</label>
+                      <input 
+                        type="text" 
+                        id="remarks" 
+                        class="form-control" 
+                        name="remarks" 
+                        [(ngModel)]="selectedEvent.remarks" 
+                        maxlength="255" 
+                        #remarks="ngModel">
+                      <div *ngIf="remarks.invalid && (remarks.dirty || remarks.touched)" class="text-danger">
+                        <div *ngIf="remarks.errors?.['maxlength']">Remarks must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Positions -->
+                    <div class="mb-3">
+                      <label for="positions" class="form-label">Positions</label>
+                      <input 
+                        type="number" 
+                        id="positions" 
+                        class="form-control" 
+                        name="positions" 
+                        [(ngModel)]="selectedEvent.positions" 
+                        maxlength="255" 
+                        #positions="ngModel" min="0">
+                      <div *ngIf="positions.invalid && (positions.dirty || positions.touched)" class="text-danger">
+                        <div *ngIf="positions.errors?.['maxlength']">Positions must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- February -->
+                    <div class="mb-3">
+                      <label for="February" class="form-label">February</label>
+                      <input 
+                        type="text" 
+                        id="February" 
+                        class="form-control" 
+                        name="February" 
+                        [(ngModel)]="selectedEvent.February" 
+                        maxlength="255" 
+                        #February="ngModel">
+                      <div *ngIf="February.invalid && (February.dirty || February.touched)" class="text-danger">
+                        <div *ngIf="February.errors?.['maxlength']">February must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- April -->
+                    <div class="mb-3">
+                      <label for="April" class="form-label">April</label>
+                      <input 
+                        type="text" 
+                        id="April" 
+                        class="form-control" 
+                        name="April" 
+                        [(ngModel)]="selectedEvent.April" 
+                        maxlength="255" 
+                        #April="ngModel">
+                      <div *ngIf="April.invalid && (April.dirty || April.touched)" class="text-danger">
+                        <div *ngIf="April.errors?.['maxlength']">April must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- June -->
+                    <div class="mb-3">
+                      <label for="June" class="form-label">June</label>
+                      <input 
+                        type="text" 
+                        id="June" 
+                        class="form-control" 
+                        name="June" 
+                        [(ngModel)]="selectedEvent.June" 
+                        maxlength="255" 
+                        #June="ngModel">
+                      <div *ngIf="June.invalid && (June.dirty || June.touched)" class="text-danger">
+                        <div *ngIf="June.errors?.['maxlength']">June must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- August -->
+                    <div class="mb-3">
+                      <label for="August" class="form-label">August</label>
+                      <input 
+                        type="text" 
+                        id="August" 
+                        class="form-control" 
+                        name="August" 
+                        [(ngModel)]="selectedEvent.August" 
+                        maxlength="255" 
+                        #August="ngModel">
+                      <div *ngIf="August.invalid && (August.dirty || August.touched)" class="text-danger">
+                        <div *ngIf="August.errors?.['maxlength']">August must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- October -->
+                    <div class="mb-3">
+                      <label for="October" class="form-label">October</label>
+                      <input 
+                        type="text" 
+                        id="October" 
+                        class="form-control" 
+                        name="October" 
+                        [(ngModel)]="selectedEvent.October" 
+                        maxlength="255" 
+                        #October="ngModel">
+                      <div *ngIf="October.invalid && (October.dirty || October.touched)" class="text-danger">
+                        <div *ngIf="October.errors?.['maxlength']">October must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- December -->
+                    <div class="mb-3">
+                      <label for="December" class="form-label">December</label>
+                      <input 
+                        type="text" 
+                        id="December" 
+                        class="form-control" 
+                        name="December" 
+                        [(ngModel)]="selectedEvent.December" 
+                        maxlength="255" 
+                        #December="ngModel">
+                      <div *ngIf="December.invalid && (December.dirty || December.touched)" class="text-danger">
+                        <div *ngIf="December.errors?.['maxlength']">December must be less than 255 characters.</div>
+                      </div>
+                    </div>
+                  </div>
+              
+                  <!-- Second Column (Right Side) -->
+                  <div class="col-md-6">
+              
+                    <!-- Status -->
+                    <div class="mb-3">
+                      <label for="status" class="form-label">Status</label>
+                      <select 
+                        id="status" 
+                        class="form-select" 
+                        name="status" 
+                        [(ngModel)]="selectedEvent.status" 
+                        required 
+                        #status="ngModel">
+                        <option value="">Select Status</option>
+                        <option value="1">Draft</option>
+                        <option value="2">Pending</option>
+                        <option value="3">Published</option>
+                      </select>
+                      <div *ngIf="status.invalid && (status.dirty || status.touched)" class="text-danger">
+                        <div *ngIf="status.errors?.['required']">Status is required.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Language Code -->
+                    <div class="mb-3">
+                      <label for="lang_code" class="form-label">Language Code</label>
+                      <select 
+                        id="lang_code" 
+                        class="form-select" 
+                        name="lang_code" 
+                        [(ngModel)]="selectedEvent.lang_code" 
+                        required 
+                        #lang_code="ngModel">
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
+                      </select>
+                      <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
+                        <div *ngIf="lang_code.errors?.['required']">Language Code is required.</div>
+                      </div>
+                    </div>
+              
+                    <!-- January -->
+                    <div class="mb-3">
+                      <label for="January" class="form-label">January</label>
+                      <input 
+                        type="text" 
+                        id="January" 
+                        class="form-control" 
+                        name="January" 
+                        [(ngModel)]="selectedEvent.January" 
+                        maxlength="255" 
+                        #January="ngModel">
+                      <div *ngIf="January.invalid && (January.dirty || January.touched)" class="text-danger">
+                        <div *ngIf="January.errors?.['maxlength']">January must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- March -->
+                    <div class="mb-3">
+                      <label for="March" class="form-label">March</label>
+                      <input 
+                        type="text" 
+                        id="March" 
+                        class="form-control" 
+                        name="March" 
+                        [(ngModel)]="selectedEvent.March" 
+                        maxlength="255" 
+                        #March="ngModel">
+                      <div *ngIf="March.invalid && (March.dirty || March.touched)" class="text-danger">
+                        <div *ngIf="March.errors?.['maxlength']">March must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- May -->
+                    <div class="mb-3">
+                      <label for="May" class="form-label">May</label>
+                      <input 
+                        type="text" 
+                        id="May" 
+                        class="form-control" 
+                        name="May" 
+                        [(ngModel)]="selectedEvent.May" 
+                        maxlength="255" 
+                        #May="ngModel">
+                      <div *ngIf="May.invalid && (May.dirty || May.touched)" class="text-danger">
+                        <div *ngIf="May.errors?.['maxlength']">May must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- July -->
+                    <div class="mb-3">
+                      <label for="July" class="form-label">July</label>
+                      <input 
+                        type="text" 
+                        id="July" 
+                        class="form-control" 
+                        name="July" 
+                        [(ngModel)]="selectedEvent.July" 
+                        maxlength="255" 
+                        #July="ngModel">
+                      <div *ngIf="July.invalid && (July.dirty || July.touched)" class="text-danger">
+                        <div *ngIf="July.errors?.['maxlength']">July must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- September -->
+                    <div class="mb-3">
+                      <label for="September" class="form-label">September</label>
+                      <input 
+                        type="text" 
+                        id="September" 
+                        class="form-control" 
+                        name="September" 
+                        [(ngModel)]="selectedEvent.September" 
+                        maxlength="255" 
+                        #September="ngModel">
+                      <div *ngIf="September.invalid && (September.dirty || September.touched)" class="text-danger">
+                        <div *ngIf="September.errors?.['maxlength']">September must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    <!-- November -->
+                    <div class="mb-3">
+                      <label for="November" class="form-label">November</label>
+                      <input 
+                        type="text" 
+                        id="November" 
+                        class="form-control" 
+                        name="November" 
+                        [(ngModel)]="selectedEvent.November" 
+                        maxlength="255" 
+                        #November="ngModel">
+                      <div *ngIf="November.invalid && (November.dirty || November.touched)" class="text-danger">
+                        <div *ngIf="November.errors?.['maxlength']">November must be less than 255 characters.</div>
+                      </div>
+                    </div>
+              
+                    
+                  </div>
+                </div>
+
+              <!-- Submit Button -->
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </form>              
+            
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+      <div class="modal-dialog" style="min-width: 700px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="addEventModalLabel">add Circular</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form (ngSubmit)="saveEvent()" #orderForm="ngForm">
+                <div class="row">
+                    <!-- First Column (Left Side) -->
+                    <div class="col-md-6">
+                
+                      <!-- AVSEC Training -->
+                      <div class="mb-3">
+                        <label for="avSec_training" class="form-label">AVSEC Training</label>
+                        <input 
+                          type="text" 
+                          id="avSec_training" 
+                          class="form-control" 
+                          name="avSec_training" 
+                          [(ngModel)]="selectedEvent.avSec_training" 
+                          required 
+                          maxlength="255" 
+                          #avSec_training="ngModel">
+                        <div *ngIf="avSec_training.invalid && (avSec_training.dirty || avSec_training.touched)" class="text-danger">
+                          <div *ngIf="avSec_training.errors?.['required']">AVSEC Training is required.</div>
+                          <div *ngIf="avSec_training.errors?.['maxlength']">AVSEC Training must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Remarks -->
+                      <div class="mb-3">
+                        <label for="remarks" class="form-label">Remarks</label>
+                        <input 
+                          type="text" 
+                          id="remarks" 
+                          class="form-control" 
+                          name="remarks" 
+                          [(ngModel)]="selectedEvent.remarks" 
+                          maxlength="255" 
+                          #remarks="ngModel">
+                        <div *ngIf="remarks.invalid && (remarks.dirty || remarks.touched)" class="text-danger">
+                          <div *ngIf="remarks.errors?.['maxlength']">Remarks must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Positions -->
+                      <div class="mb-3">
+                        <label for="positions" class="form-label">Positions</label>
+                        <input 
+                          type="number" 
+                          id="positions" 
+                          class="form-control" 
+                          name="positions" 
+                          [(ngModel)]="selectedEvent.positions" 
+                          maxlength="255" 
+                          #positions="ngModel" min="0">
+                        <div *ngIf="positions.invalid && (positions.dirty || positions.touched)" class="text-danger">
+                          <div *ngIf="positions.errors?.['maxlength']">Positions must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- February -->
+                      <div class="mb-3">
+                        <label for="February" class="form-label">February</label>
+                        <input 
+                          type="text" 
+                          id="February" 
+                          class="form-control" 
+                          name="February" 
+                          [(ngModel)]="selectedEvent.February" 
+                          maxlength="255" 
+                          #February="ngModel">
+                        <div *ngIf="February.invalid && (February.dirty || February.touched)" class="text-danger">
+                          <div *ngIf="February.errors?.['maxlength']">February must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- April -->
+                      <div class="mb-3">
+                        <label for="April" class="form-label">April</label>
+                        <input 
+                          type="text" 
+                          id="April" 
+                          class="form-control" 
+                          name="April" 
+                          [(ngModel)]="selectedEvent.April" 
+                          maxlength="255" 
+                          #April="ngModel">
+                        <div *ngIf="April.invalid && (April.dirty || April.touched)" class="text-danger">
+                          <div *ngIf="April.errors?.['maxlength']">April must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- June -->
+                      <div class="mb-3">
+                        <label for="June" class="form-label">June</label>
+                        <input 
+                          type="text" 
+                          id="June" 
+                          class="form-control" 
+                          name="June" 
+                          [(ngModel)]="selectedEvent.June" 
+                          maxlength="255" 
+                          #June="ngModel">
+                        <div *ngIf="June.invalid && (June.dirty || June.touched)" class="text-danger">
+                          <div *ngIf="June.errors?.['maxlength']">June must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- August -->
+                      <div class="mb-3">
+                        <label for="August" class="form-label">August</label>
+                        <input 
+                          type="text" 
+                          id="August" 
+                          class="form-control" 
+                          name="August" 
+                          [(ngModel)]="selectedEvent.August" 
+                          maxlength="255" 
+                          #August="ngModel">
+                        <div *ngIf="August.invalid && (August.dirty || August.touched)" class="text-danger">
+                          <div *ngIf="August.errors?.['maxlength']">August must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- October -->
+                      <div class="mb-3">
+                        <label for="October" class="form-label">October</label>
+                        <input 
+                          type="text" 
+                          id="October" 
+                          class="form-control" 
+                          name="October" 
+                          [(ngModel)]="selectedEvent.October" 
+                          maxlength="255" 
+                          #October="ngModel">
+                        <div *ngIf="October.invalid && (October.dirty || October.touched)" class="text-danger">
+                          <div *ngIf="October.errors?.['maxlength']">October must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- December -->
+                      <div class="mb-3">
+                        <label for="December" class="form-label">December</label>
+                        <input 
+                          type="text" 
+                          id="December" 
+                          class="form-control" 
+                          name="December" 
+                          [(ngModel)]="selectedEvent.December" 
+                          maxlength="255" 
+                          #December="ngModel">
+                        <div *ngIf="December.invalid && (December.dirty || December.touched)" class="text-danger">
+                          <div *ngIf="December.errors?.['maxlength']">December must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                    </div>
+                
+                    <!-- Second Column (Right Side) -->
+                    <div class="col-md-6">
+                
+                      <!-- Status -->
+                      <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select 
+                          id="status" 
+                          class="form-select" 
+                          name="status" 
+                          [(ngModel)]="selectedEvent.status" 
+                          required 
+                          #status="ngModel">
+                          <option value="">Select Status</option>
+                          <option value="1">Draft</option>
+                          <option value="2">Pending</option>
+                          <option value="3">Published</option>
+                        </select>
+                        <div *ngIf="status.invalid && (status.dirty || status.touched)" class="text-danger">
+                          <div *ngIf="status.errors?.['required']">Status is required.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Language Code -->
+                      <div class="mb-3">
+                        <label for="lang_code" class="form-label">Language Code</label>
+                        <select 
+                          id="lang_code" 
+                          class="form-select" 
+                          name="lang_code" 
+                          [(ngModel)]="selectedEvent.lang_code" 
+                          required 
+                          #lang_code="ngModel">
+                          <option value="">Select Language</option>
+                          <option value="en">English</option>
+                          <option value="hi">Hindi</option>
+                        </select>
+                        <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
+                          <div *ngIf="lang_code.errors?.['required']">Language Code is required.</div>
+                        </div>
+                      </div>
+                
+                      <!-- January -->
+                      <div class="mb-3">
+                        <label for="January" class="form-label">January</label>
+                        <input 
+                          type="text" 
+                          id="January" 
+                          class="form-control" 
+                          name="January" 
+                          [(ngModel)]="selectedEvent.January" 
+                          maxlength="255" 
+                          #January="ngModel">
+                        <div *ngIf="January.invalid && (January.dirty || January.touched)" class="text-danger">
+                          <div *ngIf="January.errors?.['maxlength']">January must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- March -->
+                      <div class="mb-3">
+                        <label for="March" class="form-label">March</label>
+                        <input 
+                          type="text" 
+                          id="March" 
+                          class="form-control" 
+                          name="March" 
+                          [(ngModel)]="selectedEvent.March" 
+                          maxlength="255" 
+                          #March="ngModel">
+                        <div *ngIf="March.invalid && (March.dirty || March.touched)" class="text-danger">
+                          <div *ngIf="March.errors?.['maxlength']">March must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- May -->
+                      <div class="mb-3">
+                        <label for="May" class="form-label">May</label>
+                        <input 
+                          type="text" 
+                          id="May" 
+                          class="form-control" 
+                          name="May" 
+                          [(ngModel)]="selectedEvent.May" 
+                          maxlength="255" 
+                          #May="ngModel">
+                        <div *ngIf="May.invalid && (May.dirty || May.touched)" class="text-danger">
+                          <div *ngIf="May.errors?.['maxlength']">May must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- July -->
+                      <div class="mb-3">
+                        <label for="July" class="form-label">July</label>
+                        <input 
+                          type="text" 
+                          id="July" 
+                          class="form-control" 
+                          name="July" 
+                          [(ngModel)]="selectedEvent.July" 
+                          maxlength="255" 
+                          #July="ngModel">
+                        <div *ngIf="July.invalid && (July.dirty || July.touched)" class="text-danger">
+                          <div *ngIf="July.errors?.['maxlength']">July must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- September -->
+                      <div class="mb-3">
+                        <label for="September" class="form-label">September</label>
+                        <input 
+                          type="text" 
+                          id="September" 
+                          class="form-control" 
+                          name="September" 
+                          [(ngModel)]="selectedEvent.September" 
+                          maxlength="255" 
+                          #September="ngModel">
+                        <div *ngIf="September.invalid && (September.dirty || September.touched)" class="text-danger">
+                          <div *ngIf="September.errors?.['maxlength']">September must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      <!-- November -->
+                      <div class="mb-3">
+                        <label for="November" class="form-label">November</label>
+                        <input 
+                          type="text" 
+                          id="November" 
+                          class="form-control" 
+                          name="November" 
+                          [(ngModel)]="selectedEvent.November" 
+                          maxlength="255" 
+                          #November="ngModel">
+                        <div *ngIf="November.invalid && (November.dirty || November.touched)" class="text-danger">
+                          <div *ngIf="November.errors?.['maxlength']">November must be less than 255 characters.</div>
+                        </div>
+                      </div>
+                
+                      
+                    </div>
+                  </div>
+              
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </form>
+              
+
+          </div>
+        </div>
+      </div>
+    </div>
+    

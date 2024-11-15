@@ -14,6 +14,7 @@ export class SlideService {
   private storeApiUrl = environment.apiBaseUrl + 'slide-store';
   private updateApiUrl = environment.apiBaseUrl + 'slide-update';
   private deleteApiUrl = environment.apiBaseUrl + 'slide-delete';
+  private sliderDropdownApiUrl = environment.apiBaseUrl + 'slider-dropdown';
 
   constructor(private http: HttpClient) {}
 
@@ -41,6 +42,11 @@ export class SlideService {
   // Fetch a single event by ID
   getEvent(id: number): Observable<any> {
     return this.http.get<any>(`${this.getbyidapiUrl}/${id}`, { headers: this.getHeaders() });
+  }
+
+  // Fetch a single event by ID
+  getSliderDropdown(): Observable<any> {
+    return this.http.get<any>(`${this.sliderDropdownApiUrl}`, { headers: this.getHeaders() });
   }
 
   // Add method to add an Acts and Plocies

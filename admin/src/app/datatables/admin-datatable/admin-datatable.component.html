@@ -105,16 +105,10 @@
                 </div>
                 <div class="mb-3">
                   <label class="form-label">Select Roles</label><br>
-                  <input type="checkbox" 
-           [checked]="isAllSelected()" 
-           (change)="toggleSelectAll()" /> 
-    Select All
+                  <input type="checkbox" [checked]="isAllSelected()" (change)="toggleSelectAll()" /> 
+                  Select All
                   <div *ngFor="let role of roles">
-                    <input type="checkbox" 
-                           [(ngModel)]="role.selected" 
-                           (change)="updateSelectedRoles()" 
-                           [value]="role.id" 
-                           name="roles"/>
+                    <input type="checkbox" [checked]="role.selected" (change)="updateSelectedRoles()" [value]="role.id" name="roles"/>
                     {{ role.name }}
                   </div>
                 </div>

@@ -242,4 +242,201 @@ class AvsecTrainingCalendarController  extends Controller
         // Returning the paginated list of AvsecTrainingCalendar as a JSON response
         return response()->json($AvsecTrainingCalendar);
     }
+    public function data_by_id($id)
+    {
+        // Validate the ID
+        $validatedId = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$validatedId) {
+            return response()->json([
+                'error' => 'Invalid ID format'
+            ], 400);
+        }
+
+        // Retrieve the data by ID
+        $data = AvsecTrainingCalendar::find($validatedId);
+
+        // Return a 404 response if data is not found
+        if (!$data) {
+            return response()->json([
+                'error' => 'Data not found'
+            ], 404);
+        }
+        $data->created_at = date('d-m-Y', strtotime($data->created_at));
+      
+
+        // Return the data as JSON
+        return response()->json($data);
+    }
+
+    // CMS Api
+    public function cms_data(Request $request)
+    {
+        $request->validate([
+            'limit' => 'required|integer',
+            'currentPage' => 'required|integer',
+        ]);
+
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $query = AvsecTrainingCalendar::query();
+
+        $data = $query->select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+        if ($data->isNotEmpty()) {
+            $data->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                return $item;
+            });
+        }
+
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'per_page' => $data->perPage(),
+        ]);
+    }
+
+    public function cms_store(Request $request): mixed
+    {
+        // Define validation rules
+        $rules = [
+            'avSec_training'    => 'required|string|max:255',
+            'January'  => 'nullable|string|max:255',
+            'February' => 'nullable|string|max:255',
+            'March'    => 'nullable|string|max:255',
+            'April'    => 'nullable|string|max:255',
+            'May'  => 'nullable|string|max:255',
+            'June'    => 'nullable|string|max:255',
+            'July'    => 'nullable|string|max:255',
+            'August'  => 'nullable|string|max:255',
+            'September' => 'nullable|string|max:255',
+            'October'    => 'nullable|string|max:255',
+            'November'    => 'nullable|string|max:255',
+            'December'  => 'nullable|string|max:255',
+            'status'    => 'required|string|max:255',
+            'remarks'    => 'nullable|string|max:255',
+            'positions'  => 'required',
+            'lang_code' => 'required|string|max:10',
+        ];
+
+        $request->merge(['created_by' => auth()->id()]);
+
+        // Validate the request
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation Error',
+                'messages' => $validator->errors()->toArray()
+            ], 422);  // 422 Unprocessable Entity
+        }
+
+        // Prepare data for insertion
+        $data = $request->only([
+            'avSec_training','January','February','March','April','May','June','July','August','September','October','November','December','status','remarks','positions','lang_code','created_by',
+        ]);
+
+        // Create new Airline record
+        try {
+            $airlinedata = AvsecTrainingCalendar::create($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error creating the airline record.',
+                'message' => $e->getMessage()
+            ], 500);  // 500 Internal Server Error
+        }
+
+        // Return JSON response with success message
+        return response()->json([
+            'data' => $airlinedata,
+            'message' => 'Created successfully.'
+        ], 201);  // 201 Created
+    }
+
+    public function cms_update(Request $request, $id): mixed
+    {
+        // Define validation rules
+        $rules = [
+            'avSec_training'    => 'required|string|max:255',
+            'January'  => 'nullable|string|max:255',
+            'February' => 'nullable|string|max:255',
+            'March'    => 'nullable|string|max:255',
+            'April'    => 'nullable|string|max:255',
+            'May'  => 'nullable|string|max:255',
+            'June'    => 'nullable|string|max:255',
+            'July'    => 'nullable|string|max:255',
+            'August'  => 'nullable|string|max:255',
+            'September' => 'nullable|string|max:255',
+            'October'    => 'nullable|string|max:255',
+            'November'    => 'nullable|string|max:255',
+            'December'  => 'nullable|string|max:255',
+            'status'    => 'required|string|max:255',
+            'remarks'    => 'nullable|string|max:255',
+            'positions'  => 'required',
+            'lang_code' => 'required|string|max:10',
+        ];
+
+        // Validate the request
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 'Validation Error',
+                'messages' => $validator->errors()->toArray()
+            ], 422);  // 422 Unprocessable Entity
+        }
+
+        // Find the existing Airline record by ID
+        $airline = AvsecTrainingCalendar::find($id);
+
+        if (!$airline) {
+            return response()->json([
+                'error' => 'Record not found.',
+                'message' => 'The requested record does not exist.'
+            ], 404);  // 404 Not Found
+        }
+
+        // Prepare data for update
+        $data = $request->only([
+            'avSec_training','January','February','March','April','May','June','July','August','September','October','November','December','status','remarks','positions','lang_code'
+        ]);
+
+        // Update the existing Airline record
+        try {
+            $airline->update($data);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Error updating the record.',
+                'message' => $e->getMessage()
+            ], 500);  // 500 Internal Server Error
+        }
+
+        // Return JSON response with success message
+        return response()->json([
+            'data' => $airline,
+            'message' => 'Updated successfully.'
+        ], 200);  // 200 OK
+    }
+
+    public function cms_delete($id)
+    {
+        // Find the airlinedata by id
+        $airlinedata = AvsecTrainingCalendar::find($id);
+
+        if (!$airlinedata) {
+            return response()->json([
+                'error' => 'Not Found.'
+            ], 400);
+        }
+
+        // Delete the airlinedata
+        $airlinedata->delete();
+
+        // Return the data as JSON
+        return response()->json(['data' => $airlinedata, 'message' => 'Deleted successfully.'], 200);
+    }
 }

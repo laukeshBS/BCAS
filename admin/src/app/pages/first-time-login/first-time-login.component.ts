@@ -72,12 +72,14 @@ export class FirstTimeLoginComponent {
         if (response.success) {
           this.router.navigate(['login']);
         } else {
-          this.errorMessage = response.message || 'Re-registration failed';
+          alert(response.message);
+          // this.errorMessage = response.message || 'Re-registration failed';
         }
       },
       error => {
         this.loading = false;
-        this.errorMessage = error.message || 'An unexpected error occurred';
+        alert(error.error.message);
+        // this.errorMessage = error.message || 'An unexpected error occurred';
       }
     );
   }

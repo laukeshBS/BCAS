@@ -57,6 +57,7 @@ Route::middleware(['cors', 'throttle:60,1','removePoweredBy'])->group(function (
 
     Route::controller(SecurityQuizController::class)->group(function () {
         Route::post('quiz-list', 'quiz_list');
+        Route::get('quiz-list-by-id/{id}', 'data_by_id');
     });
 
     Route::controller(QuarterlyReportOnlineiiFormsController::class)->group(function () {
@@ -89,9 +90,11 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
     });
     Route::controller(OrganizationStructureController::class)->group(function () {
         Route::post('organization-list', 'organization_list');
+        Route::get('organization-structure-list-by-id/{id}', 'data_by_id');
     });
     Route::controller(AstiVariousEntityController::class)->group(function () {
         Route::post('asti-list', 'asti_list_approved');
+        Route::get('asti-list-by-id/{id}','data_by_id');
     });
 
     Route::controller(VisitorController::class)->group(function () {
@@ -109,6 +112,7 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
 
     Route::controller(AvsecTrainingCalendarController::class)->group(function () {
         Route::post('avsecTraining-list-approved', 'avsecTrainingCalendar_list_approved');
+        Route::get('avsec-training-list-by-id/{id}','data_by_id');
     });
 
     Route::controller(EventController::class)->group(function () {
@@ -242,6 +246,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
     });
     Route::controller(SliderController::class)->group(function(){
       //  Route::post('slider-by-slug','slider_by_slug');
+        Route::get('slider-dropdown','slider_dropdown');
         Route::post('slider-list','cms_data');
         Route::get('slider-by-id/{id}','cms_data_by_id');
         Route::post('slider-store','store');
@@ -451,6 +456,30 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
     });
     Route::controller(RankController::class)->group(function () {
         Route::get('rank-dropdown-list', 'dropdown_list');
+    });
+    Route::controller(AstiVariousEntityController::class)->group(function () {
+        Route::post('astis-list', 'cms_data');
+        Route::any('asti-store','cms_store');
+        Route::post('asti-update/{id}','cms_update');
+        Route::delete('asti-delete/{id}','cms_delete');
+    });
+    Route::controller(AvsecTrainingCalendarController::class)->group(function () {
+        Route::post('avsec-trainings-list', 'cms_data');
+        Route::any('avsec-training-store','cms_store');
+        Route::post('avsec-training-update/{id}','cms_update');
+        Route::delete('avsec-training-delete/{id}','cms_delete');
+    });
+    Route::controller(SecurityQuizController::class)->group(function () {
+        Route::post('quizs-list', 'cms_data');
+        Route::any('quiz-store','cms_store');
+        Route::post('quiz-update/{id}','cms_update');
+        Route::delete('quiz-delete/{id}','cms_delete');
+    });
+    Route::controller(OrganizationStructureController::class)->group(function () {
+        Route::post('organization-structure-list', 'cms_data');
+        Route::any('organization-structure-store','cms_store');
+        Route::post('organization-structure-update/{id}','cms_update');
+        Route::delete('organization-structure-delete/{id}','cms_delete');
     });
 });
 
