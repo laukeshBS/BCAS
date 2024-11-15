@@ -27,42 +27,73 @@ class NoticeController extends Controller
     }
 
     public function notice_list_for_homepage(Request $request)
+{
+    $limit = $request->input('limit', 5);
+    $lang_code = $request->input('lang_code');
+    $important = $request->input('important');
+     $date = date('Y-m-d');
+
+    // Start with the base query
+    $query = Notice::select('*')
+        ->where('lang_code', $lang_code)
+        ->where('end_date', '>', $date)
+        ->orderBy('id', 'desc')
+        ->limit($limit);
+
+    // Add the important filter if provided
+    if (!empty($important)) {
+        $query->where('important', $important);
+    }
+
+    // Fetch the notices
+    $notices = $query->get();
+
+    // Format created_at date
+    $notices->transform(function ($item) {
+        $item->created_at = date('d-m-Y', strtotime($item->created_at));
+        $item->start_date = date('d-m-Y', strtotime($item->start_date));
+        $item->end_date = date('d-m-Y', strtotime($item->end_date));
+        return $item;
+    });
+
+    return response()->json($notices);
+}
+
+    public function notice_list(Request $request)
     {
-        $limit = $request->input('limit', 5);
+        $perPage = $request->input('limit', 10);
+        $page = $request->input('page');
         $lang_code = $request->input('lang_code');
-        $important = $request->input('important');
-
-        if (!empty($important)) {
-            $notices = Notice::select('*')
-            ->where('important',$important)
-            ->where('lang_code',$lang_code)
+        $date=date('Y-m-d');
+        $data = Notice::select('*') 
+            ->where('lang_code', $lang_code)
+            ->where('end_date','>', $date)
             ->orderBy('id', 'desc')
-            ->limit($limit)
-            ->get();
-        }else{
-            $notices = Notice::select('*')
-            ->where('lang_code',$lang_code)
-            ->orderBy('id', 'desc')
-            ->limit($limit)
-            ->get();
-        }
+            ->paginate($perPage, ['*'], 'page', $page);
 
-        
-
-        $notices->transform(function ($item) {
+        $data->getCollection()->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            // $item->document = asset('public/documents/' . $item->document) ;
             return $item;
         });
 
-        return response()->json($notices);
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(), 
+            'total' => $data->total(), 
+            'current_page' => $data->currentPage(), 
+            'last_page' => $data->lastPage(), 
+            'per_page' => $data->perPage(), 
+        ]);
     }
-    public function notice_list(Request $request)
+    public function archive(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('limit', 10);
         $page = $request->input('page');
-
-        $data = Notice::select('*')
+        $lang_code = $request->input('lang_code');
+        $date=date('Y-m-d');
+        $data = Notice::select('*') 
+            ->where('lang_code', $lang_code)
+            ->where('end_date','<', $date)
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 

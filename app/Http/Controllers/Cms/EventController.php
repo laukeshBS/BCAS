@@ -29,9 +29,10 @@ class EventController extends Controller
     {
         $limit = $request->input('limit', 5);
         $lang_code = $request->input('lang_code');
-
+        $date=date('Y-m-d');
         $events = Event::select('*')
             ->where('lang_code',$lang_code)
+            ->where('end_date','>', $date)
             ->orderBy('id', 'desc')
             ->limit($limit)
             ->get();
@@ -47,12 +48,40 @@ class EventController extends Controller
     
     public function event_list_for_frontend(Request $request)
     {
-        $perPage = $request->input('per_page', 10);
+        $perPage = $request->input('limit', 10);
         $page = $request->input('page', 1);
         $lang_code = $request->input('lang_code');
-
+        $date=date('Y-m-d');
         $events = Event::select('*')
             ->where('lang_code', $lang_code)
+            ->where('end_date','>', $date)
+            ->orderBy('id', 'desc')
+            ->paginate($perPage, ['*'], 'page', $page);
+
+        $events->getCollection()->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
+            return $item;
+        });
+        // $events->path='';
+
+        return response()->json([
+            'title' => 'List',
+            'data' => $events->items(), 
+            'total' => $events->total(), 
+            'current_page' => $events->currentPage(), 
+            'last_page' => $events->lastPage(), 
+            'per_page' => $events->perPage(), 
+        ]);
+    }
+    public function archive(Request $request)
+    {
+        $perPage = $request->input('limit', 10);
+        $page = $request->input('page', 1);
+        $lang_code = $request->input('lang_code');
+        $date=date('Y-m-d');
+        $events = Event::select('*')
+            ->where('lang_code', $lang_code)
+            ->where('end_date','<', $date)
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 

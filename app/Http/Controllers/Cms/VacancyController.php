@@ -26,26 +26,58 @@ class VacancyController extends Controller
 
     public function data(Request $request)
     {
-        $limit = $request->input('limit');
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
         $lang_code = $request->input('lang_code');
 
         if (!$lang_code) {
             return response()->json(['error' => 'Language code is required'], 400);
         }
-
+        $date=date('Y-m-d');
         $query = Vacancy::select('*')
             ->where('lang_code', $lang_code)
+            ->where('end_date','>', $date)
             ->orderBy('id', 'desc');
         if (!empty($limit)) {
             $query->limit($limit);
         }
-        $data = $query->get();
+        $data = $query->paginate($perPage, ['*'], 'page', $page);
 
         $data->transform(function ($item) {
-            // $item->start_date = date('d-m-Y', strtotime($item->start_date));
-            // $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-            // $item->document = asset('public/documents/' . $item->document) ;
+            return $item;
+        });
+
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(), 
+            'total' => $data->total(), 
+            'current_page' => $data->currentPage(), 
+            'last_page' => $data->lastPage(), 
+            'per_page' => $data->perPage(), 
+        ]);
+    }
+    public function archive(Request $request)
+    {
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+        $lang_code = $request->input('lang_code');
+
+        if (!$lang_code) {
+            return response()->json(['error' => 'Language code is required'], 400);
+        }
+        $date=date('Y-m-d');
+        $query = Vacancy::select('*')
+            ->where('lang_code', $lang_code)
+            ->where('end_date','<', $date)
+            ->orderBy('id', 'desc');
+        if (!empty($limit)) {
+            $query->limit($limit);
+        }
+        $data = $query->paginate($perPage, ['*'], 'page', $page);
+
+        $data->transform(function ($item) {
+            $item->created_at = date('d-m-Y', strtotime($item->created_at));
             return $item;
         });
 
