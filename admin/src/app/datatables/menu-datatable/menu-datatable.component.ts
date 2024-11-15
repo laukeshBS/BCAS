@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpEvent, HttpEventType } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { LanguageService } from '../../services/language.service';
+import { environment } from '../../environments/environment';
 
 declare var bootstrap: any;
 
@@ -16,6 +17,7 @@ declare var bootstrap: any;
   styleUrl: './menu-datatable.component.css'
 })
 export class MenuDatatableComponent {
+  apiDocBaseUrl: string = environment.apiDocBaseUrl;
   events: any[] = [];
   selectedMenuType: any;// Property to hold selected menu type
   selectedEvent: any = { menu_child_id: 0 };
@@ -365,7 +367,9 @@ export class MenuDatatableComponent {
 
   // Method to handle changes in menu type
   handleMenuType(id: any) { 
-    this.selectedMenuType = id??this.selectedEvent.menu_type; // Update the selected menu type
+    this.selectedMenuType = id; // Update the selected menu type
+    //console.log(this.selectedMenuType);
+    //this.selectedEvent.menu_type='';
     this.formatEventDates();
   }
 }

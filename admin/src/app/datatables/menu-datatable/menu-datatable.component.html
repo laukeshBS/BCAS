@@ -35,13 +35,13 @@
           </td> -->
           <td>{{ event.page_order }}</td>
           <td>
-            <a *ngIf="event.doc_upload; else noDoc" [href]="event.doc_upload" target="_blank">Document</a>
+            <a *ngIf="event.doc_upload; else noDoc" [href]="apiDocBaseUrl+'public/uploads/admin/cmsfiles/menus/'+event.doc_upload" target="_blank">Document</a>
             <ng-template #noDoc><span></span></ng-template>
     
-            <a *ngIf="event.banner_img; else noBanner" [href]="event.banner_img" target="_blank">Banner</a>
+            <a *ngIf="event.banner_img; else noBanner" [href]="apiDocBaseUrl+'public/uploads/admin/cmsfiles/menus/'+event.banner_img" target="_blank">Banner</a>
             <ng-template #noBanner><span></span></ng-template>
     
-            <a *ngIf="event.img_upload; else noImage" [href]="event.img_upload" target="_blank">Image</a>
+            <a *ngIf="event.img_upload; else noImage" [href]="apiDocBaseUrl+'public/uploads/admin/cmsfiles/menus/'+event.img_upload" target="_blank">Image</a>
             <ng-template #noImage><span></span></ng-template>
           </td>
           <td >
@@ -111,6 +111,7 @@
             
                         <div class="mb-3">
                             <label for="menu_type" class="form-label">Menu Type</label>
+                           
                             <select (change)="handleMenuType(selectedEvent.menu_type)" name="menu_type" id="menu_type" required [(ngModel)]="selectedEvent.menu_type" #menuType="ngModel" class="form-control" autocomplete="off">
                                 <option value="" disabled>Select</option>
                                 <option value="1">Content</option>
@@ -209,16 +210,16 @@
                                 <div *ngIf="welcomedescription.errors?.['required']">Short Contents is required.</div>
                             </div>
                         </div>
-            
-                        <div *ngIf="selectedEvent.menu_type === 1" id="content" class="mb-3">
+                       
+                        <div *ngIf="(selectedMenuType ?? selectedEvent.menu_type) == 1" id="content" class="mb-3">
                             <label for="content" class="form-label">Menu Content (optional)</label>
                             <textarea id="content" class="form-control summernote-simple" [(ngModel)]="selectedEvent.content" name="content"></textarea>
                         </div>
-                        <div class="mb-3" *ngIf="selectedEvent.menu_type === 2" id="pdfs">
+                        <div class="mb-3" *ngIf="(selectedMenuType ?? selectedEvent.menu_type) == 2" id="pdfs">
                             <label for="doc_upload" class="form-label">Document Upload (optional)</label>
                             <input type="file" (change)="onFileChange($event, 'doc_upload')" class="form-control" accept=".pdf,.doc,.docx" />
                         </div>
-                        <div class="mb-3" *ngIf="selectedEvent.menu_type === 3" id="links">
+                        <div class="mb-3" *ngIf="(selectedMenuType ?? selectedEvent.menu_type) == 3" id="links">
                             <label for="menu_links" class="form-label">Menu Links (optional)</label>
                             <input type="text" id="menu_links" class="form-control" [(ngModel)]="selectedEvent.menu_links" name="menu_links" />
                         </div>
