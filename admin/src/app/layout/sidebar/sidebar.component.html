@@ -15,61 +15,181 @@
             </a>
           </li>
           <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.view'])">
-            <a [routerLink]="['audit']" class="nav-link">
+            <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
+              <i class="nav-icon fas fa-th"></i><span>Restricted</span>
+            </a>
+            <ul>
+              <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.update'])">
+                <a [routerLink]="['audit']" class="nav-link">
+                  <p>Audit</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.view'])">
+                <a [routerLink]="['admin-doc']" class="nav-link">
+                  <p>Restricted Documents</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.update'])">
+                <a [routerLink]="['admin-doc-categories']" class="nav-link">
+                  <p>Restricted Document Categories</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.update'])">
+                <a [routerLink]="['/user']" class="nav-link">
+                  <p>User</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasPermission('role.view')" [ngClass]="{ 'active': isActive('/admin/roles') }">
+                <a class="nav-link" routerLink="/admin/roles">All Roles</a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- Security Clearance -->
+          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+            <a [routerLink]="['/ops-security']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
-              <p>
-                Audit
-              </p>
+              <p>Security Clearance(OPS-1)</p>
             </a>
           </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.view'])">
-            <a [routerLink]="['admin-doc']" class="nav-link">
+
+          <!-- Security Program -->
+          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+            <a [routerLink]="['/opsi-security']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
-              <p>
-                Restricted Documents
-              </p>
+              <p>Security Program(OPS-2)</p>
             </a>
           </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.update'])">
-            <a [routerLink]="['admin-doc-categories']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Restricted Document Categories
-              </p>
-            </a>
-          </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.update'])">
-            <a [routerLink]="['/user']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                User
-              </p>
-            </a>
-          </li>
+
+          <!-- CMS -->
           <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/acts-and-policies']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Acts and Policies
-              </p>
+            <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
+              <i class="nav-icon fas fa-th"></i><span>Restricted</span>
             </a>
+            <ul>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/acts-and-policies']" class="nav-link">
+                  <p>Acts and Policies</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/circulars']" class="nav-link">
+                  <p>Circulars</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/events']" class="nav-link">
+                  <p>Events</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/tenders']" class="nav-link">
+                  <p>Tenders</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/notices']" class="nav-link">
+                  <p>Notices</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/vacancies']" class="nav-link">
+                  <p>Vacancies</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/division']" class="nav-link">
+                  <p>Division</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/region']" class="nav-link">
+                  <p>Region</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/common-title']" class="nav-link">
+                  <p>Common Title</p>
+                </a>
+              </li>
+              <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+                <a [routerLink]="['/gallery']" class="nav-link">
+                  <p>Gallery</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/contact']" class="nav-link">
+                  <p>Contact</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/quiz']" class="nav-link">
+                  <p>Quiz</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/slider']" class="nav-link">
+                  <p>Slider</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/slide']" class="nav-link">
+                  <p>Slide</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/slide']" class="nav-link">
+                  <p>Slide</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasPermission('menu.view')" [ngClass]="{ 'active': isActive('/admin/menus') }">
+                <a class="nav-link" [routerLink]="['/organization-structure']" >
+                  <p>Organization Structure</p>
+                </a>
+              </li>
+            </ul>
           </li>
+
+          <!-- Training -->
           <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/circulars']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Circulars
-              </p>
+            <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
+              <i class="nav-icon fas fa-th"></i><span>Training</span>
             </a>
+            <ul>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/avsec-training-calender']" class="nav-link">
+                  <p>AVSEC Training Calender</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/asti']" class="nav-link">
+                  <p>ASTI</p>
+                </a>
+              </li>
+              <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+                <a [routerLink]="['/catering']" class="nav-link">
+                  <p>Catering</p>
+                </a>
+              </li>
+              <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+                <a [routerLink]="['/airport']" class="nav-link">
+                  <p>Airport</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/airlines']" class="nav-link">
+                  <p>Airlines</p>
+                </a>
+              </li>
+            </ul>
           </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/events']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Events
-              </p>
-            </a>
-          </li>
+          
+          
+          
+          
+          
+          
+          
           <!-- <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a [routerLink]="['/forms']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
@@ -78,130 +198,16 @@
               </p>
             </a>
           </li> -->
-          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/tenders']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Tenders
-              </p>
-            </a>
-          </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/notices']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Notices
-              </p>
-            </a>
-          </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/vacancies']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Vacancies
-              </p>
-            </a>
-          </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/division']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Division
-              </p>
-            </a>
-          </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/region']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Region
-              </p>
-            </a>
-          </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/common-title']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Common Title
-              </p>
-            </a>
-          </li>
-          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
-            <a [routerLink]="['/gallery']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>Gallery</p>
-            </a>
-          </li>
-          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
-            <a [routerLink]="['/ops-security']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>Ops Security</p>
-            </a>
-          </li>
-          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
-            <a [routerLink]="['/opsi-security']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>Opsi Security</p>
-            </a>
-          </li>
-          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
-            <a [routerLink]="['/catering']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>Catering</p>
-            </a>
-          </li>
-          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
-            <a [routerLink]="['/airport']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>Airport</p>
-            </a>
-          </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/contact']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Contact
-              </p>
-            </a>
-          </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/airlines']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Security Program
-              </p>
-            </a>
-          </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/slider']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Slider
-              </p>
-            </a>
-          </li>
-          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-            <a [routerLink]="['/slide']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>
-                Slide
-              </p>
-            </a>
-          </li>
+          
            <!-- Roles & Permissions -->
-        <li class="nav-item" *ngIf="hasAnyPermission(['role.create', 'role.view', 'role.edit', 'role.delete'])">
+        <!-- <li class="nav-item" *ngIf="hasAnyPermission(['role.create', 'role.view', 'role.edit', 'role.delete'])">
           <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
             <i class="fa fa-tasks"></i><span>Roles & Permissions</span>
           </a>
           <ul>
-            <li class="nav-item" *ngIf="hasPermission('role.view')" [ngClass]="{ 'active': isActive('/admin/roles') }">
-              <a class="nav-link" routerLink="/admin/roles">All Roles</a>
-            </li>
-            <!-- <li *ngIf="hasPermission('role.create')" [ngClass]="{ 'active': isActive('/admin/roles/create') }">
-              <a routerLink="/admin/roles/create">Create Role</a>
-            </li> -->
+            
           </ul>
-        </li>
+        </li> -->
 
         <!-- Admins -->
         <!-- <li *ngIf="hasAnyPermission(['admin.create', 'admin.view', 'admin.edit', 'admin.delete'])">
@@ -217,19 +223,14 @@
         </li> -->
         
         <!-- Menus -->
-        <li class="nav-item" *ngIf="hasAnyPermission(['menu.create', 'menu.view', 'menu.edit', 'menu.delete'])">
+        <!-- <li class="nav-item" *ngIf="hasAnyPermission(['menu.create', 'menu.view', 'menu.edit', 'menu.delete'])">
           <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
             <i class="fa fa-user"></i><span>Menus</span>
           </a>
           <ul>
-            <li class="nav-item" *ngIf="hasPermission('menu.view')" [ngClass]="{ 'active': isActive('/admin/menus') }">
-              <a class="nav-link" [routerLink]="['/menu']" >All Menus</a>
-            </li>
-            <!-- <li class="nav-item" *ngIf="hasPermission('menu.create')" [ngClass]="{ 'active': isActive('/admin/menus/create') }">
-              <a routerLink="/admin/menus/create">Create Menu</a>
-            </li> -->
+            
           </ul>
-        </li>
+        </li> -->
 
         <!-- Divisions -->
         <!-- <li *ngIf="hasAnyPermission(['course.create', 'course.view', 'course.edit', 'course.delete'])">

@@ -38,6 +38,7 @@ class SlideController extends Controller
         if ($slide->isNotEmpty()) {
             $slide->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                $item->slider_name = $item->slider->title;
                 // if ($item->media) {
                 //     $item->media = asset('public/'.$item->media);
                 // }
@@ -95,7 +96,7 @@ class SlideController extends Controller
 
         // Handle file upload
         if ($request->hasFile('media')) {
-            $docUpload = $request->file('doc_upload');
+            $docUpload = $request->file('media');
             $docPath = 'slides/' . time() . '_' . $docUpload->getClientOriginalName();
             $docUpload->move(public_path('slides'), $docPath);
             $filePath = $docPath;
@@ -105,6 +106,7 @@ class SlideController extends Controller
         $slide->slider_id = $validated['slider_id'];
         $slide->title = $validated['title'];
         $slide->description = $validated['description'];
+        $slide->url = $validated['url'];
         $slide->media_type = $validated['media_type'];
         $slide->media = $filePath; // Store file path in the database
         $slide->order_index = $validated['order_index'];
@@ -143,7 +145,7 @@ class SlideController extends Controller
             'status' => $request->input('status'),
         ];
         if ($request->hasFile('media')) {
-            $docUpload = $request->file('doc_upload');
+            $docUpload = $request->file('media');
             $docPath = 'slides/' . time() . '_' . $docUpload->getClientOriginalName();
             $docUpload->move(public_path('slides'), $docPath);
             $inputs['media'] = $docPath;

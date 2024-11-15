@@ -5,6 +5,7 @@
           <tr>
             <th>Title</th>
             <th>Description</th>
+            <th>Slider Name</th>
             <th>Medis</th>
             <th>Media Type</th>
             <th>URL</th>
@@ -19,6 +20,7 @@
           <tr *ngFor="let event of events">
             <td>{{ event.title }}</td>
             <td>{{ event.description }}</td>
+            <td>{{ event.slider_name }}</td>
             <td>
                 <a *ngIf="event.media; else noImage" [href]="this.apiBasePath+'public/'+event.media" target="_blank">Image</a>
                 <ng-template #noImage>
@@ -69,6 +71,14 @@
           </div>
           <div class="modal-body">
             <form (ngSubmit)="modifyEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+              <div class="mb-3">
+                <label for="slider_id">Select a Slider</label>
+                <select id="slider_id" [(ngModel)]="selectedEvent.slider_id" name="slider_id" class="form-control" required>
+                  <option *ngFor="let slider of (sliders | keyvalue)" [value]="slider.key">
+                    {{ slider.value }}
+                  </option>
+                </select>
+              </div>
               <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
                 <input type="text" id="title" class="form-control" [(ngModel)]="selectedEvent.title" name="title" required #title="ngModel" />
@@ -151,7 +161,7 @@
                   type="file" 
                   id="media" name="media" 
                   class="form-control" 
-                  (change)="oneditFileChange($event)"
+                  (change)="oneditFileChange($event)" accept=".jpg, .jpeg, .png, .mp4, .mpeg, .ogg"
                 />
                 <div *ngIf="selectedFileError" class="text-danger">
                   <div>{{ selectedFileError }}</div>
@@ -174,6 +184,14 @@
           </div>
           <div class="modal-body">
             <form (ngSubmit)="saveEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+              <div class="mb-3">
+                <label for="slider_id">Select a Slider</label>
+                <select id="slider_id" [(ngModel)]="selectedEvent.slider_id" name="slider_id" class="form-select" required>
+                  <option *ngFor="let slider of (sliders | keyvalue)" [value]="slider.key">
+                    {{ slider.value }}
+                  </option>
+                </select>
+              </div>
               <div class="mb-3">
                 <label for="title" class="form-label">Title</label>
                 <input type="text" id="title" class="form-control" name="title" [(ngModel)]="selectedEvent.title" required #title="ngModel">
@@ -239,7 +257,7 @@
 
               <div class="mb-3">
                 <label for="media" class="form-label">Upload Image</label>
-                <input type="file" id="media" name="media" class="form-control" (change)="onFileChange($event)">
+                <input type="file" id="media" name="media" class="form-control" (change)="onFileChange($event)" accept=".jpg, .jpeg, .png, .mp4, .mpeg, .ogg">
                 <div *ngIf="!fileToUpload" class="text-danger">
                   Image is required.
                 </div>

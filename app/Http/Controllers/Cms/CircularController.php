@@ -49,9 +49,11 @@ class CircularController extends Controller
     {
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
+        $lang_code = $request->input('lang_code','en');
 
         $circulars = Circular::select('*')
             ->orderBy('id', 'desc')
+            ->where('lang_code', $lang_code)
             ->paginate($perPage, ['*'], 'page', $page);
 
         $circulars->getCollection()->transform(function ($item) {
@@ -61,11 +63,11 @@ class CircularController extends Controller
 
         return response()->json([
             'title' => 'List',
-            'data' => $circulars->items(), 
-            'total' => $circulars->total(), 
-            'current_page' => $circulars->currentPage(), 
-            'last_page' => $circulars->lastPage(), 
-            'per_page' => $circulars->perPage(), 
+            'data' => $circulars->items(),
+            'total' => $circulars->total(),
+            'current_page' => $circulars->currentPage(),
+            'last_page' => $circulars->lastPage(),
+            'per_page' => $circulars->perPage(),
         ]);
     }
     

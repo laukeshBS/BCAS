@@ -86,6 +86,12 @@ class SecurityQuestionController extends Controller
                 'message' => 'User not found.'
             ], 404);
         }
+        if ($user->status==2) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Already Registered.'
+            ], 400);
+        }
 
         // Store the answers in the database
         foreach ($questions as $questionData) {

@@ -31,17 +31,16 @@ class SliderController extends Controller
                         $query->where('lang_code', $langCode);
                     }])
                     ->first();
-        // Base URL for the storage folder
-        // $baseUrl = url('storage');
-        // Append base URL to media paths
-        // $slider->slides->each(function ($slide) use ($baseUrl) {
-        //     if ($slide->media) {
-        //         $slide->media = url(Storage::url('app/public/' . $slide->media)) ;
-        //         // $slide->media = $baseUrl . '/app/public/' . $slide->media;
-        //     }
-        // });
         return response()->json($slider);
     }
+    public function slider_dropdown(){
+        // Correctly pluck 'title' and 'id' columns from the Slider model
+        $slider = Slider::pluck('title', 'id'); 
+        
+        // Return the data as a JSON response
+        return response()->json($slider);
+    }
+
     public function cms_data(Request $request)
     {
         $perPage = $request->input('limit');

@@ -63,6 +63,7 @@ class DocumentController extends Controller
         if ($data->isNotEmpty()) {
             $data->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                $item->category_name = $item->documentCategory->name;
                 return $item;
             });
         }
