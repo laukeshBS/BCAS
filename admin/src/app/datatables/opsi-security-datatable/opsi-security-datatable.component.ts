@@ -94,6 +94,38 @@ export class OpsiSecurityDatatableComponent {
           event.status = '';
           break;
       }
+      switch (event.sec_type) {
+        case "axu":
+          event.sec_type = 'Auxiliary';
+          break;
+        case "cat":
+          event.sec_type = 'Catering';
+          break;
+        case "con":
+          event.sec_type = 'Concessionaire';
+          break;
+        case "fbo":
+          event.sec_type = 'Fixed Base Operator';
+          break;
+        case "ff":
+          event.sec_type = 'Fuel Farm';
+          break;
+        case "gas":
+          event.sec_type = 'Gas';
+          break;
+        case "gha":
+          event.sec_type = 'Ground Handling Agency';
+          break;
+        case "psa":
+          event.sec_type = 'PSA';
+          break;
+        case "ra":
+          event.sec_type = 'Regulated Agent';
+          break;
+        default:
+          event.sec_type = '';
+          break;
+      }
     });
   }
 
@@ -115,7 +147,7 @@ export class OpsiSecurityDatatableComponent {
   saveEvent(): void {
     // Validate the form data
     const requiredFields = [
-      'application_id','company_name','date_of_application_submitted','date_of_approval','status','positions','division','sec_type','date_of_validity','lang_code'
+      'application_id','company_name','date_of_application_submitted','date_of_approval','status','positions','sec_type','date_of_validity','lang_code'
     ];
     
     const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
@@ -133,7 +165,7 @@ export class OpsiSecurityDatatableComponent {
     formData.append('date_of_approval', this.selectedEvent.date_of_approval);
     formData.append('status', this.selectedEvent.status);
     formData.append('positions', this.selectedEvent.positions);
-    formData.append('division', this.selectedEvent.division);
+    // formData.append('division', this.selectedEvent.division);
     formData.append('sec_type', this.selectedEvent.sec_type);
     formData.append('date_of_validity', this.selectedEvent.date_of_validity);
     formData.append('lang_code', this.selectedEvent.lang_code);
@@ -182,7 +214,7 @@ export class OpsiSecurityDatatableComponent {
     formData.append('date_of_approval', this.selectedEvent.date_of_approval);
     formData.append('status', this.selectedEvent.status);
     formData.append('positions', this.selectedEvent.positions);
-    formData.append('division', this.selectedEvent.division);
+    // formData.append('division', this.selectedEvent.division);
     formData.append('sec_type', this.selectedEvent.sec_type);
     formData.append('date_of_validity', this.selectedEvent.date_of_validity);
     formData.append('lang_code', this.selectedEvent.lang_code);

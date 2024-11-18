@@ -163,7 +163,7 @@ class WorkingAirportsController extends Controller
             'approved_status_programme', 
             'date_of_approval_programme', 
             'valid_till', 
-            'airport_orders'
+            // 'airport_orders'
         ]);
         //$data['created_by'] = Auth::guard('admin')->user()->id;
 
@@ -202,7 +202,7 @@ class WorkingAirportsController extends Controller
             'lang_code' => 'required',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
-            'airport_orders' => 'required|string|max:255',
+            // 'airport_orders' => 'required|string|max:255',
             'region_name' => 'required|string|max:255',
             'sr_no' => 'required|numeric',
             'airport_name' => 'required|string|max:255',
@@ -233,7 +233,7 @@ class WorkingAirportsController extends Controller
         $airportdata->lang_code = $validated['lang_code'];
         $airportdata->start_date = $validated['start_date'];
         $airportdata->end_date = $validated['end_date'];
-        $airportdata->airport_orders = $validated['airport_orders'] ?? null;
+        // $airportdata->airport_orders = $validated['airport_orders'] ?? null;
         $airportdata->region_name = $validated['region_name'] ?? null;
         $airportdata->sr_no = $validated['sr_no'] ?? null;
         $airportdata->airport_name = $validated['airport_name'] ?? null;
@@ -307,7 +307,7 @@ class WorkingAirportsController extends Controller
     {
         // Define validation rules
         $rules = [
-            'airport_orders'    => 'required',
+            // 'airport_orders'    => 'required',
             'region_name'     => 'required|string|max:255',
             'lang_code'     => 'required|string|max:255',
             'sr_no'     => 'required|string|max:255',
@@ -335,7 +335,7 @@ class WorkingAirportsController extends Controller
 
         // Prepare data for insertion
         $data = $request->only([
-            'airport_orders','region_name','lang_code','sr_no','airport_name','entity_name','address','mobile_no','phone_no','unique_reference_number','approved_status_clearance','date_of_approval_clearance','approved_status_programme','date_of_approval_programme','valid_till'
+            'region_name','lang_code','sr_no','airport_name','entity_name','address','mobile_no','phone_no','unique_reference_number','approved_status_clearance','date_of_approval_clearance','approved_status_programme','date_of_approval_programme','valid_till'
         ]);
 
         // Create new Airline record
@@ -359,7 +359,7 @@ class WorkingAirportsController extends Controller
     {
         // Define validation rules
         $rules = [
-            'airport_orders'    => 'required',
+            // 'airport_orders'    => 'required',
             'region_name'     => 'required|string|max:255',
             'lang_code'     => 'required|string|max:255',
             'sr_no'     => 'required|string|max:255',
@@ -397,7 +397,7 @@ class WorkingAirportsController extends Controller
 
         // Prepare data for update
         $data = $request->only([
-            'airport_orders','region_name','lang_code','sr_no','airport_name','entity_name','address','mobile_no','phone_no','unique_reference_number','approved_status_clearance','date_of_approval_clearance','approved_status_programme','date_of_approval_programme','valid_till'
+            'region_name','lang_code','sr_no','airport_name','entity_name','address','mobile_no','phone_no','unique_reference_number','approved_status_clearance','date_of_approval_clearance','approved_status_programme','date_of_approval_programme','valid_till'
         ]);
 
         // Update the existing Airline record

@@ -312,7 +312,7 @@ class OpsiSecurityController extends Controller
             'date_of_approval'  => 'required|date',  // Ensure date format
             'status'            => 'required|string|max:255',
             'positions'            => 'required',
-            'division'            => 'required|string|:255',
+            // 'division'            => 'required|string|:255',
             'sec_type'          => 'required|string|max:255',
             'date_of_validity'  => 'required|date',  // Ensure date format
             'lang_code'         => 'required|string|max:10',  // Make sure it's a string with a reasonable length
@@ -330,7 +330,7 @@ class OpsiSecurityController extends Controller
 
         // Prepare data for insertion
         $data = $request->only([
-            'application_id','company_name','date_of_application_submitted','date_of_approval','status','positions','division','sec_type','date_of_validity','lang_code'
+            'application_id','company_name','date_of_application_submitted','date_of_approval','status','positions','sec_type','date_of_validity','lang_code'
         ]);
 
         // Create new Airline record
@@ -360,7 +360,7 @@ class OpsiSecurityController extends Controller
             'date_of_approval'  => 'required|date',  // Ensure date format
             'status'            => 'required|string|max:255',
             'positions'            => 'required',
-            'division'            => 'required|string|:255',
+            // 'division'            => 'required|string|:255',
             'sec_type'          => 'required|string|max:255',
             'date_of_validity'  => 'required|date',  // Ensure date format
             'lang_code'         => 'required|string|max:10',  // Make sure it's a string with a reasonable length
@@ -388,7 +388,7 @@ class OpsiSecurityController extends Controller
 
         // Prepare data for update
         $data = $request->only([
-            'application_id','company_name','date_of_application_submitted','date_of_approval','status','positions','division','sec_type','date_of_validity','lang_code'
+            'application_id','company_name','date_of_application_submitted','date_of_approval','status','positions','sec_type','date_of_validity','lang_code'
         ]);
 
         // Update the existing Airline record
