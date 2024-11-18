@@ -121,7 +121,7 @@ export class CateringDatatableComponent {
       'date_of_security_clearance',   // Newly added field
       'date_of_security_programme_approval',     // Newly added field
       'status', // Newly added field
-      'division',
+      // 'division',
       'date_of_validity', // Newly added field
       'lang_code',
     ];
@@ -141,7 +141,7 @@ export class CateringDatatableComponent {
     formData.append('date_of_security_clearance', this.selectedEvent.date_of_security_clearance);
     formData.append('date_of_security_programme_approval', this.selectedEvent.date_of_security_programme_approval);
     formData.append('status', this.selectedEvent.status);
-    formData.append('division', this.selectedEvent.division);
+    // formData.append('division', this.selectedEvent.division);
     formData.append('date_of_validity', this.selectedEvent.date_of_validity);
     formData.append('lang_code', this.selectedEvent.lang_code);
 
@@ -177,7 +177,7 @@ export class CateringDatatableComponent {
       'date_of_security_clearance',   // Newly added field
       'date_of_security_programme_approval',     // Newly added field
       'status', // Newly added field
-      'division',
+      // 'division',
       'date_of_validity', // Newly added field
       'lang_code',
     ];
@@ -197,7 +197,7 @@ export class CateringDatatableComponent {
     formData.append('date_of_security_clearance', this.selectedEvent.date_of_security_clearance);
     formData.append('date_of_security_programme_approval', this.selectedEvent.date_of_security_programme_approval);
     formData.append('status', this.selectedEvent.status);
-    formData.append('division', this.selectedEvent.division);
+    // formData.append('division', this.selectedEvent.division);
     formData.append('date_of_validity', this.selectedEvent.date_of_validity);
     formData.append('lang_code', this.selectedEvent.lang_code);
   

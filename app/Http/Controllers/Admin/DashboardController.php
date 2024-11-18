@@ -71,19 +71,19 @@ class DashboardController extends Controller
     public function cms_count_data()
     {
 
-        // Correct method usage for connecting to a specific connection
-        $ao = Document::where('document_category_id',1)->count();
-        $ac = Document::where('document_category_id',2)->count();
-        $corrigendum = Document::where('document_category_id',3)->count();
-        $addendum_Order = Document::where('document_category_id',4)->count();
-        
+        $categories = DocumentCategory::all();
 
-        $data = [
-            'ao' => $ao,
-            'ac' => $ac,
-            'corrigendum' => $corrigendum,
-            'addendum_Order' => $addendum_Order,
-        ];
+    // Initialize an empty array to hold counts
+    $data = [];
+
+    // Loop through each category to count documents
+    foreach ($categories as $category) {
+        // Count the documents for each category and store in the array
+        $count = Document::where('document_category_id', $category->id)->count();
+        
+        // Add the count to the data array with the category name as the key
+        $data[$category->name] = $count; // Use category name or ID depending on your requirements
+    }
 
         return response()->json([
             'data' => $data,

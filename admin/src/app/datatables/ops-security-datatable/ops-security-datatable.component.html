@@ -91,7 +91,7 @@
       <div class="modal-dialog" style="min-width: 700px;">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="editEventModalLabel">Edit Circular</h5>
+            <h5 class="modal-title" id="editEventModalLabel">Edit Security Programme</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -261,20 +261,23 @@
                       </div>
                     </div>
               
-                    <!-- Air Type -->
+                    <!-- Sec Type -->
                     <div class="mb-3">
-                      <label for="sec_type" class="form-label">Sec Type</label>
-                      <input 
-                        type="text" 
-                        id="sec_type" 
-                        class="form-control" 
-                        [(ngModel)]="selectedEvent.sec_type" 
-                        name="sec_type" 
-                        required 
-                        #airType="ngModel"
-                      />
-                      <div *ngIf="airType.invalid && (airType.dirty || airType.touched)" class="text-danger">
-                        <div *ngIf="airType.errors?.['required']">Sec Type is required.</div>
+                      <label for="sec_type" class="form-label">Security Programme Type</label>
+                      <select id="sec_type" class="form-select" [(ngModel)]="selectedEvent.sec_type" name="sec_type" required #sec_type="ngModel">
+                        <option value="" disabled>Select Sec Type</option>
+                        <option value="asp">Aerodrome security Programme</option>
+                        <option value="ffsp">Fuel farm Security Programme</option>
+                        <option value="gha">Ground Handling Agent</option>
+                        <option value="mr">Maintenance Repair</option>
+                        <option value="fbo">Fixed Base operator</option>
+                        <option value="psa">Private Security Agency</option>
+                        <option value="aa">AA,CHA,FF,GS,GSSA</option>
+                        <option value="phg">Power Hang Glider</option>
+                        <option value="rpa">Remotely Piloted Aircraft</option>
+                      </select>
+                      <div *ngIf="sec_type.invalid && (sec_type.dirty || sec_type.touched)" class="text-danger">
+                        <div *ngIf="sec_type.errors?.['required']">Sec Type is required.</div>
                       </div>
                     </div>
               
@@ -292,6 +295,22 @@
                       />
                       <div *ngIf="dateOfValidity.invalid && (dateOfValidity.dirty || dateOfValidity.touched)" class="text-danger">
                         <div *ngIf="dateOfValidity.errors?.['required']">Date of Validity is required.</div>
+                      </div>
+                    </div>
+
+                    <!-- cso acso Mobile -->
+                    <div class="mb-3">
+                      <label for="cso_acso_mobile" class="form-label">CSO ACSO Mobile</label>
+                      <input 
+                        type="number" 
+                        id="cso_acso_mobile" 
+                        class="form-control" 
+                        name="cso_acso_mobile" 
+                        [(ngModel)]="selectedEvent.cso_acso_mobile" 
+                        required 
+                        #cso_acso_mobile="ngModel">
+                      <div *ngIf="cso_acso_mobile.invalid && (cso_acso_mobile.dirty || cso_acso_mobile.touched)" class="text-danger">
+                        <div *ngIf="cso_acso_mobile.errors?.['required']">Date of Validity is required.</div>
                       </div>
                     </div>
               
@@ -329,7 +348,7 @@
       <div class="modal-dialog" style="min-width: 700px;">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addEventModalLabel">add Circular</h5>
+            <h5 class="modal-title" id="addEventModalLabel">Add Security Programme</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -501,21 +520,23 @@
                       </div>
                     </div>
               
-                    <!-- Air Type -->
+                    <!-- Sec Type -->
                     <div class="mb-3">
-                      <label for="sec_type" class="form-label">Sec Type</label>
-                      <input 
-                        type="text" 
-                        id="sec_type" 
-                        class="form-control" 
-                        name="sec_type" 
-                        [(ngModel)]="selectedEvent.sec_type" 
-                        required 
-                        maxlength="255" 
-                        #sec_type="ngModel">
+                      <label for="sec_type" class="form-label">Security Programme Type</label>
+                      <select id="sec_type" class="form-select" [(ngModel)]="selectedEvent.sec_type" name="sec_type" required #sec_type="ngModel">
+                        <option value="" disabled>Select Sec Type</option>
+                        <option value="asp">Aerodrome security Programme</option>
+                        <option value="ffsp">Fuel farm Security Programme</option>
+                        <option value="gha">Ground Handling Agent</option>
+                        <option value="mr">Maintenance Repair</option>
+                        <option value="fbo">Fixed Base operator</option>
+                        <option value="psa">Private Security Agency</option>
+                        <option value="aa">AA,CHA,FF,GS,GSSA</option>
+                        <option value="phg">Power Hang Glider</option>
+                        <option value="rpa">Remotely Piloted Aircraft</option>
+                      </select>
                       <div *ngIf="sec_type.invalid && (sec_type.dirty || sec_type.touched)" class="text-danger">
                         <div *ngIf="sec_type.errors?.['required']">Sec Type is required.</div>
-                        <div *ngIf="sec_type.errors?.['maxlength']">Sec Type must be less than 255 characters.</div>
                       </div>
                     </div>
               
@@ -532,6 +553,22 @@
                         #date_of_validity="ngModel">
                       <div *ngIf="date_of_validity.invalid && (date_of_validity.dirty || date_of_validity.touched)" class="text-danger">
                         <div *ngIf="date_of_validity.errors?.['required']">Date of Validity is required.</div>
+                      </div>
+                    </div>
+
+                    <!-- cso acso Mobile -->
+                    <div class="mb-3">
+                      <label for="cso_acso_mobile" class="form-label">CSO ACSO Mobile</label>
+                      <input 
+                        type="number" 
+                        id="cso_acso_mobile" 
+                        class="form-control" 
+                        name="cso_acso_mobile" 
+                        [(ngModel)]="selectedEvent.cso_acso_mobile" 
+                        required 
+                        #cso_acso_mobile="ngModel">
+                      <div *ngIf="cso_acso_mobile.invalid && (cso_acso_mobile.dirty || cso_acso_mobile.touched)" class="text-danger">
+                        <div *ngIf="cso_acso_mobile.errors?.['required']">Date of Validity is required.</div>
                       </div>
                     </div>
               

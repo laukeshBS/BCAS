@@ -315,7 +315,7 @@ class CateringCompanyController extends Controller
             'date_of_security_clearance'    => 'required|date',
             'date_of_security_programme_approval'  => 'required|date',  // Ensure date format
             'status'            => 'required|string|max:255',
-            'division'          => 'required|string|max:255',
+            // 'division'          => 'required|string|max:255',
             'date_of_validity'  => 'required|date',  // Ensure date format
             'lang_code'         => 'required|string|max:10',  // Make sure it's a string with a reasonable length
         ];
@@ -332,7 +332,7 @@ class CateringCompanyController extends Controller
 
         // Prepare data for insertion
         $data = $request->only([
-            'regional_office','airport_name','entity_name','date_of_security_clearance','date_of_security_programme_approval','status','division','date_of_validity','lang_code'
+            'regional_office','airport_name','entity_name','date_of_security_clearance','date_of_security_programme_approval','status','date_of_validity','lang_code'
         ]);
 
         // Create new Airline record
@@ -362,7 +362,7 @@ class CateringCompanyController extends Controller
             'date_of_security_clearance'    => 'required|date',
             'date_of_security_programme_approval'  => 'required|date',  // Ensure date format
             'status'            => 'required|string|max:255',
-            'division'          => 'required|string|max:255',
+            // 'division'          => 'required|string|max:255',
             'date_of_validity'  => 'required|date',  // Ensure date format
             'lang_code'         => 'required|string|max:10',  // Make sure it's a string with a reasonable length
         ];
@@ -389,7 +389,7 @@ class CateringCompanyController extends Controller
 
         // Prepare data for update
         $data = $request->only([
-            'regional_office','airport_name','entity_name','date_of_security_clearance','date_of_security_programme_approval','status','division','date_of_validity','lang_code'
+            'regional_office','airport_name','entity_name','date_of_security_clearance','date_of_security_programme_approval','status','date_of_validity','lang_code'
         ]);
 
         // Update the existing Airline record

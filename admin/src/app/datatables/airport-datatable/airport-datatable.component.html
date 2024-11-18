@@ -3,11 +3,11 @@
       <table class="table table-bordered">
         <thead>
           <tr>
-            <th>Airport Orders</th>
+            <!-- <th>RASP Position</th> -->
+            <th>Sr No</th>
             <th>Region Name</th>
             <th>Entity Name</th>
             <th>airport Name</th>
-            <th>Sr No</th>
             <th>Address</th>
             <th>Mobile</th>
             <th>Phone</th>
@@ -24,11 +24,11 @@
         </thead>
         <tbody>
           <tr *ngFor="let event of events">
-            <td>{{ event.airport_orders }}</td>
+            <td>{{ event.sr_no }}</td>
+            <!-- <td>{{ event.airport_orders }}</td> -->
             <td>{{ event.region_name }}</td>
             <td>{{ event.entity_name }}</td>
             <td>{{ event.airport_name }}</td>
-            <td>{{ event.sr_no }}</td>
             <td>{{ event.address }}</td>
             <td>{{ event.mobile_no }}</td>
             <td>{{ event.phone_no }}</td>
@@ -97,7 +97,7 @@
       <div class="modal-dialog" style="min-width: 700px;">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="editEventModalLabel">Edit Circular</h5>
+            <h5 class="modal-title" id="editEventModalLabel">Edit RASP</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -105,10 +105,10 @@
                 <div class="row">
                     <!-- First Column (Left Side) -->
                     <div class="col-md-6">
-                
-                      <!-- Airport Orders -->
-                      <div class="mb-3">
-                        <label for="airport_orders" class="form-label">Airport Orders</label>
+              
+                      <!-- RASP Orders -->
+                      <!-- <div class="mb-3">
+                        <label for="airport_orders" class="form-label">RASP Position</label>
                         <input 
                           type="text" 
                           id="airport_orders" 
@@ -119,10 +119,10 @@
                           maxlength="255" 
                           #airport_orders="ngModel">
                         <div *ngIf="airport_orders.invalid && (airport_orders.dirty || airport_orders.touched)" class="text-danger">
-                          <div *ngIf="airport_orders.errors?.['required']">Airport Orders is required.</div>
-                          <div *ngIf="airport_orders.errors?.['maxlength']">Airport Orders must be less than 255 characters.</div>
+                          <div *ngIf="airport_orders.errors?.['required']">RASP Position is required.</div>
+                          <div *ngIf="airport_orders.errors?.['maxlength']">RASP Position must be less than 255 characters.</div>
                         </div>
-                      </div>
+                      </div> -->
                 
                       <!-- Region Name -->
                       <div class="mb-3">
@@ -139,43 +139,6 @@
                         <div *ngIf="region_name.invalid && (region_name.dirty || region_name.touched)" class="text-danger">
                           <div *ngIf="region_name.errors?.['required']">Region Name is required.</div>
                           <div *ngIf="region_name.errors?.['maxlength']">Region Name must be less than 255 characters.</div>
-                        </div>
-                      </div>
-                
-                      <!-- Language Code -->
-                      <div class="mb-3">
-                        <label for="lang_code" class="form-label">Language Code</label>
-                        <select 
-                          id="lang_code" 
-                          class="form-select" 
-                          name="lang_code" 
-                          [(ngModel)]="selectedEvent.lang_code" 
-                          required 
-                          #lang_code="ngModel">
-                          <option value="">Select Language</option>
-                          <option value="en">English</option>
-                          <option value="hi">Hindi</option>
-                        </select>
-                        <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
-                          <div *ngIf="lang_code.errors?.['required']">Language Code is required.</div>
-                        </div>
-                      </div>
-                
-                      <!-- Serial Number -->
-                      <div class="mb-3">
-                        <label for="sr_no" class="form-label">Serial Number</label>
-                        <input 
-                          type="number" 
-                          id="sr_no" 
-                          class="form-control" 
-                          name="sr_no" 
-                          [(ngModel)]="selectedEvent.sr_no" 
-                          required 
-                          maxlength="255" 
-                          #sr_no="ngModel">
-                        <div *ngIf="sr_no.invalid && (sr_no.dirty || sr_no.touched)" class="text-danger">
-                          <div *ngIf="sr_no.errors?.['required']">Serial Number is required.</div>
-                          <div *ngIf="sr_no.errors?.['maxlength']">Serial Number must be less than 255 characters.</div>
                         </div>
                       </div>
                 
@@ -214,7 +177,75 @@
                           <div *ngIf="entity_name.errors?.['maxlength']">Entity Name must be less than 255 characters.</div>
                         </div>
                       </div>
+                      
+                      <!-- Date of Approval Clearance -->
+                      <div class="mb-3">
+                        <label for="date_of_approval_clearance" class="form-label">Date of Approval Clearance</label>
+                        <input 
+                          type="date" 
+                          id="date_of_approval_clearance" 
+                          class="form-control" 
+                          name="date_of_approval_clearance" 
+                          [(ngModel)]="selectedEvent.date_of_approval_clearance" 
+                          required 
+                          #date_of_approval_clearance="ngModel">
+                        <div *ngIf="date_of_approval_clearance.invalid && (date_of_approval_clearance.dirty || date_of_approval_clearance.touched)" class="text-danger">
+                          <div *ngIf="date_of_approval_clearance.errors?.['required']">Date of Approval Clearance is required.</div>
+                        </div>
+                      </div>
                 
+                      <!-- Approved Status Programme -->
+                      <div class="mb-3">
+                        <label for="approved_status_programme" class="form-label">Approved Status Programme</label>
+                        <select 
+                          id="approved_status_programme" 
+                          class="form-select" 
+                          name="approved_status_programme" 
+                          [(ngModel)]="selectedEvent.approved_status_programme" 
+                          required 
+                          #approved_status_programme="ngModel">
+                          <option value="">Select Status</option>
+                          <option value="1">Approved</option>
+                          <option value="2">Pending</option>
+                          <option value="3">Rejected</option>
+                        </select>
+                        <div *ngIf="approved_status_programme.invalid && (approved_status_programme.dirty || approved_status_programme.touched)" class="text-danger">
+                          <div *ngIf="approved_status_programme.errors?.['required']">Approved Status Programme is required.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Date of Approval Programme -->
+                      <div class="mb-3">
+                        <label for="date_of_approval_programme" class="form-label">Date of Approval Programme</label>
+                        <input 
+                          type="date" 
+                          id="date_of_approval_programme" 
+                          class="form-control" 
+                          name="date_of_approval_programme" 
+                          [(ngModel)]="selectedEvent.date_of_approval_programme" 
+                          required 
+                          #date_of_approval_programme="ngModel">
+                        <div *ngIf="date_of_approval_programme.invalid && (date_of_approval_programme.dirty || date_of_approval_programme.touched)" class="text-danger">
+                          <div *ngIf="date_of_approval_programme.errors?.['required']">Date of Approval Programme is required.</div>
+                        </div>
+                      </div>
+                
+                      <!-- Valid Till -->
+                      <div class="mb-3">
+                        <label for="valid_till" class="form-label">Valid Till</label>
+                        <input 
+                          type="date" 
+                          id="valid_till" 
+                          class="form-control" 
+                          name="valid_till" 
+                          [(ngModel)]="selectedEvent.valid_till" 
+                          required 
+                          #valid_till="ngModel">
+                        <div *ngIf="valid_till.invalid && (valid_till.dirty || valid_till.touched)" class="text-danger">
+                          <div *ngIf="valid_till.errors?.['required']">Valid Till date is required.</div>
+                        </div>
+                      </div>
+  
                     </div>
                 
                     <!-- Second Column (Right Side) -->
@@ -309,75 +340,43 @@
                           <div *ngIf="approved_status_clearance.errors?.['required']">Approved Status Clearance is required.</div>
                         </div>
                       </div>
-                
-                      <!-- Date of Approval Clearance -->
+                      
+                      <!-- Language Code -->
                       <div class="mb-3">
-                        <label for="date_of_approval_clearance" class="form-label">Date of Approval Clearance</label>
-                        <input 
-                          type="date" 
-                          id="date_of_approval_clearance" 
-                          class="form-control" 
-                          name="date_of_approval_clearance" 
-                          [(ngModel)]="selectedEvent.date_of_approval_clearance" 
-                          required 
-                          #date_of_approval_clearance="ngModel">
-                        <div *ngIf="date_of_approval_clearance.invalid && (date_of_approval_clearance.dirty || date_of_approval_clearance.touched)" class="text-danger">
-                          <div *ngIf="date_of_approval_clearance.errors?.['required']">Date of Approval Clearance is required.</div>
-                        </div>
-                      </div>
-                
-                      <!-- Approved Status Programme -->
-                      <div class="mb-3">
-                        <label for="approved_status_programme" class="form-label">Approved Status Programme</label>
+                        <label for="lang_code" class="form-label">Language Code</label>
                         <select 
-                          id="approved_status_programme" 
+                          id="lang_code" 
                           class="form-select" 
-                          name="approved_status_programme" 
-                          [(ngModel)]="selectedEvent.approved_status_programme" 
+                          name="lang_code" 
+                          [(ngModel)]="selectedEvent.lang_code" 
                           required 
-                          #approved_status_programme="ngModel">
-                          <option value="">Select Status</option>
-                          <option value="1">Approved</option>
-                          <option value="2">Pending</option>
-                          <option value="3">Rejected</option>
+                          #lang_code="ngModel">
+                          <option value="">Select Language</option>
+                          <option value="en">English</option>
+                          <option value="hi">Hindi</option>
                         </select>
-                        <div *ngIf="approved_status_programme.invalid && (approved_status_programme.dirty || approved_status_programme.touched)" class="text-danger">
-                          <div *ngIf="approved_status_programme.errors?.['required']">Approved Status Programme is required.</div>
+                        <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
+                          <div *ngIf="lang_code.errors?.['required']">Language Code is required.</div>
                         </div>
                       </div>
                 
-                      <!-- Date of Approval Programme -->
+                      <!-- Serial Number -->
                       <div class="mb-3">
-                        <label for="date_of_approval_programme" class="form-label">Date of Approval Programme</label>
+                        <label for="sr_no" class="form-label">Postion</label>
                         <input 
-                          type="date" 
-                          id="date_of_approval_programme" 
+                          type="number" 
+                          id="sr_no" 
                           class="form-control" 
-                          name="date_of_approval_programme" 
-                          [(ngModel)]="selectedEvent.date_of_approval_programme" 
+                          name="sr_no" 
+                          [(ngModel)]="selectedEvent.sr_no" 
                           required 
-                          #date_of_approval_programme="ngModel">
-                        <div *ngIf="date_of_approval_programme.invalid && (date_of_approval_programme.dirty || date_of_approval_programme.touched)" class="text-danger">
-                          <div *ngIf="date_of_approval_programme.errors?.['required']">Date of Approval Programme is required.</div>
+                          maxlength="255" 
+                          #sr_no="ngModel">
+                        <div *ngIf="sr_no.invalid && (sr_no.dirty || sr_no.touched)" class="text-danger">
+                          <div *ngIf="sr_no.errors?.['required']">Postion is required.</div>
+                          <div *ngIf="sr_no.errors?.['maxlength']">Postion must be less than 255 characters.</div>
                         </div>
                       </div>
-                
-                      <!-- Valid Till -->
-                      <div class="mb-3">
-                        <label for="valid_till" class="form-label">Valid Till</label>
-                        <input 
-                          type="date" 
-                          id="valid_till" 
-                          class="form-control" 
-                          name="valid_till" 
-                          [(ngModel)]="selectedEvent.valid_till" 
-                          required 
-                          #valid_till="ngModel">
-                        <div *ngIf="valid_till.invalid && (valid_till.dirty || valid_till.touched)" class="text-danger">
-                          <div *ngIf="valid_till.errors?.['required']">Valid Till date is required.</div>
-                        </div>
-                      </div>
-                
                     </div>
                   </div>
               
@@ -393,7 +392,7 @@
       <div class="modal-dialog" style="min-width: 700px;">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addEventModalLabel">add Circular</h5>
+            <h5 class="modal-title" id="addEventModalLabel">Add RASP</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -402,9 +401,9 @@
                   <!-- First Column (Left Side) -->
                   <div class="col-md-6">
               
-                    <!-- Airport Orders -->
-                    <div class="mb-3">
-                      <label for="airport_orders" class="form-label">Airport Orders</label>
+                    <!-- RASP Orders -->
+                    <!-- <div class="mb-3">
+                      <label for="airport_orders" class="form-label">RASP Position</label>
                       <input 
                         type="text" 
                         id="airport_orders" 
@@ -415,10 +414,10 @@
                         maxlength="255" 
                         #airport_orders="ngModel">
                       <div *ngIf="airport_orders.invalid && (airport_orders.dirty || airport_orders.touched)" class="text-danger">
-                        <div *ngIf="airport_orders.errors?.['required']">Airport Orders is required.</div>
-                        <div *ngIf="airport_orders.errors?.['maxlength']">Airport Orders must be less than 255 characters.</div>
+                        <div *ngIf="airport_orders.errors?.['required']">RASP Position is required.</div>
+                        <div *ngIf="airport_orders.errors?.['maxlength']">RASP Position must be less than 255 characters.</div>
                       </div>
-                    </div>
+                    </div> -->
               
                     <!-- Region Name -->
                     <div class="mb-3">
@@ -435,43 +434,6 @@
                       <div *ngIf="region_name.invalid && (region_name.dirty || region_name.touched)" class="text-danger">
                         <div *ngIf="region_name.errors?.['required']">Region Name is required.</div>
                         <div *ngIf="region_name.errors?.['maxlength']">Region Name must be less than 255 characters.</div>
-                      </div>
-                    </div>
-              
-                    <!-- Language Code -->
-                    <div class="mb-3">
-                      <label for="lang_code" class="form-label">Language Code</label>
-                      <select 
-                        id="lang_code" 
-                        class="form-select" 
-                        name="lang_code" 
-                        [(ngModel)]="selectedEvent.lang_code" 
-                        required 
-                        #lang_code="ngModel">
-                        <option value="">Select Language</option>
-                        <option value="en">English</option>
-                        <option value="hi">Hindi</option>
-                      </select>
-                      <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
-                        <div *ngIf="lang_code.errors?.['required']">Language Code is required.</div>
-                      </div>
-                    </div>
-              
-                    <!-- Serial Number -->
-                    <div class="mb-3">
-                      <label for="sr_no" class="form-label">Serial Number</label>
-                      <input 
-                        type="number" 
-                        id="sr_no" 
-                        class="form-control" 
-                        name="sr_no" 
-                        [(ngModel)]="selectedEvent.sr_no" 
-                        required 
-                        maxlength="255" 
-                        #sr_no="ngModel">
-                      <div *ngIf="sr_no.invalid && (sr_no.dirty || sr_no.touched)" class="text-danger">
-                        <div *ngIf="sr_no.errors?.['required']">Serial Number is required.</div>
-                        <div *ngIf="sr_no.errors?.['maxlength']">Serial Number must be less than 255 characters.</div>
                       </div>
                     </div>
               
@@ -510,7 +472,75 @@
                         <div *ngIf="entity_name.errors?.['maxlength']">Entity Name must be less than 255 characters.</div>
                       </div>
                     </div>
+                    
+                    <!-- Date of Approval Clearance -->
+                    <div class="mb-3">
+                      <label for="date_of_approval_clearance" class="form-label">Date of Approval Clearance</label>
+                      <input 
+                        type="date" 
+                        id="date_of_approval_clearance" 
+                        class="form-control" 
+                        name="date_of_approval_clearance" 
+                        [(ngModel)]="selectedEvent.date_of_approval_clearance" 
+                        required 
+                        #date_of_approval_clearance="ngModel">
+                      <div *ngIf="date_of_approval_clearance.invalid && (date_of_approval_clearance.dirty || date_of_approval_clearance.touched)" class="text-danger">
+                        <div *ngIf="date_of_approval_clearance.errors?.['required']">Date of Approval Clearance is required.</div>
+                      </div>
+                    </div>
               
+                    <!-- Approved Status Programme -->
+                    <div class="mb-3">
+                      <label for="approved_status_programme" class="form-label">Approved Status Programme</label>
+                      <select 
+                        id="approved_status_programme" 
+                        class="form-select" 
+                        name="approved_status_programme" 
+                        [(ngModel)]="selectedEvent.approved_status_programme" 
+                        required 
+                        #approved_status_programme="ngModel">
+                        <option value="">Select Status</option>
+                        <option value="1">Approved</option>
+                        <option value="2">Pending</option>
+                        <option value="3">Rejected</option>
+                      </select>
+                      <div *ngIf="approved_status_programme.invalid && (approved_status_programme.dirty || approved_status_programme.touched)" class="text-danger">
+                        <div *ngIf="approved_status_programme.errors?.['required']">Approved Status Programme is required.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Date of Approval Programme -->
+                    <div class="mb-3">
+                      <label for="date_of_approval_programme" class="form-label">Date of Approval Programme</label>
+                      <input 
+                        type="date" 
+                        id="date_of_approval_programme" 
+                        class="form-control" 
+                        name="date_of_approval_programme" 
+                        [(ngModel)]="selectedEvent.date_of_approval_programme" 
+                        required 
+                        #date_of_approval_programme="ngModel">
+                      <div *ngIf="date_of_approval_programme.invalid && (date_of_approval_programme.dirty || date_of_approval_programme.touched)" class="text-danger">
+                        <div *ngIf="date_of_approval_programme.errors?.['required']">Date of Approval Programme is required.</div>
+                      </div>
+                    </div>
+              
+                    <!-- Valid Till -->
+                    <div class="mb-3">
+                      <label for="valid_till" class="form-label">Valid Till</label>
+                      <input 
+                        type="date" 
+                        id="valid_till" 
+                        class="form-control" 
+                        name="valid_till" 
+                        [(ngModel)]="selectedEvent.valid_till" 
+                        required 
+                        #valid_till="ngModel">
+                      <div *ngIf="valid_till.invalid && (valid_till.dirty || valid_till.touched)" class="text-danger">
+                        <div *ngIf="valid_till.errors?.['required']">Valid Till date is required.</div>
+                      </div>
+                    </div>
+
                   </div>
               
                   <!-- Second Column (Right Side) -->
@@ -605,72 +635,41 @@
                         <div *ngIf="approved_status_clearance.errors?.['required']">Approved Status Clearance is required.</div>
                       </div>
                     </div>
-              
-                    <!-- Date of Approval Clearance -->
+                    
+                    <!-- Language Code -->
                     <div class="mb-3">
-                      <label for="date_of_approval_clearance" class="form-label">Date of Approval Clearance</label>
-                      <input 
-                        type="date" 
-                        id="date_of_approval_clearance" 
-                        class="form-control" 
-                        name="date_of_approval_clearance" 
-                        [(ngModel)]="selectedEvent.date_of_approval_clearance" 
-                        required 
-                        #date_of_approval_clearance="ngModel">
-                      <div *ngIf="date_of_approval_clearance.invalid && (date_of_approval_clearance.dirty || date_of_approval_clearance.touched)" class="text-danger">
-                        <div *ngIf="date_of_approval_clearance.errors?.['required']">Date of Approval Clearance is required.</div>
-                      </div>
-                    </div>
-              
-                    <!-- Approved Status Programme -->
-                    <div class="mb-3">
-                      <label for="approved_status_programme" class="form-label">Approved Status Programme</label>
+                      <label for="lang_code" class="form-label">Language Code</label>
                       <select 
-                        id="approved_status_programme" 
+                        id="lang_code" 
                         class="form-select" 
-                        name="approved_status_programme" 
-                        [(ngModel)]="selectedEvent.approved_status_programme" 
+                        name="lang_code" 
+                        [(ngModel)]="selectedEvent.lang_code" 
                         required 
-                        #approved_status_programme="ngModel">
-                        <option value="">Select Status</option>
-                        <option value="1">Approved</option>
-                        <option value="2">Pending</option>
-                        <option value="3">Rejected</option>
+                        #lang_code="ngModel">
+                        <option value="">Select Language</option>
+                        <option value="en">English</option>
+                        <option value="hi">Hindi</option>
                       </select>
-                      <div *ngIf="approved_status_programme.invalid && (approved_status_programme.dirty || approved_status_programme.touched)" class="text-danger">
-                        <div *ngIf="approved_status_programme.errors?.['required']">Approved Status Programme is required.</div>
+                      <div *ngIf="lang_code.invalid && (lang_code.dirty || lang_code.touched)" class="text-danger">
+                        <div *ngIf="lang_code.errors?.['required']">Language Code is required.</div>
                       </div>
                     </div>
               
-                    <!-- Date of Approval Programme -->
+                    <!-- Serial Number -->
                     <div class="mb-3">
-                      <label for="date_of_approval_programme" class="form-label">Date of Approval Programme</label>
+                      <label for="sr_no" class="form-label">Postion</label>
                       <input 
-                        type="date" 
-                        id="date_of_approval_programme" 
+                        type="number" 
+                        id="sr_no" 
                         class="form-control" 
-                        name="date_of_approval_programme" 
-                        [(ngModel)]="selectedEvent.date_of_approval_programme" 
+                        name="sr_no" 
+                        [(ngModel)]="selectedEvent.sr_no" 
                         required 
-                        #date_of_approval_programme="ngModel">
-                      <div *ngIf="date_of_approval_programme.invalid && (date_of_approval_programme.dirty || date_of_approval_programme.touched)" class="text-danger">
-                        <div *ngIf="date_of_approval_programme.errors?.['required']">Date of Approval Programme is required.</div>
-                      </div>
-                    </div>
-              
-                    <!-- Valid Till -->
-                    <div class="mb-3">
-                      <label for="valid_till" class="form-label">Valid Till</label>
-                      <input 
-                        type="date" 
-                        id="valid_till" 
-                        class="form-control" 
-                        name="valid_till" 
-                        [(ngModel)]="selectedEvent.valid_till" 
-                        required 
-                        #valid_till="ngModel">
-                      <div *ngIf="valid_till.invalid && (valid_till.dirty || valid_till.touched)" class="text-danger">
-                        <div *ngIf="valid_till.errors?.['required']">Valid Till date is required.</div>
+                        maxlength="255" 
+                        #sr_no="ngModel">
+                      <div *ngIf="sr_no.invalid && (sr_no.dirty || sr_no.touched)" class="text-danger">
+                        <div *ngIf="sr_no.errors?.['required']">Postion is required.</div>
+                        <div *ngIf="sr_no.errors?.['maxlength']">Postion must be less than 255 characters.</div>
                       </div>
                     </div>
               

@@ -145,7 +145,6 @@ class OpsSecurityController extends Controller
             'station_name' => 'required|string|max:255',
             'date_of_approval' => 'required|date',
             'status' => 'required',
-            'division' => 'required',
             'sec_type' => 'required',
             'date_of_validity' => 'required|date',
             'lang_code' => 'required',
@@ -163,7 +162,7 @@ class OpsSecurityController extends Controller
 
         // Prepare data for insertion
         $data = $request->only([
-            'application_id','airport_name','entity_name','region_name','cso_acso_name','cso_acso_email','cso_acso_mobile','station_name','date_of_approval','status','division','sec_type','date_of_validity','lang_code',
+            'application_id','airport_name','entity_name','region_name','cso_acso_name','cso_acso_email','cso_acso_mobile','station_name','date_of_approval','status','sec_type','date_of_validity','lang_code',
         ]);
 
         // // Create new OpsSecurity record
@@ -186,7 +185,7 @@ class OpsSecurityController extends Controller
             'station_name' => 'required|string|max:255',
             'date_of_approval' => 'required|date',
             'status' => 'required',
-            'division' => 'required',
+            // 'division' => 'required',
             'sec_type' => 'required',
             'date_of_validity' => 'required|date',
             'lang_code' => 'required',
@@ -211,7 +210,7 @@ class OpsSecurityController extends Controller
         $opssecuritydata->station_name = $validated['station_name'];
         $opssecuritydata->date_of_approval = $validated['date_of_approval'];
         $opssecuritydata->status = $validated['status'];
-        $opssecuritydata->division = $validated['division'];
+        // $opssecuritydata->division = $validated['division'];
         $opssecuritydata->sec_type = $validated['sec_type'];
         $opssecuritydata->date_of_validity = $validated['date_of_validity'];
         $opssecuritydata->lang_code = $validated['lang_code'];

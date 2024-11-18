@@ -94,6 +94,26 @@ export class AirlinesDatatableComponent {
           event.status = '';
           break;
       }
+      switch (event.air_type) {
+        case "for":
+          event.air_type = 'Foreing';
+          break;
+        case "dom":
+          event.air_type = 'Domestic';
+          break;
+        case "sco":
+          event.air_type = 'SCO';
+          break;
+        case "fto":
+          event.air_type = 'FTO';
+          break;
+        case "nsop":
+          event.air_type = 'NSOP';
+          break;
+        default:
+          event.air_type = '';
+          break;
+      }
     });
   }
 

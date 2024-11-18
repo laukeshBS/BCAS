@@ -1,41 +1,23 @@
 <div class="wrapper-w" *ngIf="hasAnyPermission(['admin-document.view'])">
-    <div class="row">
-      <div class="col-xs-12 col-md-3">
-        <div class="card-d">
-          <h6>AO</h6>
-          <p>{{ documentCount.data.ao }}</p>
-        </div>
+  <div class="row">
+    <!-- Loop through documentCount data -->
+    <div *ngFor="let document of documentCount.data | keyvalue; let i = index" class="col-xs-12 col-md-3">
+      <div class="card-d" [style.background-color]="cardColors[i]">
+        <h6>{{ document.key }}</h6>
+        <p>{{ document.value }}</p>
       </div>
-   
-      <div class="col-xs-12 col-md-3">
-        <div class="card-d two">
-          <h6>AC</h6>
-          <p>{{ documentCount.data.ac }}</p>
-        </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-12 col-md-6">
+      <div class="chart-w">
+        <app-document-category-chart></app-document-category-chart>
       </div>
-   
-      <div class="col-xs-12 col-md-3">
-        <div class="card-d three">
-          <h6>Corrigendum</h6>
-          <p>{{ documentCount.data.corrigendum }}</p>
-        </div>
-      </div>
-   
-      <div class="col-xs-12 col-md-3">
-        <div class="card-d four">
-          <h6>Addendum/Order</h6>
-          <p>{{ documentCount.data.addendum_Order }}</p>
-        </div>
-      </div>  
-      <div class="col-xs-12 col-md-6">
-        <div class="chart-w">
-          <app-document-category-chart></app-document-category-chart> 
-        </div>
-      </div>
-      <!-- <div class="col-xs-12 col-md-6">
+    </div>
+    <!-- <div class="col-xs-12 col-md-6">
         <div class="chart-w">
            <h6>Chart 2</h6>
         </div>
       </div>  -->
-    </div>
   </div>
+</div>
