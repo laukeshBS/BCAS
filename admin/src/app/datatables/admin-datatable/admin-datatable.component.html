@@ -1,196 +1,200 @@
 <div *ngIf="events.length > 0" style="overflow-x: auto">
-    <button (click)="addEvent()" class="btn btn-outline-primary btn-sm">Add</button>
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>roles</th>
-            <th>Status</th>
-            <th>Created</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let event of events">
-            <td>{{ event.name }}</td>
-            <td>{{ event.email }}</td>
-            <td> {{ event.roleNames }}</td>
-            <td><button 
-              (click)="toggleUserStatus(event.id, event.status)"
-              class="btn"
-              [ngClass]="event.status === 3 ? 'btn-danger' : 'btn-success'">
-              {{ event.status === 3 ? 'Deactivate' : 'Active' }}
-            </button></td>
-            <td>{{ event.created_at }}</td>
-            <td>
-              <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
-              <button (click)="deleteEvent(event.id)" class="btn btn-outline-danger btn-sm">Delete</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    
-    <div *ngIf="events.length === 0">
-      <p>Loading.</p>
-    </div>
-    <nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
-      <ul class="pagination">
-        <li class="page-item" [class.disabled]="currentPage === 1">
-          <a class="page-link" (click)="changePage(currentPage - 1)" [attr.aria-disabled]="currentPage === 1">Previous</a>
-        </li>
-        
-        <li *ngFor="let page of [].constructor(lastPage); let i = index" class="page-item" [class.active]="i + 1 === currentPage">
-          <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
-        </li>
-        
-        <li class="page-item" [class.disabled]="currentPage === lastPage">
-          <a class="page-link" (click)="changePage(currentPage + 1)" [attr.aria-disabled]="currentPage === lastPage">Next</a>
-        </li>
-      </ul>
-    </nav>
-    
-    <!-- Bootstrap modal -->
-    <div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="editEventModalLabel">Edit User</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <form (ngSubmit)="modifyEvent()" #eventForm="ngForm" enctype="multipart/form-data">
-                <div class="mb-3">
-                  <label for="name" class="form-label">Name</label>
-                  <input type="text" id="name" class="form-control" [(ngModel)]="selectedEvent.name" name="name" required #name="ngModel"/>
-                  <div *ngIf="name.invalid && (name.dirty || name.touched)" class="text-danger">
-                    <div *ngIf="name.errors?.['required']">Name is required.</div>
-                  </div>
-                </div>
+  <button (click)="addEvent()" class="btn btn-outline-primary btn-sm">Add</button>
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Email</th>
+        <th>roles</th>
+        <th>Status</th>
+        <th>Created</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let event of events">
+        <td>{{ event.name }}</td>
+        <td>{{ event.email }}</td>
+        <td> {{ event.roleNames }}</td>
+        <td><button (click)="toggleUserStatus(event.id, event.status)" class="btn"
+            [ngClass]="event.status === 3 ? 'btn-danger' : 'btn-success'">
+            {{ event.status === 3 ? 'Deactivate' : 'Active' }}
+          </button></td>
+        <td>{{ event.created_at }}</td>
+        <td>
+          <button (click)="editEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">Edit</button>
+          <button (click)="deleteEvent(event.id)" class="btn btn-outline-danger btn-sm">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" id="username" class="form-control" [(ngModel)]="selectedEvent.username" name="username" required #username="ngModel"/>
-                    <div *ngIf="username.invalid && (username.dirty || username.touched)" class="text-danger">
-                      <div *ngIf="username.errors?.['required']">Username is required.</div>
-                    </div>
-                </div>
-              
-                <div class="mb-3">
-                  <label for="email" class="form-label">Email</label>
-                  <input type="email" id="email" class="form-control" [(ngModel)]="selectedEvent.email" name="email" required #email="ngModel"/>
-                  <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-danger">
-                    <div *ngIf="email.errors?.['required']">Email is required.</div>
-                    <div *ngIf="email.errors?.['email']">Invalid email format.</div>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label for="phone" class="form-label">Phone</label>
-                  <input type="number" id="phone" class="form-control" [(ngModel)]="selectedEvent.phone" name="phone" required #phone="ngModel" maxlength="10"/>
-                  <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger">
-                    <div *ngIf="phone.errors?.['required']">phone is required.</div>
-                    <div *ngIf="phone.errors?.['phone']">Invalid phone format.</div>
-                  </div>
-                </div>
+<div *ngIf="events.length === 0">
+  <p>Loading.</p>
+</div>
+<nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+  <ul class="pagination">
+    <li class="page-item" [class.disabled]="currentPage === 1">
+      <a class="page-link" (click)="changePage(currentPage - 1)" [attr.aria-disabled]="currentPage === 1">Previous</a>
+    </li>
 
-                <div class="mb-3">
-                  <label for="rank" class="form-label">Rank Id</label>
-                  <select id="rank" class="form-select" [(ngModel)]="selectedEvent.rank" name="rank" required #rank="ngModel">
-                      <option value="" disabled>Select Rank</option>
-                  </select>
-                  <div *ngIf="rank.invalid && (rank.dirty || rank.touched)" class="text-danger">
-                      <div *ngIf="rank.errors?.['required']">Rank is required.</div>
-                  </div>
-                </div>
-                <div class="mb-3">
-                  <label class="form-label">Select Roles</label><br>
-                  <input type="checkbox" [checked]="isAllSelected()" (change)="toggleSelectAll()" /> 
-                  Select All
-                  <div *ngFor="let role of roles">
-                    <input type="checkbox" [checked]="role.selected" (change)="updateSelectedRoles()" [value]="role.id" name="roles"/>
-                    {{ role.name }}
-                  </div>
-                </div>
-              
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-            </form>
+    <li *ngFor="let page of [].constructor(lastPage); let i = index" class="page-item"
+      [class.active]="i + 1 === currentPage">
+      <a class="page-link" (click)="changePage(i + 1)">{{ i + 1 }}</a>
+    </li>
+
+    <li class="page-item" [class.disabled]="currentPage === lastPage">
+      <a class="page-link" (click)="changePage(currentPage + 1)"
+        [attr.aria-disabled]="currentPage === lastPage">Next</a>
+    </li>
+  </ul>
+</nav>
+
+<!-- Bootstrap modal -->
+<div class="modal fade" id="editEventModal" tabindex="-1" aria-labelledby="editEventModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editEventModalLabel">Edit User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="modifyEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" id="name" class="form-control" [(ngModel)]="selectedEvent.name" name="name" required
+              #name="ngModel" />
+            <div *ngIf="name.invalid && (name.dirty || name.touched)" class="text-danger">
+              <div *ngIf="name.errors?.['required']">Name is required.</div>
+            </div>
           </div>
-        </div>
+
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" id="username" class="form-control" [(ngModel)]="selectedEvent.username" name="username"
+              required #username="ngModel" />
+            <div *ngIf="username.invalid && (username.dirty || username.touched)" class="text-danger">
+              <div *ngIf="username.errors?.['required']">Username is required.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-control" [(ngModel)]="selectedEvent.email" name="email" required
+              #email="ngModel" />
+            <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-danger">
+              <div *ngIf="email.errors?.['required']">Email is required.</div>
+              <div *ngIf="email.errors?.['email']">Invalid email format.</div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="number" id="phone" class="form-control" [(ngModel)]="selectedEvent.phone" name="phone" required
+              #phone="ngModel" maxlength="10" />
+            <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger">
+              <div *ngIf="phone.errors?.['required']">phone is required.</div>
+              <div *ngIf="phone.errors?.['phone']">Invalid phone format.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="rank" class="form-label">Rank Id</label>
+            <select id="rank" class="form-select" [(ngModel)]="selectedEvent.rank" name="rank" required #rank="ngModel">
+              <option value="" disabled>Select Rank</option>
+            </select>
+            <div *ngIf="rank.invalid && (rank.dirty || rank.touched)" class="text-danger">
+              <div *ngIf="rank.errors?.['required']">Rank is required.</div>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Select Roles</label><br>
+            <input type="checkbox" [checked]="isAllSelected()" (change)="toggleSelectAll()" />
+            Select All
+            <div *ngFor="let role of roles">
+              <input type="checkbox" [checked]="role.selected" (change)="toggleSelectRole(role.id)" [value]="role.id"
+                name="roles" />
+              {{ role.name }}
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
       </div>
     </div>
-    <div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="addEventModalLabel">Add User</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+  </div>
+</div>
+<div class="modal fade" id="addEventModal" tabindex="-1" aria-labelledby="addEventModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="addEventModalLabel">Add User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="saveEvent()" #eventForm="ngForm" enctype="multipart/form-data">
+          <div class="mb-3">
+            <label for="name" class="form-label">Name</label>
+            <input type="text" id="name" class="form-control" [(ngModel)]="selectedEvent.name" name="name" required
+              #name="ngModel" />
+            <div *ngIf="name.invalid && (name.dirty || name.touched)" class="text-danger">
+              <div *ngIf="name.errors?.['required']">Name is required.</div>
+            </div>
           </div>
-          <div class="modal-body">
-            <form (ngSubmit)="saveEvent()" #eventForm="ngForm" enctype="multipart/form-data">
-                <div class="mb-3">
-                  <label for="name" class="form-label">Name</label>
-                  <input type="text" id="name" class="form-control" [(ngModel)]="selectedEvent.name" name="name" required #name="ngModel"/>
-                  <div *ngIf="name.invalid && (name.dirty || name.touched)" class="text-danger">
-                    <div *ngIf="name.errors?.['required']">Name is required.</div>
-                  </div>
-                </div>
 
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" id="username" class="form-control" [(ngModel)]="selectedEvent.username" name="username" required #username="ngModel"/>
-                    <div *ngIf="username.invalid && (username.dirty || username.touched)" class="text-danger">
-                      <div *ngIf="username.errors?.['required']">Username is required.</div>
-                    </div>
-                </div>
-              
-                <div class="mb-3">
-                  <label for="email" class="form-label">Email</label>
-                  <input type="email" id="email" class="form-control" [(ngModel)]="selectedEvent.email" name="email" required #email="ngModel"/>
-                  <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-danger">
-                    <div *ngIf="email.errors?.['required']">Email is required.</div>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label for="phone" class="form-label">Phone</label>
-                  <input type="number" id="phone" class="form-control" [(ngModel)]="selectedEvent.phone" name="phone" required #phone="ngModel" maxlength="10"/>
-                  <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger">
-                    <div *ngIf="phone.errors?.['required']">phone is required.</div>
-                    <div *ngIf="phone.errors?.['phone']">Invalid phone format.</div>
-                  </div>
-                </div>
-
-                <div class="mb-3">
-                  <label for="addrank" class="form-label">Rank Id</label>
-                  <select id="addrank" class="form-select" [(ngModel)]="selectedEvent.rank" name="rank" required #rank="ngModel">
-                      <option value="" disabled>Select Rank</option>
-                  </select>
-                  <div *ngIf="rank.invalid && (rank.dirty || rank.touched)" class="text-danger">
-                      <div *ngIf="rank.errors?.['required']">Rank is required.</div>
-                  </div>
-                </div>
-              
-                <div class="mb-3">
-                  <label class="form-label">Select Roles</label><br>
-                  <input type="checkbox" 
-           [checked]="isAllSelected()" 
-           (change)="toggleSelectAll()" /> 
-    Select All
-                  <div *ngFor="let role of roles">
-                    <input type="checkbox" 
-                           [(ngModel)]="role.selected" 
-                           (change)="updateSelectedRoles()" 
-                           [value]="role.id" 
-                           name="roles"/>
-                    {{ role.name }}
-                  </div>
-                </div>
-              
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-            </form>
+          <div class="mb-3">
+            <label for="username" class="form-label">Username</label>
+            <input type="text" id="username" class="form-control" [(ngModel)]="selectedEvent.username" name="username"
+              required #username="ngModel" />
+            <div *ngIf="username.invalid && (username.dirty || username.touched)" class="text-danger">
+              <div *ngIf="username.errors?.['required']">Username is required.</div>
+            </div>
           </div>
-        </div>
+
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-control" [(ngModel)]="selectedEvent.email" name="email" required
+              #email="ngModel" />
+            <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-danger">
+              <div *ngIf="email.errors?.['required']">Email is required.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            <input type="number" id="phone" class="form-control" [(ngModel)]="selectedEvent.phone" name="phone" required
+              #phone="ngModel" maxlength="10" />
+            <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger">
+              <div *ngIf="phone.errors?.['required']">phone is required.</div>
+              <div *ngIf="phone.errors?.['phone']">Invalid phone format.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="addrank" class="form-label">Rank Id</label>
+            <select id="addrank" class="form-select" [(ngModel)]="selectedEvent.rank" name="rank" required
+              #rank="ngModel">
+              <option value="" disabled>Select Rank</option>
+            </select>
+            <div *ngIf="rank.invalid && (rank.dirty || rank.touched)" class="text-danger">
+              <div *ngIf="rank.errors?.['required']">Rank is required.</div>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Select Roles</label><br>
+            <input type="checkbox" (change)="toggleSelectAll()" />
+            Select All
+            <div *ngFor="let role of roles">
+              <input type="checkbox" [(ngModel)]="role.selected" (change)="updateSelectedRoles()" [value]="role.id"
+                name="roles" />
+              {{ role.name }}
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </form>
       </div>
     </div>
-    
+  </div>
+</div>

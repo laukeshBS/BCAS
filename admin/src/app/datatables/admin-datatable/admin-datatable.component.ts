@@ -78,7 +78,7 @@ export class AdminDatatableComponent {
   }
   // Change page method
   changePage(page: number): void {
-    console.log('Changing to page:', page); // Debugging line
+    // console.log('Changing to page:', page); // Debugging line
     if (page < 1 || page > this.lastPage) return; // Prevent out of bounds
     this.currentPage = page;
     this.loadList(); // Reload data
@@ -112,7 +112,7 @@ export class AdminDatatableComponent {
           const roleIdNumber = Number(role.id);
       
           role.selected = this.selectedEvent.roleIds.includes(Number(roleIdNumber));
-          console.log(role.selected);
+          // console.log(role.selected);
         });
       } else {
         this.roles.forEach((role: { selected: boolean }) => {
@@ -162,7 +162,7 @@ export class AdminDatatableComponent {
         rankInput.appendChild(emptyOption);
   
         // Log rank to confirm data structure
-        console.log(this.rank);  // Debugging: Log rank data to inspect it
+        // console.log(this.rank);  // Debugging: Log rank data to inspect it
   
         // Check if this.rank is an object and loop through it
         if (this.rank && typeof this.rank === 'object') {
@@ -193,14 +193,15 @@ export class AdminDatatableComponent {
 
   saveEvent(): void {
     // Define the keys of the fields to validate
-    type Field = 'name' | 'username' | 'email' | 'phone';
+    type Field = 'name' | 'username' | 'email' | 'phone' | 'rank';
      // Validate the form data
-    const requiredFields: Field[] = ['name', 'username', 'email', 'phone'];
+    const requiredFields: Field[] = ['name', 'username', 'email', 'phone','rank'];
     const maxLengths: Record<Field, number> = {
       name: 50,
       username: 100,
       email: 100,
       phone: 10,
+      rank:50,
     };
 
     const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
@@ -217,6 +218,13 @@ export class AdminDatatableComponent {
 
     if (lengthViolations.length > 0) {
       alert(`Maximum length exceeded for fields: ${lengthViolations.join(', ')}`);
+      return;
+    }
+
+    // Phone number validation (only 10 digits allowed)
+    const phonePattern = /^\d{10}$/;
+    if (this.selectedEvent.phone && !phonePattern.test(this.selectedEvent.phone)) {
+      alert('Phone number must be exactly 10 digits.');
       return;
     }
 
@@ -236,31 +244,33 @@ export class AdminDatatableComponent {
     formData.append('rank', this.selectedEvent.rank);
     
     // Include selected roles
-    if (this.selectedEvent.roles && this.selectedEvent.roles.length > 0) {
-      this.selectedEvent.roles.forEach((roleId: { toString: () => string | Blob; }) => {
+    if (this.selectedEvent.roleIds && this.selectedEvent.roleIds.length > 0) {
+      this.selectedEvent.roleIds.forEach((roleId: { toString: () => string | Blob; }) => {
         formData.append('roles[]', roleId.toString());
       });
     }
   
-    // Call the service to store the event
+    // Now, send the formData to the backend
     this.adminService.storeEvent(formData).subscribe(
-      (event: HttpEvent<any>) => {
-        this.loadList(); // Refresh the list of events
-        this.closeAddModal(); // Close the modal or form
+      response => {
+          alert(response.message || 'User Created successfully!');
+          this.closeAddModal(); // Close the modal or form
+          this.loadList(); // Refresh the list of events
+          
       },
       error => {
-        // Handle errors
-        if (error.error && error.error.errors) {
-          // If validation errors are returned from the backend (e.g., Laravel 422)
-          let errorMessage = '';
-          for (const field in error.error.errors) {
-            errorMessage += `${field}: ${error.error.errors[field].join(', ')}\n`;
-          }
-          alert(errorMessage);
-        } else {
-          // Generic error message for server-side issues
-          alert((error.error?.message || 'Unknown error'));
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving the user.';
+  
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
         }
+  
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
@@ -268,14 +278,15 @@ export class AdminDatatableComponent {
 
   modifyEvent(): void {
     // Define the keys of the fields to validate
-    type Field = 'name' | 'username' | 'email'| 'phone';
+    type Field = 'name' | 'username' | 'email'| 'phone' | 'rank';
      // Validate the form data
-    const requiredFields: Field[] = ['name', 'username', 'email', 'phone'];
+    const requiredFields: Field[] = ['name', 'username', 'email', 'phone', 'rank'];
     const maxLengths: Record<Field, number> = {
       name: 50,
       username: 100,
       email: 100,
       phone: 10,
+      rank:50,
     };
 
     const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
@@ -294,6 +305,14 @@ export class AdminDatatableComponent {
       alert(`Maximum length exceeded for fields: ${lengthViolations.join(', ')}`);
       return;
     }
+
+    // Phone number validation (only 10 digits allowed)
+    const phonePattern = /^\d{10}$/;
+    if (this.selectedEvent.phone && !phonePattern.test(this.selectedEvent.phone)) {
+      alert('Phone number must be exactly 10 digits.');
+      return;
+    }
+    
     // Check email format using a regular expression
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Simple email regex
     if (this.selectedEvent.email && !emailPattern.test(this.selectedEvent.email)) {
@@ -309,31 +328,34 @@ export class AdminDatatableComponent {
     formData.append('rank', this.selectedEvent.rank);
   
     // Include selected roles
-    if (this.selectedEvent.roles && this.selectedEvent.roles.length > 0) {
-      this.selectedEvent.roles.forEach((roleId: { toString: () => string | Blob; }) => {
-        formData.append('roles[]', roleId.toString());
+    if (this.selectedEvent.roleIds && this.selectedEvent.roleIds.length > 0) {
+      console.log(this.selectedEvent.roleIds );
+      this.selectedEvent.roleIds.forEach((roleId: { toString: () => string | Blob; }) => {
+        console.log(formData.append('roles[]', roleId.toString()));
       });
     }
   
-    // Call the service to update the event
+    // Now, send the formData to the backend
     this.adminService.updateEvent(this.selectedEvent.id, formData).subscribe(
-      (event: HttpEvent<any>) => {
-        this.loadList(); // Refresh the list of events
-        this.closeEditModal(); // Close the modal or form
+      response => {
+          alert(response.message || 'User Update successfully!');
+          this.closeEditModal(); // Close the modal or form
+          this.loadList(); // Refresh the list of events
+          
       },
       error => {
-        // Handle errors
-        if (error.error && error.error.errors) {
-          // If validation errors are returned from the backend (e.g., Laravel 422)
-          let errorMessage = '';
-          for (const field in error.error.errors) {
-            errorMessage += `${field}: ${error.error.errors[field].join(', ')}\n`;
-          }
-          alert(errorMessage);
-        } else {
-          // Generic error message for server-side issues
-          alert((error.error?.message || 'Unknown error'));
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving the user.';
+  
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
         }
+  
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
@@ -343,6 +365,7 @@ export class AdminDatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.adminService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('User Deleted successfully!');
       });
     }
   }
@@ -375,25 +398,46 @@ export class AdminDatatableComponent {
     }
   }
   updateSelectedRoles(): void {
-    // Update the selected roles array based on the checkboxes
-    this.selectedEvent.roles = this.roles
-      .filter((role: { selected: any; }) => role.selected)
-      .map((role: { id: any; }) => role.id);
+    if (Array.isArray(this.roles)) {
+      // Filter selected roles
+      this.selectedEvent.roleIds = this.roles
+        .filter((role: { selected: boolean }) => role.selected === true)
+        .map((role: { id: any }) => role.id);
+    } else {
+      console.error('Error: roles is not an array');
+    }
   }
+  
   removeHtmlTags(input: string) {
     return input.replace(/<[^>]*>/g, '');
   }
   // Check if all roles are selected
   isAllSelected(): boolean {
-    return this.roles.every((role: { selected: any; }) => role.selected);
+    return this.roles.every((role: { selected: boolean; }) => role.selected);
   }
 
   // Toggle Select All functionality
   toggleSelectAll(): void {
-    const selectAll = !this.isAllSelected();
-    this.roles.forEach((role: { selected: boolean; }) => {
-      role.selected = selectAll;
+    const selectAll = !this.isAllSelected();  // Toggle select/deselect based on current state
+    this.roles.forEach((role: { selected: boolean, name: string }) => {
+      role.selected = selectAll;  // Set all roles to selected or deselected
     });
+  
+    // Update the selected roles array
+    this.updateSelectedRoles();
+  }
+  // Method to toggle individual role selection
+  toggleSelectRole(roleId: string): void {
+    // Find the role by its ID
+    const role = this.roles.find((r: { id: string; }) => r.id === roleId);
+
+    // If the role exists, toggle its selection state
+    if (role) {
+      role.selected = !role.selected;
+    }
+
+    // After toggling, update the selected roles list
+    this.updateSelectedRoles();
   }
   // Method to toggle user status
   toggleUserStatus(userId: number, currentStatus: number): void {
@@ -401,12 +445,6 @@ export class AdminDatatableComponent {
   
     this.adminService.updateUserStatus(userId, newStatus).subscribe(
       (response) => {
-        // const user = this.users.find((u: { id: number; }) => u.id === userId);
-        // if (user) {
-        //   user.status = newStatus;
-        //   user.statusText = newStatus === 2 ? 'Active' : 'Inactive';
-        // }
-  
         // Log message instead of alert
         alert('User Status Updated Successfully');
         this.loadList(); // Reload data

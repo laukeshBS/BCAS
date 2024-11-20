@@ -173,14 +173,14 @@ export class OpsiSecurityDatatableComponent {
     // Now, send the formData to the backend
     this.opsiSecurityService.storeEvent(formData).subscribe(
       response => {
-          alert(response.message || 'Event Created successfully!');
+          alert(response.message || 'Created Successfully!');
           this.closeAddModal(); // Close the modal or form
           this.loadList(); // Refresh the list of events
           
       },
       error => {
         // Check if the error contains validation messages (assuming error is an object)
-        let errorMessage = 'An error occurred while saving the event.';
+        let errorMessage = 'An error occurred while saving.';
   
         if (error && error.error && error.error.messages) {
           // Extract error messages from the response, assuming it's an array or object
@@ -222,7 +222,7 @@ export class OpsiSecurityDatatableComponent {
     // Assuming you have a service to handle the API call
     this.opsiSecurityService.updateEvent(this.selectedEvent.id,formData).subscribe(
       response => {
-        alert(response.message || 'Event updated successfully!');
+        alert(response.message || 'Updated Successfully!');
       
         // Close the modal (assuming you are using Bootstrap modal, you can modify as per your modal library)
         this.closeEditModal(); // Define this method to close the modal
@@ -232,7 +232,7 @@ export class OpsiSecurityDatatableComponent {
       },
       error => {
         // Check if the error contains validation messages (assuming error is an object)
-        let errorMessage = 'An error occurred while saving the event.';
+        let errorMessage = 'An error occurred while saving.';
   
         if (error && error.error && error.error.messages) {
           // Extract error messages from the response, assuming it's an array or object
@@ -250,6 +250,7 @@ export class OpsiSecurityDatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.opsiSecurityService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('Deleted Successfully!');
       });
     }
   }

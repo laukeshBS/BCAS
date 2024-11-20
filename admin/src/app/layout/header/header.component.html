@@ -3,7 +3,16 @@
     <li class="nav-item">
       <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
     </li>
-    
+    <li class="nav-item">
+      <span class="nav-link">
+        <div class="circle-avatar">
+          {{ userData.name.charAt(0).toUpperCase() }} <!-- First letter, capitalized -->
+        </div>
+      </span> <!-- User's first letter inside a circle -->
+    </li>
+    <li class="nav-item">
+        <span  class="nav-link">{{ userData.name }}</span>
+    </li>
     <li class="nav-item float-right">
       <a class="nav-link" href="#" (click)="logout()">Logout</a>
     </li>
