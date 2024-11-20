@@ -122,12 +122,25 @@ export class SliderDatatableComponent {
     formData.append('slug', this.selectedEvent.slug);
 
     this.sliderService.storeEvent(formData).subscribe(
-      (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
-          this.closeAddModal(); // Close the modal or form
+      response => {
+        alert(response.message || 'Created Successfully!');
+        this.closeAddModal(); // Close the modal or form
+        this.loadList(); // Refresh the list of events
+        
       },
       error => {
-        console.error('Error saving event', error);
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
+        }
+
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
@@ -147,12 +160,25 @@ export class SliderDatatableComponent {
     formData.append('slug', this.selectedEvent.slug);
 
     this.sliderService.updateEvent(this.selectedEvent.id, formData).subscribe(
-      (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
-          this.closeEditModal(); // Close the modal or form
+      response => {
+        alert(response.message || 'UPdated Successfully!');
+        this.closeEditModal(); // Close the modal or form
+        this.loadList(); // Refresh the list of events
+        
       },
       error => {
-        console.error('Error saving event', error);
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
+        }
+
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
@@ -161,6 +187,7 @@ export class SliderDatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.sliderService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('Deleted Successfully');
       });
     }
   }

@@ -128,9 +128,6 @@
                   required 
                   #phone="ngModel"
                 />
-                <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger">
-                  <div *ngIf="phone.errors?.['required']">Phone is required.</div>
-                </div>
               </div>
               <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
@@ -143,9 +140,6 @@
                   required 
                   #email="ngModel"
                 />
-                <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-danger">
-                  <div *ngIf="email.errors?.['required']">Email is required.</div>
-                </div>
               </div>
 
               <div class="mb-3">
@@ -159,9 +153,6 @@
                   required 
                   #address="ngModel"
                 />
-                <div *ngIf="address.invalid && (address.dirty || address.touched)" class="text-danger">
-                  <div *ngIf="address.errors?.['required']">Address is required.</div>
-                </div>
               </div>
 
               <div class="mb-3">
@@ -175,9 +166,6 @@
                   required 
                   #fax="ngModel"
                 />
-                <div *ngIf="fax.invalid && (fax.dirty || fax.touched)" class="text-danger">
-                  <div *ngIf="fax.errors?.['required']">FAX is required.</div>
-                </div>
               </div>
 
               <div class="mb-3">
@@ -191,12 +179,13 @@
                   required 
                   #epabx="ngModel"
                 />
-                <div *ngIf="epabx.invalid && (epabx.dirty || epabx.touched)" class="text-danger">
-                  <div *ngIf="epabx.errors?.['required']">EPABX is required.</div>
-                </div>
+              </div>
+              <div class="mb-3">
+                <label for="postion" class="form-label">Position</label>
+                <input type="text" id="postion" class="form-control" [(ngModel)]="selectedEvent.postion" name="postion" required #postion="ngModel" />
               </div>
 
-              <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Save Changes</button>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
             </form>
             
           </div>
@@ -245,39 +234,28 @@
               <div class="mb-3">
                 <label for="phone" class="form-label">Phone</label>
                 <input type="text" id="phone" class="form-control" name="phone" [(ngModel)]="selectedEvent.phone" required #phone="ngModel">
-                <div *ngIf="phone.invalid && (phone.dirty || phone.touched)" class="text-danger">
-                  <div *ngIf="phone.errors?.['required']">Phone is required.</div>
-                </div>
               </div>
               <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="text" id="email" class="form-control" name="email" [(ngModel)]="selectedEvent.email" required #email="ngModel">
-                <div *ngIf="email.invalid && (email.dirty || email.touched)" class="text-danger">
-                  <div *ngIf="email.errors?.['required']">Email is required.</div>
-                </div>
               </div>
               <div class="mb-3">
                 <label for="address" class="form-label">Address</label>
                 <input type="text" id="address" class="form-control" name="address" [(ngModel)]="selectedEvent.address" required #address="ngModel">
-                <div *ngIf="address.invalid && (address.dirty || address.touched)" class="text-danger">
-                  <div *ngIf="address.errors?.['required']">Address is required.</div>
-                </div>
               </div>
               <div class="mb-3">
                 <label for="fax" class="form-label">FAX</label>
                 <input type="text" id="fax" class="form-control" name="fax" [(ngModel)]="selectedEvent.fax" required #fax="ngModel">
-                <div *ngIf="fax.invalid && (fax.dirty || fax.touched)" class="text-danger">
-                  <div *ngIf="fax.errors?.['required']">FAX is required.</div>
-                </div>
               </div>
               <div class="mb-3">
                 <label for="epabx" class="form-label">EPABX</label>
                 <input type="text" id="epabx" class="form-control" name="epabx" [(ngModel)]="selectedEvent.epabx" required #epabx="ngModel">
-                <div *ngIf="epabx.invalid && (epabx.dirty || epabx.touched)" class="text-danger">
-                  <div *ngIf="epabx.errors?.['required']">EPABX is required.</div>
-                </div>
               </div>
-              <button type="submit" class="btn btn-primary" [disabled]="eventForm.invalid">Save Changes</button>
+              <div class="mb-3">
+                <label for="postion" class="form-label">Position</label>
+                <input type="text" id="postion" class="form-control" [(ngModel)]="selectedEvent.postion" name="postion" required #postion="ngModel" />
+              </div>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
             </form>
             
           </div>

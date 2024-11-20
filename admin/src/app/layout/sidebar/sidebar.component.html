@@ -163,9 +163,14 @@
                   <p>Slide</p>
                 </a>
               </li>
-              <li class="nav-item" *ngIf="hasPermission('menu.view')" [ngClass]="{ 'active': isActive('/admin/menus') }">
+              <li class="nav-item" *ngIf="hasPermission('dashboard.view')">
                 <a class="nav-link" [routerLink]="['/organization-structure']" >
                   <p>Organization Structure</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasPermission('dashboard.view')">
+                <a class="nav-link" [routerLink]="['/menu']" >
+                  <p>Menu</p>
                 </a>
               </li>
             </ul>

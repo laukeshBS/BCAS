@@ -30,13 +30,34 @@ class ActandpoliciesController extends Controller
         $perPage = $request->input('limit');
         $page = $request->input('currentPage');
 
-        $slide = ActAndPolicies::select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        $slide = ActAndPolicies::select('*')->where('status',3)->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
         if ($slide->isNotEmpty()) {
             $slide->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
                 // if ($item->document) {
                 //     $item->document = asset('public/documents/'.$item->document);
                 // }
+                return $item;
+            });
+        }
+        return response()->json([
+            'title' => 'List',
+            'data' => $slide->items(),
+            'total' => $slide->total(),
+            'current_page' => $slide->currentPage(),
+            'last_page' => $slide->lastPage(),
+            'per_page' => $slide->perPage(),
+        ]);
+    }
+    public function cms_data(Request $request)
+    {
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $slide = ActAndPolicies::select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        if ($slide->isNotEmpty()) {
+            $slide->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
                 return $item;
             });
         }
@@ -85,8 +106,8 @@ class ActandpoliciesController extends Controller
             'description' => 'nullable|max:500',
             'status' => 'required',
             'lang_code' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
             'document' => 'required|file|mimes:pdf|max:2048',
         ]);
 
@@ -121,8 +142,8 @@ class ActandpoliciesController extends Controller
             'description' => 'nullable|max:500',
             'status' => 'required',
             'lang_code' => 'required',
-            'start_date' => 'required',
-            'end_date' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after:start_date',
             'document' => 'nullable|file|mimes:pdf|max:2048',
         ]);
 

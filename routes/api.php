@@ -263,7 +263,7 @@ Route::middleware(['cors', 'throttle:30,1', 'auth:admin_api','removePoweredBy'])
     });
 
     Route::controller(ActandpoliciesController::class)->group(function () {
-        //Route::post('acts-and-policies-list','data');
+        Route::post('acts-and-policies','cms_data');
         Route::get('acts-and-policies-list-by-id/{id}','data_by_id');
         Route::post('acts-and-policies-store', 'store');
         Route::post('acts-and-policies-update/{id}', 'update');

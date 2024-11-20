@@ -128,12 +128,25 @@ export class DivisionGalleryDatatableComponent {
     formData.append('image', this.fileToUpload, this.fileToUpload.name);
 
     this.divisionGalleryService.storeEvent(formData).subscribe(
-      (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
-          this.closeAddModal(); // Close the modal or form
+      response => {
+        alert(response.message || 'Created Successfully!');
+        this.closeAddModal(); // Close the modal or form
+        this.loadList(); // Refresh the list of events
+        
       },
       error => {
-        console.error('Error saving event', error);
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
+        }
+
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
@@ -162,12 +175,25 @@ export class DivisionGalleryDatatableComponent {
     }
 
     this.divisionGalleryService.updateEvent(this.selectedEvent.id, formData).subscribe(
-      (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
-          this.closeEditModal(); // Close the modal or form
+      response => {
+        alert(response.message || 'Updated Successfully!');
+        this.closeEditModal(); // Close the modal or form
+        this.loadList(); // Refresh the list of events
+        
       },
       error => {
-        console.error('Error saving event', error);
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
+        }
+
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
@@ -175,6 +201,7 @@ export class DivisionGalleryDatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.divisionGalleryService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('Deleted Successfully');
       });
     }
   }
