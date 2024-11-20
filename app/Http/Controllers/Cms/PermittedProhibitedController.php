@@ -25,7 +25,7 @@ class PermittedProhibitedController extends Controller
     {
         $lang_code = $request->input('lang_code');
 
-        $data = PermittedProhibited::where('lang_code', $lang_code)->get();
+        $data = PermittedProhibited::where('lang_code', $lang_code)->where('status', 3)->get();
         if ($data->isNotEmpty()) {
             $data->transform(function ($item) {
                 try {
