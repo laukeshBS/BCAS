@@ -8,7 +8,7 @@
             <th>CSO ACSO Name</th>
             <th>CSO ACSO Email</th>
             <th>Station Name</th>
-            <th>Air Type</th>
+            <th>AOSP</th>
             <th>Date of Approval</th>
             <th>Date of Validity</th>
             <th>Status</th>
@@ -87,7 +87,7 @@
       <div class="modal-dialog" style="min-width: 700px;">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="editEventModalLabel">Edit Circular</h5>
+            <h5 class="modal-title" id="editEventModalLabel">Edit AOSP</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -205,14 +205,7 @@
                     <!-- Status -->
                     <div class="mb-3">
                       <label for="status" class="form-label">Status</label>
-                      <select 
-                        id="status" 
-                        class="form-select" 
-                        [(ngModel)]="selectedEvent.status" 
-                        name="status" 
-                        required
-                        #status="ngModel"
-                      >
+                      <select id="status" class="form-select" [(ngModel)]="selectedEvent.status" name="status" required #status="ngModel">
                         <option value="" disabled>Select Status</option>
                         <option value="1">Draft</option>
                         <option value="2">Pending</option>
@@ -225,18 +218,17 @@
               
                     <!-- Air Type -->
                     <div class="mb-3">
-                      <label for="air_type" class="form-label">Air Type</label>
-                      <input 
-                        type="text" 
-                        id="air_type" 
-                        class="form-control" 
-                        [(ngModel)]="selectedEvent.air_type" 
-                        name="air_type" 
-                        required 
-                        #airType="ngModel"
-                      />
-                      <div *ngIf="airType.invalid && (airType.dirty || airType.touched)" class="text-danger">
-                        <div *ngIf="airType.errors?.['required']">Air Type is required.</div>
+                      <label for="air_type" class="form-label">AOSP</label>
+                      <select id="air_type" class="form-select" [(ngModel)]="selectedEvent.air_type" name="air_type" required #air_type="ngModel">
+                        <option value="" disabled>Select AOSP</option>
+                        <option value="for">SFA</option>
+                        <option value="dom">SDA</option>
+                        <option value="sco">SCO</option>
+                        <option value="fto">FTO</option>
+                        <option value="nsop">NSOP and PVT</option>
+                      </select>
+                      <div *ngIf="air_type.invalid && (air_type.dirty || air_type.touched)" class="text-danger">
+                        <div *ngIf="air_type.errors?.['required']">AOSP is required.</div>
                       </div>
                     </div>
               
@@ -291,7 +283,7 @@
       <div class="modal-dialog" style="min-width: 700px;">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="addEventModalLabel">add Circular</h5>
+            <h5 class="modal-title" id="addEventModalLabel">Add AOSP</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
@@ -431,19 +423,17 @@
               
                     <!-- Air Type -->
                     <div class="mb-3">
-                      <label for="air_type" class="form-label">Air Type</label>
-                      <input 
-                        type="text" 
-                        id="air_type" 
-                        class="form-control" 
-                        name="air_type" 
-                        [(ngModel)]="selectedEvent.air_type" 
-                        required 
-                        maxlength="255" 
-                        #air_type="ngModel">
+                      <label for="air_type" class="form-label">AOSP</label>
+                      <select id="air_type" class="form-select" [(ngModel)]="selectedEvent.air_type" name="air_type" required #air_type="ngModel">
+                        <option value="" disabled>Select AOSP</option>
+                        <option value="for">SFA</option>
+                        <option value="dom">SDA</option>
+                        <option value="sco">SCO</option>
+                        <option value="fto">FTO</option>
+                        <option value="nsop">NSOP and PVT</option>
+                      </select>
                       <div *ngIf="air_type.invalid && (air_type.dirty || air_type.touched)" class="text-danger">
-                        <div *ngIf="air_type.errors?.['required']">Air Type is required.</div>
-                        <div *ngIf="air_type.errors?.['maxlength']">Air Type must be less than 255 characters.</div>
+                        <div *ngIf="air_type.errors?.['required']">AOSP is required.</div>
                       </div>
                     </div>
               

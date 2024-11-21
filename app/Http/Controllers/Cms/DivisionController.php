@@ -28,7 +28,7 @@ class DivisionController extends Controller
         $perPage = $request->input('limit');
         $page = $request->input('currentPage');
 
-        $slide = Division::select('*') ->paginate($perPage, ['*'], 'page', $page);
+        $slide = Division::select('*')->where('staus',3)->orderBy('position','asc')->paginate($perPage, ['*'], 'page', $page);
         if ($slide->isNotEmpty()) {
             $slide->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
@@ -70,11 +70,12 @@ class DivisionController extends Controller
             'name' => 'required|string|max:255',
             'status' => 'required|string',
             'lang_code' => 'required|string|max:10',
-            'phone' => 'required|string|max:15',
-            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:15',
+            'email' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
             'fax' => 'nullable|string|max:15',
             'epabx' => 'nullable|string|max:15',
+            'postion' => 'nullable|string|max:15',
         ]);
 
         try {
@@ -92,11 +93,12 @@ class DivisionController extends Controller
             'name' => 'required|string|max:255',
             'status' => 'required|string',
             'lang_code' => 'required|string|max:10',
-            'phone' => 'required|string|max:15',
-            'email' => 'required|email|max:255',
+            'phone' => 'nullable|string|max:15',
+            'email' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
             'fax' => 'nullable|string|max:15',
             'epabx' => 'nullable|string|max:15',
+            'postion' => 'nullable|string|max:15',
         ]);
 
         try {

@@ -64,9 +64,7 @@ Route::middleware(['cors', 'throttle:60,1','removePoweredBy'])->group(function (
         Route::post('quarterly-report2-online', 'store');
     });
     Route::controller(QuizResultController::class)->group(function () {
-       Route::any('quiz-results', 'saveScores');
        Route::post('saveScores', 'saveScores');
-
      });
 });
 
@@ -215,7 +213,7 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
 });
 
 // Admin Routes
-Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])->group(function () {
+Route::middleware(['cors', 'throttle:30,1', 'auth:admin_api','removePoweredBy'])->group(function () {
     Route::controller(RolesController::class)->group(function () {
         Route::post('roles-list', 'cms_data');
         Route::post('roles-store', 'store');
@@ -265,7 +263,7 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
     });
 
     Route::controller(ActandpoliciesController::class)->group(function () {
-        //Route::post('acts-and-policies-list','data');
+        Route::post('acts-and-policies','cms_data');
         Route::get('acts-and-policies-list-by-id/{id}','data_by_id');
         Route::post('acts-and-policies-store', 'store');
         Route::post('acts-and-policies-update/{id}', 'update');
@@ -480,6 +478,16 @@ Route::middleware(['cors', 'throttle:60,1', 'auth:admin_api','removePoweredBy'])
         Route::any('organization-structure-store','cms_store');
         Route::post('organization-structure-update/{id}','cms_update');
         Route::delete('organization-structure-delete/{id}','cms_delete');
+    });
+    Route::controller(QuizResultController::class)->group(function () {
+        Route::post('quiz-results-list', 'cms_data');
+        Route::get('quiz-result-list-by-id/{id}', 'data_by_id');
+    });
+    Route::controller(QuarterlyReportOnlineFormsController::class)->group(function () {
+        Route::post('quarterly-report-online-list', 'cms_data');
+    });
+    Route::controller(QuarterlyReportOnlineiiFormsController::class)->group(function () {
+        Route::post('quarterly-report-onlineii-list', 'cms_data');
     });
 });
 

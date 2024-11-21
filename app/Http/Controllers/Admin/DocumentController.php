@@ -63,7 +63,12 @@ class DocumentController extends Controller
         if ($data->isNotEmpty()) {
             $data->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));
-                $item->category_name = $item->documentCategory->name;
+                if ($item->documentCategory) {
+                    $item->category_name = $item->documentCategory->name;
+                }else{
+                    $item->category_name = '';
+                }
+                
                 return $item;
             });
         }
@@ -111,8 +116,8 @@ class DocumentController extends Controller
             'doc_type' => 'required',
             'doc' => 'required|file|mimes:pdf|max:20480',
             'status' => 'required',
-            'position' => 'required',
-            'start_date' => 'required',
+            'position' => 'required|date',
+            'start_date' => 'required|date|after:start_date',
             'end_date' => 'required',
             'roles' => 'required|array',
             'ranks' => 'required|array',

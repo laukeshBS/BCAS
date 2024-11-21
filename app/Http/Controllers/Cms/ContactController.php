@@ -88,10 +88,10 @@ class ContactController extends Controller
         }
 
         // Get the paginated list
-        $list = $query->orderBy('created_at', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        $list = $query->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
 
         return response()->json([
-            'title' => 'CommonTitle List',
+            'title' => 'Contact List',
             'data' => $list->items(), // Get items for the current page
             'total' => $list->total(), // Total number of items
             'current_page' => $list->currentPage(), // Current page number

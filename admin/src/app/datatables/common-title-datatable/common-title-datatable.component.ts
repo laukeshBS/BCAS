@@ -109,6 +109,20 @@ export class CommonTitleDatatableComponent {
       console.error('Missing required fields');
       return;
     }
+    // Validate the form data
+    const requiredFields = [
+      'title',
+      'slugs',
+      'status',
+      'lang_code',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
+      return;
+    }
 
     const formData = new FormData();
     formData.append('title', this.selectedEvent.title);
@@ -117,20 +131,43 @@ export class CommonTitleDatatableComponent {
     formData.append('lang_code', this.selectedEvent.lang_code);
 
     this.CommonTitleService.storeEvent(formData).subscribe(
-      (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
-          this.closeAddModal(); // Close the modal or form
+      response => {
+        alert(response.message || 'Created Successfully!');
+        this.closeAddModal(); // Close the modal or form
+        this.loadList(); // Refresh the list of events
+        
       },
       error => {
-        console.error('Error saving event', error);
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
+        }
+
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
 
   modifyEvent(): void {
+
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.slugs || !this.selectedEvent.status || !this.selectedEvent.lang_code) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'title',
+      'lang_code',
+      'status',
+      'slugs',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -141,12 +178,25 @@ export class CommonTitleDatatableComponent {
     formData.append('lang_code', this.selectedEvent.lang_code);
 
     this.CommonTitleService.updateEvent(this.selectedEvent.id, formData).subscribe(
-      (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
-          this.closeEditModal(); // Close the modal or form
+      response => {
+        alert(response.message || 'Updated Successfully!');
+        this.closeEditModal(); // Close the modal or form
+        this.loadList(); // Refresh the list of events
+        
       },
       error => {
-        console.error('Error saving event', error);
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
+        }
+
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
@@ -155,6 +205,7 @@ export class CommonTitleDatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.CommonTitleService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('Deleted Successfully!');
       });
     }
   }

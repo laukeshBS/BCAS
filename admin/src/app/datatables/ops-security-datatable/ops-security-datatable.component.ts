@@ -94,6 +94,38 @@ export class OpsSecurityDatatableComponent {
           event.status = '';
           break;
       }
+      switch (event.sec_type) {
+        case "asp":
+          event.sec_type = 'Aerodrome security programme';
+          break;
+        case "ffsp":
+          event.sec_type = '=Fuel farm Security programme';
+          break;
+        case "gha":
+          event.sec_type = 'Ground Handling Agent';
+          break;
+        case "mr":
+          event.sec_type = 'Maintenance repair';
+          break;
+        case "fbo":
+          event.sec_type = 'Fixed Base operator';
+          break;
+        case "psa":
+          event.sec_type = 'Private Security Agency';
+          break;
+        case "aa":
+          event.sec_type = 'Authorised agent';
+          break;
+        case "phg":
+          event.sec_type = 'Power Hang Glider';
+          break;
+        case "rpa":
+          event.sec_type = 'Remotely Piloted Aircraft';
+          break;
+        default:
+          event.sec_type = '';
+          break;
+      }
     });
   }
 
@@ -115,15 +147,18 @@ export class OpsSecurityDatatableComponent {
   saveEvent(): void {
     // Validate the form data
     const requiredFields = [
-      'application_id',   // Newly added field
-      'entity_name',      // Newly added field
-      'cso_acso_name',    // Newly added field
-      'cso_acso_email',   // Newly added field
-      'station_name',     // Newly added field
-      'date_of_approval', // Newly added field
+      'application_id',
+      'entity_name',
+      'airport_name',
+      'region_name',
+      'cso_acso_name',
+      'cso_acso_email',
+      'cso_acso_mobile',
+      'station_name',
+      'date_of_approval',
       'status',
-      'air_type',         // Newly added field
-      'date_of_validity', // Newly added field
+      'sec_type',
+      'date_of_validity',
       'lang_code',
     ];
     
@@ -138,26 +173,29 @@ export class OpsSecurityDatatableComponent {
     const formData = new FormData();
     formData.append('application_id', this.selectedEvent.application_id);
     formData.append('entity_name', this.selectedEvent.entity_name);
+    formData.append('airport_name', this.selectedEvent.airport_name);
+    formData.append('region_name', this.selectedEvent.region_name);
     formData.append('cso_acso_name', this.selectedEvent.cso_acso_name);
     formData.append('cso_acso_email', this.selectedEvent.cso_acso_email);
+    formData.append('cso_acso_mobile', this.selectedEvent.cso_acso_mobile);
     formData.append('station_name', this.selectedEvent.station_name);
     formData.append('date_of_approval', this.selectedEvent.date_of_approval);
     formData.append('status', this.selectedEvent.status);
-    formData.append('air_type', this.selectedEvent.air_type);
+    formData.append('sec_type', this.selectedEvent.sec_type);
     formData.append('date_of_validity', this.selectedEvent.date_of_validity);
     formData.append('lang_code', this.selectedEvent.lang_code);
 
     // Now, send the formData to the backend
     this.opsSecurityService.storeEvent(formData).subscribe(
       response => {
-          alert(response.message || 'Event Created successfully!');
+          alert(response.message || 'Created Successfully!');
           this.closeAddModal(); // Close the modal or form
           this.loadList(); // Refresh the list of events
           
       },
       error => {
         // Check if the error contains validation messages (assuming error is an object)
-        let errorMessage = 'An error occurred while saving the event.';
+        let errorMessage = 'An error occurred while saving.';
   
         if (error && error.error && error.error.messages) {
           // Extract error messages from the response, assuming it's an array or object
@@ -175,12 +213,15 @@ export class OpsSecurityDatatableComponent {
     const requiredFields = [
       'application_id',
       'entity_name',
+      'airport_name',
+      'region_name',
       'cso_acso_name',
       'cso_acso_email',
+      'cso_acso_mobile',
       'station_name',
       'date_of_approval',
       'status',
-      'air_type',
+      'sec_type',
       'date_of_validity',
       'lang_code',
     ];
@@ -196,19 +237,22 @@ export class OpsSecurityDatatableComponent {
     const formData = new FormData();
     formData.append('application_id', this.selectedEvent.application_id);
     formData.append('entity_name', this.selectedEvent.entity_name);
+    formData.append('airport_name', this.selectedEvent.airport_name);
+    formData.append('region_name', this.selectedEvent.region_name);
     formData.append('cso_acso_name', this.selectedEvent.cso_acso_name);
     formData.append('cso_acso_email', this.selectedEvent.cso_acso_email);
+    formData.append('cso_acso_mobile', this.selectedEvent.cso_acso_mobile);
     formData.append('station_name', this.selectedEvent.station_name);
     formData.append('date_of_approval', this.selectedEvent.date_of_approval);
     formData.append('status', this.selectedEvent.status);
-    formData.append('air_type', this.selectedEvent.air_type);
+    formData.append('sec_type', this.selectedEvent.sec_type);
     formData.append('date_of_validity', this.selectedEvent.date_of_validity);
     formData.append('lang_code', this.selectedEvent.lang_code);
   
     // Assuming you have a service to handle the API call
     this.opsSecurityService.updateEvent(this.selectedEvent.id,formData).subscribe(
       response => {
-        alert(response.message || 'Event updated successfully!');
+        alert(response.message || 'Updated Successfully!');
       
         // Close the modal (assuming you are using Bootstrap modal, you can modify as per your modal library)
         this.closeEditModal(); // Define this method to close the modal
@@ -218,7 +262,7 @@ export class OpsSecurityDatatableComponent {
       },
       error => {
         // Check if the error contains validation messages (assuming error is an object)
-        let errorMessage = 'An error occurred while saving the event.';
+        let errorMessage = 'An error occurred while saving.';
   
         if (error && error.error && error.error.messages) {
           // Extract error messages from the response, assuming it's an array or object
@@ -236,6 +280,7 @@ export class OpsSecurityDatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.opsSecurityService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('Deleted Successfully!');
       });
     }
   }

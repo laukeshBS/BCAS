@@ -151,14 +151,27 @@ export class ActsandpoliciesdatatablesComponent {
         
       formData.append('document', this.fileToUpload, sanitizedFileName);
     }
-
+    // Now, send the formData to the backend
     this.actsAndPoliciesService.storeEvent(formData).subscribe(
-      (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
+      response => {
+          alert(response.message || 'Created successfully!');
           this.closeAddModal(); // Close the modal or form
+          this.loadList(); // Refresh the list of events
+          
       },
       error => {
-        console.error('Error saving event', error);
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+  
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
+        }
+  
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
@@ -205,22 +218,36 @@ export class ActsandpoliciesdatatablesComponent {
         
       formData.append('document', this.fileToUpload, sanitizedFileName);
     }
-
+    // Now, send the formData to the backend
     this.actsAndPoliciesService.updateEvent(this.selectedEvent.id, formData).subscribe(
-      (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
+      response => {
+          alert(response.message || 'Updated Successfully!');
           this.closeEditModal(); // Close the modal or form
+          this.loadList(); // Refresh the list of events
+          
       },
       error => {
-        console.error('Error saving event', error);
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+  
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
+        }
+  
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
 
   deleteEvent(id: number): void {
-    if (confirm('Are you sure you want to delete this event?')) {
+    if (confirm('Are you sure you want to delete?')) {
       this.actsAndPoliciesService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('Deleted Successfully!');
       });
     }
   }

@@ -290,7 +290,7 @@ class AirlinesController extends Controller
             'entity_name'       => 'required|string|max:255',
             'cso_acso_name'     => 'required|string|max:255',
             'cso_acso_email'    => 'required|email|max:255',
-            'station_name'      => 'required|string|max:255',
+            'station_name'      => 'required|string',
             'date_of_approval'  => 'required|date',  // Ensure date format
             'status'            => 'required|string|max:255',
             'air_type'          => 'required|string|max:255',
@@ -340,7 +340,7 @@ class AirlinesController extends Controller
             'entity_name'       => 'required|string|max:255',
             'cso_acso_name'     => 'required|string|max:255',
             'cso_acso_email'    => 'required|email|max:255',
-            'station_name'      => 'required|string|max:255',
+            'station_name'      => 'required|string',
             'date_of_approval'  => 'required|date',  // Ensure date format
             'status'            => 'required|string|max:255',
             'air_type'          => 'required|string|max:255',

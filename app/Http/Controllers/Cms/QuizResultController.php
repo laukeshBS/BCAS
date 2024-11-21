@@ -204,4 +204,37 @@ class QuizResultController extends Controller
 
         return response()->json($result);
     }
+
+
+    // CMS Api
+    public function cms_data(Request $request)
+    {
+        $request->validate([
+            'limit' => 'required|integer',
+            'currentPage' => 'required|integer',
+        ]);
+
+        $perPage = $request->input('limit');
+        $page = $request->input('currentPage');
+
+        $query = QuizResult::query();
+
+        $data = $query->select('*')->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+        if ($data->isNotEmpty()) {
+            $data->transform(function ($item) {
+                $item->created_at = date('d-m-Y', strtotime($item->created_at));
+                return $item;
+            });
+        }
+
+        return response()->json([
+            'title' => 'List',
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'per_page' => $data->perPage(),
+        ]);
+    }
 }

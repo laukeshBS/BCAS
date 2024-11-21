@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Cms\BaseController as BaseController;
+use Illuminate\Support\Facades\Log;
 
 class MenuController extends BaseController
 {
@@ -224,6 +225,23 @@ class MenuController extends BaseController
             return response()->json(['errors' => $validator->errors()], 400);
         }
 
+        // Additional check for menu_child_id and page_order combination
+        $menuChildId = $request->input('menu_child_id');
+        $pageOrder = $request->input('page_order');
+
+        // Only check if both menu_child_id and page_order are provided
+        if ($menuChildId && $pageOrder) {
+            // Check if the combination already exists
+            $existing = Menu::where('menu_child_id', $menuChildId)
+                ->where('page_order', $pageOrder)
+                ->exists();
+            if ($existing) {
+                return response()->json([
+                    'error' => 'Page order is already assigned.',
+                ], 400);  // 400 Bad Request
+            }
+        }
+
         // Handle file uploads
         $data = $request->all();
 
@@ -285,6 +303,23 @@ class MenuController extends BaseController
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        // Additional check for menu_child_id and page_order combination
+        $menuChildId = $request->input('menu_child_id');
+        $pageOrder = $request->input('page_order');
+
+        // Only check if both menu_child_id and page_order are provided
+        if ($menuChildId && $pageOrder) {
+            // Check if the combination already exists
+            $existing = Menu::where('menu_child_id', $menuChildId)
+                ->where('page_order', $pageOrder)
+                ->exists();
+            if ($existing) {
+                return response()->json([
+                    'error' => 'Page order is already assigned.',
+                ], 400);  // 400 Bad Request
+            }
         }
 
         // Update data with request input

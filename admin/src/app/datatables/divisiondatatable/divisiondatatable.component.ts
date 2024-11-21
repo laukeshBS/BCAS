@@ -104,9 +104,14 @@ export class DivisiondatatableComponent {
   }
   saveEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.name || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
-        !this.selectedEvent.phone || !this.selectedEvent.email) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'name','status','lang_code'
+    ];
+  
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+  
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -120,22 +125,42 @@ export class DivisiondatatableComponent {
     formData.append('address', this.selectedEvent.address);
     formData.append('fax', this.selectedEvent.fax);
     formData.append('epabx', this.selectedEvent.epabx);
+    formData.append('postion', this.selectedEvent.postion);
 
-    this.divisionService.storeEvent(formData).subscribe(
-      (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
-          this.closeAddModal(); // Close the modal or form
+    this.divisionService.updateEvent(this.selectedEvent.id,formData).subscribe(
+      response => {
+        alert(response.message || 'Created Successfully!');
+      
+        // Close the modal (assuming you are using Bootstrap modal, you can modify as per your modal library)
+        this.closeAddModal(); // Define this method to close the modal
+
+        // Optionally, reload the list of events (or handle the updated event)
+        this.loadList();
       },
       error => {
-        console.error('Error saving event', error);
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+  
+        if (error && error.error && error.error.messages) {
+          // Extract error messages from the response, assuming it's an array or object
+          errorMessage = Object.values(error.error.messages).join(', ');
+        }
+  
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.name || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
-      !this.selectedEvent.phone || !this.selectedEvent.email) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'name','status','lang_code'
+    ];
+  
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+  
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -149,15 +174,29 @@ export class DivisiondatatableComponent {
     formData.append('address', this.selectedEvent.address);
     formData.append('fax', this.selectedEvent.fax);
     formData.append('epabx', this.selectedEvent.epabx);
+    formData.append('postion', this.selectedEvent.postion);
     
+    this.divisionService.updateEvent(this.selectedEvent.id,formData).subscribe(
+      response => {
+        alert(response.message || 'Updated Successfully!');
+      
+        // Close the modal (assuming you are using Bootstrap modal, you can modify as per your modal library)
+        this.closeEditModal(); // Define this method to close the modal
 
-    this.divisionService.updateEvent(this.selectedEvent.id, formData).subscribe(
-      (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
-          this.closeEditModal(); // Close the modal or form
+        // Optionally, reload the list of events (or handle the updated event)
+        this.loadList();
       },
       error => {
-        console.error('Error saving event', error);
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+  
+        if (error && error.error && error.error.messages) {
+          // Extract error messages from the response, assuming it's an array or object
+          errorMessage = Object.values(error.error.messages).join(', ');
+        }
+  
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
@@ -165,6 +204,7 @@ export class DivisiondatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.divisionService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('Deleted Successfully!');
       });
     }
   }

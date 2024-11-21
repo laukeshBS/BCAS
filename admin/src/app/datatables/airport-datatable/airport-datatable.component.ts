@@ -102,7 +102,7 @@ export class AirportDatatableComponent {
   saveEvent(): void {
     // Validate the form data
     const requiredFields = [
-      'airport_orders','region_name','lang_code','sr_no','airport_name','entity_name','address','mobile_no','phone_no','unique_reference_number','approved_status_clearance','date_of_approval_clearance','approved_status_programme','date_of_approval_programme','valid_till'
+      'region_name','lang_code','sr_no','airport_name','entity_name','address','mobile_no','phone_no','unique_reference_number','approved_status_clearance','date_of_approval_clearance','approved_status_programme','date_of_approval_programme','valid_till'
     ];
     
     const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
@@ -114,7 +114,7 @@ export class AirportDatatableComponent {
 
     // Create FormData to submit
     const formData = new FormData();
-    formData.append('airport_orders', this.selectedEvent.airport_orders);
+    // formData.append('airport_orders', this.selectedEvent.airport_orders);
     formData.append('region_name', this.selectedEvent.region_name);
     formData.append('lang_code', this.selectedEvent.lang_code);
     formData.append('sr_no', this.selectedEvent.sr_no);
@@ -133,14 +133,14 @@ export class AirportDatatableComponent {
     // Now, send the formData to the backend
     this.airportService.storeEvent(formData).subscribe(
       response => {
-          alert(response.message || 'Event Created successfully!');
+          alert(response.message || 'Created successfully!');
           this.closeAddModal(); // Close the modal or form
           this.loadList(); // Refresh the list of events
           
       },
       error => {
         // Check if the error contains validation messages (assuming error is an object)
-        let errorMessage = 'An error occurred while saving the event.';
+        let errorMessage = 'An error occurred while saving.';
   
         if (error && error.error && error.error.messages) {
           // Extract error messages from the response, assuming it's an array or object
@@ -156,7 +156,7 @@ export class AirportDatatableComponent {
   modifyEvent(): void {
     // Validate the form data
     const requiredFields = [
-      'airport_orders','region_name','lang_code','sr_no','airport_name','entity_name','address','mobile_no','phone_no','unique_reference_number','approved_status_clearance','date_of_approval_clearance','approved_status_programme','date_of_approval_programme','valid_till'
+      'region_name','lang_code','sr_no','airport_name','entity_name','address','mobile_no','phone_no','unique_reference_number','approved_status_clearance','date_of_approval_clearance','approved_status_programme','date_of_approval_programme','valid_till'
     ];
   
     const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
@@ -168,7 +168,7 @@ export class AirportDatatableComponent {
   
     // Prepare data for submission
     const formData = new FormData();
-    formData.append('airport_orders', this.selectedEvent.airport_orders);
+    // formData.append('airport_orders', this.selectedEvent.airport_orders);
     formData.append('region_name', this.selectedEvent.region_name);
     formData.append('lang_code', this.selectedEvent.lang_code);
     formData.append('sr_no', this.selectedEvent.sr_no);
@@ -187,7 +187,7 @@ export class AirportDatatableComponent {
     // Assuming you have a service to handle the API call
     this.airportService.updateEvent(this.selectedEvent.id,formData).subscribe(
       response => {
-        alert(response.message || 'Event updated successfully!');
+        alert(response.message || 'Updated Successfully!');
       
         // Close the modal (assuming you are using Bootstrap modal, you can modify as per your modal library)
         this.closeEditModal(); // Define this method to close the modal
@@ -197,7 +197,7 @@ export class AirportDatatableComponent {
       },
       error => {
         // Check if the error contains validation messages (assuming error is an object)
-        let errorMessage = 'An error occurred while saving the event.';
+        let errorMessage = 'An error occurred while saving.';
   
         if (error && error.error && error.error.messages) {
           // Extract error messages from the response, assuming it's an array or object
@@ -212,9 +212,10 @@ export class AirportDatatableComponent {
   
 
   deleteEvent(id: number): void {
-    if (confirm('Are you sure you want to delete this event?')) {
+    if (confirm('Are you sure you want to delete?')) {
       this.airportService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('Deleted Successfully!');
       });
     }
   }

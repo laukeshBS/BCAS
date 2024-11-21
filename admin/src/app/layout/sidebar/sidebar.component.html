@@ -16,7 +16,7 @@
           </li>
           <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.view'])">
             <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
-              <i class="nav-icon fas fa-th"></i><span>Restricted</span>
+              <i class="nav-icon fas fa-th"></i><span>Restricted Module</span>
             </a>
             <ul>
               <li class="nav-item" *ngIf="hasAnyPermission(['admin-document.update'])">
@@ -47,24 +47,45 @@
 
           <!-- Security Clearance -->
           <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
-            <a [routerLink]="['/ops-security']" class="nav-link">
+            <a [routerLink]="['/opsi-security']" class="nav-link">
               <i class="nav-icon fas fa-th"></i>
               <p>Security Clearance(OPS-1)</p>
             </a>
           </li>
 
           <!-- Security Program -->
-          <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
-            <a [routerLink]="['/opsi-security']" class="nav-link">
-              <i class="nav-icon fas fa-th"></i>
-              <p>Security Program(OPS-2)</p>
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+            <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
+              <i class="nav-icon fas fa-th"></i><span>Security Program</span>
             </a>
+            <ul>
+              <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+                <a [routerLink]="['/ops-security']" class="nav-link">
+                  <p>Security Programme(OPS-2)</p>
+                </a>
+              </li>
+              <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+                <a [routerLink]="['/catering']" class="nav-link">
+                  <p>Catering</p>
+                </a>
+              </li>
+              <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
+                <a [routerLink]="['/airport']" class="nav-link">
+                  <p>RASP</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/airlines']" class="nav-link">
+                  <p>AOSP</p>
+                </a>
+              </li>
+            </ul>
           </li>
 
           <!-- CMS -->
           <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
             <a href="javascript:void(0)" class="nav-link" aria-expanded="true">
-              <i class="nav-icon fas fa-th"></i><span>Restricted</span>
+              <i class="nav-icon fas fa-th"></i><span>CMS</span>
             </a>
             <ul>
               <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
@@ -128,6 +149,11 @@
                 </a>
               </li>
               <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+                <a [routerLink]="['/quiz-result']" class="nav-link">
+                  <p>Quiz Result</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
                 <a [routerLink]="['/slider']" class="nav-link">
                   <p>Slider</p>
                 </a>
@@ -137,14 +163,14 @@
                   <p>Slide</p>
                 </a>
               </li>
-              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-                <a [routerLink]="['/slide']" class="nav-link">
-                  <p>Slide</p>
-                </a>
-              </li>
-              <li class="nav-item" *ngIf="hasPermission('menu.view')" [ngClass]="{ 'active': isActive('/admin/menus') }">
+              <li class="nav-item" *ngIf="hasPermission('dashboard.view')">
                 <a class="nav-link" [routerLink]="['/organization-structure']" >
                   <p>Organization Structure</p>
+                </a>
+              </li>
+              <li class="nav-item" *ngIf="hasPermission('dashboard.view')">
+                <a class="nav-link" [routerLink]="['/menu']" >
+                  <p>Menu</p>
                 </a>
               </li>
             </ul>
@@ -163,26 +189,28 @@
               </li>
               <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
                 <a [routerLink]="['/asti']" class="nav-link">
-                  <p>ASTI</p>
-                </a>
-              </li>
-              <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
-                <a [routerLink]="['/catering']" class="nav-link">
-                  <p>Catering</p>
-                </a>
-              </li>
-              <li *ngIf="hasPermission('dashboard.view')" class="nav-item">
-                <a [routerLink]="['/airport']" class="nav-link">
-                  <p>Airport</p>
-                </a>
-              </li>
-              <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
-                <a [routerLink]="['/airlines']" class="nav-link">
-                  <p>Airlines</p>
+                  <p>Approved ASTI</p>
                 </a>
               </li>
             </ul>
           </li>
+
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+            <a [routerLink]="['/quarterly-reoprt-online']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Quarterly Reoprt Online
+              </p>
+            </a>
+          </li> 
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+            <a [routerLink]="['/quarterly-reoprt-online-2']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Quarterly Reoprt Online 2
+              </p>
+            </a>
+          </li> 
           
           
           

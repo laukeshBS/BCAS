@@ -314,22 +314,26 @@ export class AdminDocumentDatatableComponent {
 
     // Send the request to the backend
     this.AdminDocumentService.storeEvent(formData).subscribe(
-        (event: HttpEvent<any>) => {
-            console.log('Event saved successfully:', event);
-            this.loadList();  // Refresh the list of events
-            this.closeAddModal();  // Close the modal or form
-        },
-        error => {
-            // Handle error response from backend
-            if (error.status === 422) {
-                // Log detailed error message from the backend
-                console.error('Backend Validation Errors:', error.error);
-                alert('Error saving event: ' + (error.error?.message || 'Unknown error'));
-            } else {
-                console.error('Error saving event:', error);
-                alert('Error saving event: ' + (error.message || error));
-            }
+      response => {
+        alert(response.message || 'Created successfully!');
+        this.closeAddModal(); // Close the modal or form
+        this.loadList(); // Refresh the list of events
+        
+      },
+      error => {
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
         }
+
+        // Display the error message in an alert
+        alert(errorMessage);
+      }
     );
 }
 
@@ -397,20 +401,34 @@ export class AdminDocumentDatatableComponent {
     }
 
     this.AdminDocumentService.updateEvent(this.selectedEvent.id, formData).subscribe(
-      (event: HttpEvent<any>) => {
-          this.loadList(); // Refresh the list of events
-          this.closeEditModal(); // Close the modal or form
+      response => {
+        alert(response.message || 'Updated successfully!');
+        this.closeEditModal(); // Close the modal or form
+        this.loadList(); // Refresh the list of events
+        
       },
       error => {
-        console.error('Error saving event', error);
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
+        }
+
+        // Display the error message in an alert
+        alert(errorMessage);
       }
     );
   }
 
   deleteEvent(id: number): void {
-    if (confirm('Are you sure you want to delete this event?')) {
+    if (confirm('Are you sure you want to delete?')) {
       this.AdminDocumentService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('Deleted Successfully!');
       });
     }
   }

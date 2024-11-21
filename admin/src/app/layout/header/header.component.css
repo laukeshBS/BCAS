@@ -1,0 +1,13 @@
+/* Circle Avatar Style */
+.circle-avatar {
+    padding: 1px 5px;
+    background-color: #d4d4d5; /* You can change this color */
+    color: #033443;
+    font-size: 15px;
+    font-weight: bold;
+    border: 2px solid #033443;
+    border-radius: 50%; /* Makes it round */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }

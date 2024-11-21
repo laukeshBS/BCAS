@@ -184,12 +184,25 @@ export class RolesdatatableComponent implements OnInit {
 
     this.rolesService.createRole(roleData).subscribe(
       response => {
-        this.showNotification('Role created successfully');
-        this.loadList();
-        this.closeAddModal();
-        this.clearForm();
+        alert(response.message || 'Created successfully!');
+        this.closeAddModal(); // Close the modal or form
+        this.loadList(); // Refresh the list of events
+        
       },
-      error => this.showNotification('Error creating role: ' + error.message)
+      error => {
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
+        }
+
+        // Display the error message in an alert
+        alert(errorMessage);
+      }
     );
   }
 
@@ -203,19 +216,34 @@ export class RolesdatatableComponent implements OnInit {
 
     this.rolesService.updateEvent(this.roleData.id, updatedRoleData).subscribe(
       response => {
-        this.showNotification('Role updated successfully');
-        this.closeEditModal();
-        this.loadList(); // Refresh data after update
+        alert(response.message || 'Updated Successfully!');
+        this.closeEditModal(); // Close the modal or form
+        this.loadList(); // Refresh the list of events
+        
       },
-      error => console.error('Error updating role:', error)
+      error => {
+        // Check if the error contains validation messages (assuming error is an object)
+        let errorMessage = 'An error occurred while saving.';
+
+        // Check if error contains a response body
+        if (error && error.error && error.error.errors) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error.errors).flat();
+          errorMessage = errorMessages.join(', ');
+        }
+
+        // Display the error message in an alert
+        alert(errorMessage);
+      }
     );
   }
 
   // Delete event by id
   deleteEvent(id: number): void {
-    if (confirm('Are you sure you want to delete this event?')) {
+    if (confirm('Are you sure you want to delete?')) {
       this.rolesService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('Deleted Successfully!');
       });
     }
   }

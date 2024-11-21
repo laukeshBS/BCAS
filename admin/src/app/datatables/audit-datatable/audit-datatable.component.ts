@@ -84,20 +84,34 @@ export class AuditDatatableComponent {
     });
   }
   exportPDF() {
-    // Get today's date and the date 7 days ago
-    const today = new Date();
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(today.getDate() - 7);
   
-    // Convert fromDate and toDate to Date objects (assuming they are strings)
-    const fromDateObj = new Date(this.fromDate);
-    const toDateObj = new Date(this.toDate);
-  
-    // Check if the fromDate and toDate are within the last 7 days
-    if (fromDateObj < sevenDaysAgo || toDateObj > today) {
-      alert('You can only export data for the last 7 days.');
-      return; // Exit the function if the date range is invalid
-    }
+    // Get the fromDate and toDate values as strings
+  const fromDateElement = document.getElementById('fromDate') as HTMLInputElement;
+  const toDateElement = document.getElementById('toDate') as HTMLInputElement;
+
+  const fromDate = new Date(fromDateElement.value);  // Convert the string to a Date object
+  const toDate = new Date(toDateElement.value);  // Convert the string to a Date object
+
+  // Check if the fromDate and toDate are valid dates
+  if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+    alert('Please enter valid dates.');
+    return; // Exit the function if the dates are invalid
+  }
+
+  // Check if the fromDate is before the toDate
+  if (fromDate >= toDate) {
+    alert('From date must be before the End date.');
+    return; // Exit the function if the date range is invalid
+  }
+
+  // Check if the date range is within 7 days
+  const diffInTime = toDate.getTime() - fromDate.getTime();
+  const diffInDays = diffInTime / (1000 * 3600 * 24);  // Convert time difference to days
+
+  if (diffInDays > 7) {
+    alert('You can only export a maximum of 7 days data.');
+    return; // Exit the function if the date range is too large
+  }
   
     // Start by showing a loading spinner
     // (You may want to implement the spinner logic here)

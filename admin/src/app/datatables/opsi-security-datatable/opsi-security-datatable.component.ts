@@ -94,6 +94,38 @@ export class OpsiSecurityDatatableComponent {
           event.status = '';
           break;
       }
+      switch (event.sec_type) {
+        case "axu":
+          event.sec_type = 'Auxiliary';
+          break;
+        case "cat":
+          event.sec_type = 'Catering';
+          break;
+        case "con":
+          event.sec_type = 'Concessionaire';
+          break;
+        case "fbo":
+          event.sec_type = 'Fixed Base Operator';
+          break;
+        case "ff":
+          event.sec_type = 'Fuel Farm';
+          break;
+        case "gas":
+          event.sec_type = 'Gas';
+          break;
+        case "gha":
+          event.sec_type = 'Ground Handling Agency';
+          break;
+        case "psa":
+          event.sec_type = 'PSA';
+          break;
+        case "ra":
+          event.sec_type = 'Regulated Agent';
+          break;
+        default:
+          event.sec_type = '';
+          break;
+      }
     });
   }
 
@@ -115,7 +147,7 @@ export class OpsiSecurityDatatableComponent {
   saveEvent(): void {
     // Validate the form data
     const requiredFields = [
-      'application_id','company_name','date_of_application_submitted','date_of_approval','status','positions','division','sec_type','date_of_validity','lang_code'
+      'application_id','company_name','date_of_application_submitted','date_of_approval','status','positions','sec_type','date_of_validity','lang_code'
     ];
     
     const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
@@ -133,7 +165,7 @@ export class OpsiSecurityDatatableComponent {
     formData.append('date_of_approval', this.selectedEvent.date_of_approval);
     formData.append('status', this.selectedEvent.status);
     formData.append('positions', this.selectedEvent.positions);
-    formData.append('division', this.selectedEvent.division);
+    // formData.append('division', this.selectedEvent.division);
     formData.append('sec_type', this.selectedEvent.sec_type);
     formData.append('date_of_validity', this.selectedEvent.date_of_validity);
     formData.append('lang_code', this.selectedEvent.lang_code);
@@ -141,14 +173,14 @@ export class OpsiSecurityDatatableComponent {
     // Now, send the formData to the backend
     this.opsiSecurityService.storeEvent(formData).subscribe(
       response => {
-          alert(response.message || 'Event Created successfully!');
+          alert(response.message || 'Created Successfully!');
           this.closeAddModal(); // Close the modal or form
           this.loadList(); // Refresh the list of events
           
       },
       error => {
         // Check if the error contains validation messages (assuming error is an object)
-        let errorMessage = 'An error occurred while saving the event.';
+        let errorMessage = 'An error occurred while saving.';
   
         if (error && error.error && error.error.messages) {
           // Extract error messages from the response, assuming it's an array or object
@@ -182,7 +214,7 @@ export class OpsiSecurityDatatableComponent {
     formData.append('date_of_approval', this.selectedEvent.date_of_approval);
     formData.append('status', this.selectedEvent.status);
     formData.append('positions', this.selectedEvent.positions);
-    formData.append('division', this.selectedEvent.division);
+    // formData.append('division', this.selectedEvent.division);
     formData.append('sec_type', this.selectedEvent.sec_type);
     formData.append('date_of_validity', this.selectedEvent.date_of_validity);
     formData.append('lang_code', this.selectedEvent.lang_code);
@@ -190,7 +222,7 @@ export class OpsiSecurityDatatableComponent {
     // Assuming you have a service to handle the API call
     this.opsiSecurityService.updateEvent(this.selectedEvent.id,formData).subscribe(
       response => {
-        alert(response.message || 'Event updated successfully!');
+        alert(response.message || 'Updated Successfully!');
       
         // Close the modal (assuming you are using Bootstrap modal, you can modify as per your modal library)
         this.closeEditModal(); // Define this method to close the modal
@@ -200,7 +232,7 @@ export class OpsiSecurityDatatableComponent {
       },
       error => {
         // Check if the error contains validation messages (assuming error is an object)
-        let errorMessage = 'An error occurred while saving the event.';
+        let errorMessage = 'An error occurred while saving.';
   
         if (error && error.error && error.error.messages) {
           // Extract error messages from the response, assuming it's an array or object
@@ -218,6 +250,7 @@ export class OpsiSecurityDatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.opsiSecurityService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
+        alert('Deleted Successfully!');
       });
     }
   }

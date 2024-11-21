@@ -1,0 +1,104 @@
+<div *ngIf="events.length > 0" style="overflow-x: auto">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>fullname</th>
+                <th>email</th>
+                <th>phone</th>
+                <th>score</th>
+                <th>total</th>
+                <th>Answer</th>
+                <th>Published Date</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr *ngFor="let event of events">
+                <td>{{ event.fullname }}</td>
+                <td>{{ event.email }}</td>
+                <td>{{ event.phone }}</td>
+                <td>{{ event.score }}</td>
+                <td>{{ event.total }}</td>
+                <td>{{ event.answer }}</td>
+                <td>{{ event.created_by }}</td>
+                <td>
+                    <button (click)="viewEvent(event.id)" class="btn btn-outline-primary btn-sm m-1">View</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<div *ngIf="loading==true">
+    <p>Loading...</p>
+</div>
+  
+<div *ngIf="loading==false && events.length === 0">
+    <p>No events found.</p>
+</div>
+
+<nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+    <ul class="pagination">
+        <!-- Previous Page -->
+        <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)"
+                [attr.aria-disabled]="currentPage === 1">Previous</a>
+        </li>
+
+        <!-- Page numbers with ellipsis handling -->
+        <li *ngIf="currentPage > 2" class="page-item">
+            <a class="page-link" (click)="changePage(1)">1</a>
+        </li>
+
+        <!-- Ellipsis for pages before currentPage -->
+        <li *ngIf="currentPage > 3" class="page-item disabled">
+            <span class="page-link">...</span>
+        </li>
+
+        <!-- Display page numbers around the current page -->
+        <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
+            <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+        </li>
+
+        <!-- Ellipsis for pages after currentPage -->
+        <li *ngIf="currentPage < lastPage - 2" class="page-item disabled">
+            <span class="page-link">...</span>
+        </li>
+
+        <!-- Last Page -->
+        <li *ngIf="currentPage < lastPage - 1" class="page-item">
+            <a class="page-link" (click)="changePage(lastPage)">{{ lastPage }}</a>
+        </li>
+
+        <!-- Next Page -->
+        <li class="page-item" [class.disabled]="currentPage === lastPage">
+            <a class="page-link" (click)="changePage(currentPage + 1)"
+                [attr.aria-disabled]="currentPage === lastPage">Next</a>
+        </li>
+    </ul>
+</nav>
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="eventModalLabel">Event Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="selectedEvent">
+            <p><strong>Full Name:</strong> {{ selectedEvent.fullname }}</p>
+            <p><strong>Email:</strong> {{ selectedEvent.email }}</p>
+            <p><strong>Phone:</strong> {{ selectedEvent.phone }}</p>
+            <p><strong>Score:</strong> {{ selectedEvent.score }}</p>
+            <p><strong>Total:</strong> {{ selectedEvent.total }}</p>
+            <p><strong>Answer:</strong> {{ selectedEvent.answer }}</p>
+            <p><strong>Status:</strong> {{ selectedEvent.status }}</p>
+            <p><strong>Published By:</strong> {{ selectedEvent.created_by }}</p>
+            <p><strong>Published Date:</strong> {{ selectedEvent.created_at | date }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
