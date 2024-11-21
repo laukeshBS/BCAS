@@ -79,9 +79,18 @@ export class RegiondatatableComponent {
     }
   }
   saveEvent(): void {
+    
     // Validate the form data
-    if (!this.selectedEvent.name || !this.selectedEvent.status || !this.selectedEvent.lang_code) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'name',
+      'status',
+      'lang_code',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -115,8 +124,16 @@ export class RegiondatatableComponent {
   }
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.name || !this.selectedEvent.status || !this.selectedEvent.lang_code) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'name',
+      'status',
+      'lang_code',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 

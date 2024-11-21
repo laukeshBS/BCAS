@@ -109,6 +109,20 @@ export class CommonTitleDatatableComponent {
       console.error('Missing required fields');
       return;
     }
+    // Validate the form data
+    const requiredFields = [
+      'title',
+      'slugs',
+      'status',
+      'lang_code',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
+      return;
+    }
 
     const formData = new FormData();
     formData.append('title', this.selectedEvent.title);
@@ -141,9 +155,19 @@ export class CommonTitleDatatableComponent {
   }
 
   modifyEvent(): void {
+
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.slugs || !this.selectedEvent.status || !this.selectedEvent.lang_code) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'title',
+      'lang_code',
+      'status',
+      'slugs',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -181,7 +205,7 @@ export class CommonTitleDatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.CommonTitleService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
-        alert('Deleted Successfully');
+        alert('Deleted Successfully!');
       });
     }
   }

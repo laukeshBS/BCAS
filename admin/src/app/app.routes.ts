@@ -40,6 +40,8 @@ import { AvsecTrainingCalenderComponent } from './pages/avsec-training-calender/
 import { QuizComponent } from './pages/quiz/quiz.component';
 import { OrganizationStructureComponent } from './pages/organization-structure/organization-structure.component';
 import { QuizResultComponent } from './pages/quiz-result/quiz-result.component';
+import { QuarterlyReportOnlineComponent } from './pages/quarterly-report-online/quarterly-report-online.component';
+import { QuarterlyReportOnlineiiComponent } from './pages/quarterly-report-onlineii/quarterly-report-onlineii.component';
 
 
 export const routes: Routes = [
@@ -80,6 +82,8 @@ export const routes: Routes = [
     { path: 'quiz', component: QuizComponent, canActivate: [AuthGuard]  },
     { path: 'organization-structure', component: OrganizationStructureComponent, canActivate: [AuthGuard]  },
     { path: 'quiz-result', component: QuizResultComponent, canActivate: [AuthGuard]  },
+    { path: 'quarterly-reoprt-online', component: QuarterlyReportOnlineComponent, canActivate: [AuthGuard]  },
+    { path: 'quarterly-reoprt-online-2', component: QuarterlyReportOnlineiiComponent, canActivate: [AuthGuard]  },
     { path: '**', redirectTo: '/' },
     {
       path: 'restricted',
