@@ -47,9 +47,9 @@
           <td >
             <ng-container *ngIf="event.children.length > 0; else noChid">
               <span (click)="loadChidedList(event.id)" style="cursor: pointer; color: blue;">View Child</span>
-              <p>{{  pagesStatus }}</p>
+              <p>{{  event.approve_status }}</p>
             </ng-container>
-            <ng-template #noChid>{{ pagesStatus }}</ng-template>
+            <ng-template #noChid>{{ event.approve_status }}</ng-template>
           </td>
           <td>{{ event.language_id }}</td>
           <td>

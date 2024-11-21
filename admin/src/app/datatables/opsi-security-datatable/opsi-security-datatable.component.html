@@ -167,9 +167,9 @@
                                 <select id="status" class="form-select" [(ngModel)]="selectedEvent.status" name="status"
                                     required #status="ngModel">
                                     <option value="" disabled>Select Status</option>
-                                    <option value="1">Draft</option>
-                                    <option value="2">Pending</option>
-                                    <option value="3">Published</option>
+                                    <option value="REJECTED">REJECTED</option>
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="APPROVED">APPROVED</option>
                                 </select>
                                 <div *ngIf="status.invalid && (status.dirty || status.touched)" class="text-danger">
                                     <div *ngIf="status.errors?.['required']">Status is required.</div>
@@ -331,9 +331,9 @@
                                 <select id="status" class="form-select" [(ngModel)]="selectedEvent.status" name="status"
                                     required #status="ngModel">
                                     <option value="" disabled>Select Status</option>
-                                    <option value="1">Draft</option>
-                                    <option value="2">Pending</option>
-                                    <option value="3">Published</option>
+                                    <option value="REJECTED">REJECTED</option>
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="APPROVED">APPROVED</option>
                                 </select>
                                 <div *ngIf="status.invalid && (status.dirty || status.touched)" class="text-danger">
                                     <div *ngIf="status.errors?.['required']">Status is required.</div>

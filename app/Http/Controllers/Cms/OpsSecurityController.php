@@ -52,7 +52,7 @@ class OpsSecurityController extends Controller
         $airport_name = $request->input('airport_name');
         // Query to fetch approved opssecuritys based on the provided filters
         $opssecuritys = OpsSecurity::select('*')
-        ->where('status', 'APPROVED')
+        ->orWhere('status', 'APPROVED')
         ->where('sec_type', 'like', "%{$sec_type}%") // Using like for partial match
         ->when($region_name, function ($query, $region_name) {
             return $query->where('region_name', $region_name);

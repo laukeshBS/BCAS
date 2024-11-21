@@ -126,6 +126,7 @@ export class AdminDatatableComponent {
       const rankInput = document.getElementById('rank') as HTMLSelectElement;
       // Check if this.rank is an object and loop through it
       if (this.rank && typeof this.rank === 'object') {
+        rankInput.innerHTML = '';  // Remove all existing options
         // Iterate over each rank (id, name)
         for (const [id, name] of Object.entries(this.rank)) {
           const option = document.createElement('option');
@@ -167,6 +168,7 @@ export class AdminDatatableComponent {
         // Check if this.rank is an object and loop through it
         if (this.rank && typeof this.rank === 'object') {
           // Iterate over each rank (id, name)
+          rankInput.innerHTML = '';  // Remove all existing options
           for (const [id, name] of Object.entries(this.rank)) {
             const option = document.createElement('option');
             option.value = id;  // Set the option's value to the rank id

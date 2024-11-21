@@ -9,8 +9,8 @@ import { environment } from '../environments/environment';
 })
 export class MenuService {
 
-  private apiUrl = environment.apiBaseUrl + 'menulist';
-  private lang_pid_wise = environment.apiBaseUrl + 'menu/lang_pid_wise';
+  private apiUrl = environment.apiBaseUrl + 'menus-list';
+  private lang_pid_wise = environment.apiBaseUrl + 'menus/lang_pid_wise';
   private getbyidapiUrl = environment.apiBaseUrl + 'menu-by-id';
   private storeApiUrl = environment.apiBaseUrl + 'menu-store';
   private updateApiUrl = environment.apiBaseUrl + 'menu-update';
