@@ -482,6 +482,12 @@ Route::middleware(['cors', 'throttle:30,1', 'auth:admin_api','removePoweredBy'])
     Route::controller(QuizResultController::class)->group(function () {
         Route::post('quiz-results-list', 'cms_data');
         Route::get('quiz-result-list-by-id/{id}', 'data_by_id');
-      });
+    });
+    Route::controller(QuarterlyReportOnlineFormsController::class)->group(function () {
+        Route::post('quarterly-report-online-list', 'cms_data');
+    });
+    Route::controller(QuarterlyReportOnlineiiFormsController::class)->group(function () {
+        Route::post('quarterly-report-onlineii-list', 'cms_data');
+    });
 });
 

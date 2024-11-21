@@ -25,8 +25,7 @@ class QuarterlyReportOnlineFormsController extends BaseController {
         // }
         $QuarterlyReportOnlineForm = QuarterlyReportOnlineForm::where('phone', $phone)
         //->whereIn('slugs', $slugs)
-        ->select('id', 'quartyMonth','officeName','address','phone','email','bilingual','englishlang','hindilang','totalLettersHindi','repliesHindi','repliesEnglish','noReplyExpected','releasedDocuments','numberOfLetter','replies2Hindi','replies2English','noReply2Expected','numberOf2Letter','replies3Hindi','replies3English','noReply3Expected','numberOfaddress','bilingualone','englishlangone','hindilangone','numberOfoneaddress','bilingualtwo','englishlangtwo','hindilangtwo','numberOfthreeaddress','bilingualthree','englishlangthree','hindilangthree','commentsHindi','commentsEnglish','totalComments','workshopDate','numberOfTrainees','meetingDate','agendaInHindi','achievements','headName','position','phoneNumber','faxNumber','emailAddress','officeCode','financialYear','identification','officerName','officerPost','officerOfficeName','submittedDate','OfficerPhone','placeName','officerEmail','formType','user_ip','status'
-    )
+        ->select('id', 'quartyMonth','officeName','address','phone','email','bilingual','englishlang','hindilang','totalLettersHindi','repliesHindi','repliesEnglish','noReplyExpected','releasedDocuments','numberOfLetter','replies2Hindi','replies2English','noReply2Expected','numberOf2Letter','replies3Hindi','replies3English','noReply3Expected','numberOfaddress','bilingualone','englishlangone','hindilangone','numberOfoneaddress','bilingualtwo','englishlangtwo','hindilangtwo','numberOfthreeaddress','bilingualthree','englishlangthree','hindilangthree','commentsHindi','commentsEnglish','totalComments','workshopDate','numberOfTrainees','meetingDate','agendaInHindi','achievements','headName','position','phoneNumber','faxNumber','emailAddress','officeCode','financialYear','identification','officerName','officerPost','officerOfficeName','submittedDate','OfficerPhone','placeName','officerEmail','formType','user_ip','status')
         ->get();
         
         return $this->sendResponse($QuarterlyReportOnlineForm, 'QuarterlyReportOnlineForm  For Instructor Retrieved Successfully.');
@@ -171,6 +170,22 @@ class QuarterlyReportOnlineFormsController extends BaseController {
           $messages['id']=$QuarterlyReportOnlineFormdata->id;
         }
         return response()->json($messages, 201); // 201 Created
+    }
+    public function cms_data(Request $request)
+    {
+        $perPage = $request->input('per_page', 10);
+        $page = $request->input('page', 1);
+
+        $QuarterlyReportOnlineForm = QuarterlyReportOnlineForm::select('id', 'quartyMonth','officeName','address','phone','email','bilingual','englishlang','hindilang','totalLettersHindi','repliesHindi','repliesEnglish','noReplyExpected','releasedDocuments','numberOfLetter','replies2Hindi','replies2English','noReply2Expected','numberOf2Letter','replies3Hindi','replies3English','noReply3Expected','numberOfaddress','bilingualone','englishlangone','hindilangone','numberOfoneaddress','bilingualtwo','englishlangtwo','hindilangtwo','numberOfthreeaddress','bilingualthree','englishlangthree','hindilangthree','commentsHindi','commentsEnglish','totalComments','workshopDate','numberOfTrainees','meetingDate','agendaInHindi','achievements','headName','position','phoneNumber','faxNumber','emailAddress','officeCode','financialYear','identification','officerName','officerPost','officerOfficeName','submittedDate','OfficerPhone','placeName','officerEmail','formType','user_ip','status')
+        ->orderBy('id', 'desc')
+        ->paginate($perPage, ['*'], 'page', $page);
+
+        $QuarterlyReportOnlineForm->getCollection()->transform(function ($item) {
+            $item->submittedDate = date('d-m-Y', strtotime($item->submittedDate));
+            return $item;
+        });
+        
+        return response()->json($QuarterlyReportOnlineForm);
     }
     
 }

@@ -177,9 +177,18 @@ export class TendersdatatableComponent {
   }
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.status || !this.selectedEvent.lang_code || 
-        !this.selectedEvent.start_date || !this.selectedEvent.end_date) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'title',
+      'lang_code',
+      'status',
+      'start_date',
+      'end_date',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 

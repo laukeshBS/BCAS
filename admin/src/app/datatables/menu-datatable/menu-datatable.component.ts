@@ -181,9 +181,22 @@ export class MenuDatatableComponent {
   }
 
   saveEvent(): void {
-    // // Validate the form data
-    if (!this.selectedEvent.menu_type || !this.selectedEvent.language_id || !this.selectedEvent.menu_position || !this.selectedEvent.menu_name || !this.selectedEvent.welcomedescription || !this.selectedEvent.menu_url  || !this.selectedEvent.approve_status ) {
-      console.error('Missing required fields');
+    
+    // Validate the form data
+    const requiredFields = [
+      'menu_type',
+      'menu_position',
+      'language_id',
+      'menu_name',
+      'welcomedescription',
+      'menu_url',
+      'approve_status',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
     
@@ -239,10 +252,22 @@ export class MenuDatatableComponent {
   }
 
   modifyEvent(): void {
-    //console.log(this.selectedEvent);
+    
     // Validate the form data
-    if (!this.selectedEvent.menu_type || !this.selectedEvent.menu_position || !this.selectedEvent.language_id || !this.selectedEvent.menu_name  || !this.selectedEvent.welcomedescription || !this.selectedEvent.menu_url  || !this.selectedEvent.approve_status ) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'menu_type',
+      'menu_position',
+      'language_id',
+      'menu_name',
+      'welcomedescription',
+      'menu_url',
+      'approve_status',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -282,6 +307,13 @@ export class MenuDatatableComponent {
       error => {
         // Check if the error contains validation messages (assuming error is an object)
         let errorMessage = 'An error occurred while saving.';
+
+        // Check if error contains a response body
+        if (error && error.error) {
+          // Loop through the 'errors' object and join all error messages
+          let errorMessages = Object.values(error.error).flat();
+          errorMessage = errorMessages.join(', ');
+        }
 
         // Check if error contains a response body
         if (error && error.error && error.error.errors) {

@@ -1,0 +1,206 @@
+<div *ngIf="events.length > 0" style="overflow-x: auto">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Quarty Month</th>
+                <th>Office Name</th>
+                <th>Address</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Bilingual</th>
+                <th>English Lang</th>
+                <th>Hindi Lang</th>
+                <th>Total Letters Hindi</th>
+                <th>Replies Hindi</th>
+                <th>Replies English</th>
+                <th>No Reply Expected</th>
+                <th>Released Documents</th>
+                <th>Number Of Letter</th>
+                <th>Replies 2 Hindi</th>
+                <th>Replies 2 English</th>
+                <th>No Reply 2 Expected</th>
+                <th>Number Of 2 Letter</th>
+                <th>Replies 3 Hindi</th>
+                <th>Replies 3 English</th>
+                <th>No Reply 3 Expected</th>
+                <th>Number Of Address</th>
+                <th>Bilingual One</th>
+                <th>English Lang One</th>
+                <th>Hindi Lang One</th>
+                <th>Number Of One Address</th>
+                <th>Bilingual Two</th>
+                <th>English Lang Two</th>
+                <th>Hindi Lang Two</th>
+                <th>Number Of Three Address</th>
+                <th>Bilingual Three</th>
+                <th>English Lang Three</th>
+                <th>Hindi Lang Three</th>
+                <th>Comments Hindi</th>
+                <th>Comments English</th>
+                <th>Total Comments</th>
+                <th>Workshop Date</th>
+                <th>Number Of Trainees</th>
+                <th>Meeting Date</th>
+                <th>Agenda In Hindi</th>
+                <th>Achievements</th>
+                <th>Head Name</th>
+                <th>Position</th>
+                <th>Phone Number</th>
+                <th>Fax Number</th>
+                <th>Email Address</th>
+                <th>Office Code</th>
+                <th>Financial Year</th>
+                <th>Identification</th>
+                <th>Officer Name</th>
+                <th>Officer Post</th>
+                <th>Officer Office Name</th>
+                <th>Submitted Date</th>
+                <th>Officer Phone</th>
+                <th>Place Name</th>
+                <th>Officer Email</th>
+                <th>Form Type</th>
+                <th>User Ip</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        
+        <tbody>
+            <tr *ngFor="let event of events">
+                <td>{{ event.quartyMonth }}</td>
+                <td>{{ event.officeName }}</td>
+                <td>{{ event.address }}</td>
+                <td>{{ event.phone }}</td>
+                <td>{{ event.email }}</td>
+                <td>{{ event.bilingual }}</td>
+                <td>{{ event.englishlang }}</td>
+                <td>{{ event.hindilang }}</td>
+                <td>{{ event.totalLettersHindi }}</td>
+                <td>{{ event.repliesHindi }}</td>
+                <td>{{ event.repliesEnglish }}</td>
+                <td>{{ event.noReplyExpected }}</td>
+                <td>{{ event.releasedDocuments }}</td>
+                <td>{{ event.numberOfLetter }}</td>
+                <td>{{ event.replies2Hindi }}</td>
+                <td>{{ event.replies2English }}</td>
+                <td>{{ event.noReply2Expected }}</td>
+                <td>{{ event.numberOf2Letter }}</td>
+                <td>{{ event.replies3Hindi }}</td>
+                <td>{{ event.replies3English }}</td>
+                <td>{{ event.noReply3Expected }}</td>
+                <td>{{ event.numberOfaddress }}</td>
+                <td>{{ event.bilingualone }}</td>
+                <td>{{ event.englishlangone }}</td>
+                <td>{{ event.hindilangone }}</td>
+                <td>{{ event.numberOfoneaddress }}</td>
+                <td>{{ event.bilingualtwo }}</td>
+                <td>{{ event.englishlangtwo }}</td>
+                <td>{{ event.hindilangtwo }}</td>
+                <td>{{ event.numberOfthreeaddress }}</td>
+                <td>{{ event.bilingualthree }}</td>
+                <td>{{ event.englishlangthree }}</td>
+                <td>{{ event.hindilangthree }}</td>
+                <td>{{ event.commentsHindi }}</td>
+                <td>{{ event.commentsEnglish }}</td>
+                <td>{{ event.totalComments }}</td>
+                <td>{{ event.workshopDate }}</td>
+                <td>{{ event.numberOfTrainees }}</td>
+                <td>{{ event.meetingDate }}</td>
+                <td>{{ event.agendaInHindi }}</td>
+                <td>{{ event.achievements }}</td>
+                <td>{{ event.headName }}</td>
+                <td>{{ event.position }}</td>
+                <td>{{ event.phoneNumber }}</td>
+                <td>{{ event.faxNumber }}</td>
+                <td>{{ event.emailAddress }}</td>
+                <td>{{ event.officeCode }}</td>
+                <td>{{ event.financialYear }}</td>
+                <td>{{ event.identification }}</td>
+                <td>{{ event.officerName }}</td>
+                <td>{{ event.officerPost }}</td>
+                <td>{{ event.officerOfficeName }}</td>
+                <td>{{ event.submittedDate }}</td>
+                <td>{{ event.OfficerPhone }}</td>
+                <td>{{ event.placeName }}</td>
+                <td>{{ event.officerEmail }}</td>
+                <td>{{ event.formType }}</td>
+                <td>{{ event.user_ip }}</td>
+                <td>{{ event.status }}</td>
+            </tr>
+        </tbody>
+    </table>
+    
+</div>
+
+<div *ngIf="loading==true">
+    <p>Loading...</p>
+</div>
+  
+<div *ngIf="loading==false && events.length === 0">
+    <p>No events found.</p>
+</div>
+
+<nav *ngIf="lastPage > 1"> <!-- Only show if there's more than one page -->
+    <ul class="pagination">
+        <!-- Previous Page -->
+        <li class="page-item" [class.disabled]="currentPage === 1">
+            <a class="page-link" (click)="changePage(currentPage - 1)"
+                [attr.aria-disabled]="currentPage === 1">Previous</a>
+        </li>
+
+        <!-- Page numbers with ellipsis handling -->
+        <li *ngIf="currentPage > 2" class="page-item">
+            <a class="page-link" (click)="changePage(1)">1</a>
+        </li>
+
+        <!-- Ellipsis for pages before currentPage -->
+        <li *ngIf="currentPage > 3" class="page-item disabled">
+            <span class="page-link">...</span>
+        </li>
+
+        <!-- Display page numbers around the current page -->
+        <li *ngFor="let page of getPageNumbers()" class="page-item" [class.active]="page === currentPage">
+            <a class="page-link" (click)="changePage(page)">{{ page }}</a>
+        </li>
+
+        <!-- Ellipsis for pages after currentPage -->
+        <li *ngIf="currentPage < lastPage - 2" class="page-item disabled">
+            <span class="page-link">...</span>
+        </li>
+
+        <!-- Last Page -->
+        <li *ngIf="currentPage < lastPage - 1" class="page-item">
+            <a class="page-link" (click)="changePage(lastPage)">{{ lastPage }}</a>
+        </li>
+
+        <!-- Next Page -->
+        <li class="page-item" [class.disabled]="currentPage === lastPage">
+            <a class="page-link" (click)="changePage(currentPage + 1)"
+                [attr.aria-disabled]="currentPage === lastPage">Next</a>
+        </li>
+    </ul>
+</nav>
+
+<!-- Bootstrap Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="eventModalLabel">Event Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div *ngIf="selectedEvent">
+            <p><strong>Full Name:</strong> {{ selectedEvent.fullname }}</p>
+            <p><strong>Email:</strong> {{ selectedEvent.email }}</p>
+            <p><strong>Phone:</strong> {{ selectedEvent.phone }}</p>
+            <p><strong>Score:</strong> {{ selectedEvent.score }}</p>
+            <p><strong>Total:</strong> {{ selectedEvent.total }}</p>
+            <p><strong>Answer:</strong> {{ selectedEvent.answer }}</p>
+            <p><strong>Status:</strong> {{ selectedEvent.status }}</p>
+            <p><strong>Published By:</strong> {{ selectedEvent.created_by }}</p>
+            <p><strong>Published Date:</strong> {{ selectedEvent.created_at | date }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

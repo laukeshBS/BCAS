@@ -194,6 +194,23 @@
               </li>
             </ul>
           </li>
+
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+            <a [routerLink]="['/quarterly-reoprt-online']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Quarterly Reoprt Online
+              </p>
+            </a>
+          </li> 
+          <li class="nav-item" *ngIf="hasAnyPermission(['dashboard.view'])">
+            <a [routerLink]="['/quarterly-reoprt-online-2']" class="nav-link">
+              <i class="nav-icon fas fa-th"></i>
+              <p>
+                Quarterly Reoprt Online 2
+              </p>
+            </a>
+          </li> 
           
           
           

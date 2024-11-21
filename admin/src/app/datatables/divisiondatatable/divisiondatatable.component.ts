@@ -204,7 +204,7 @@ export class DivisiondatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.divisionService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
-        alert('Delted Successfully');
+        alert('Deleted Successfully!');
       });
     }
   }

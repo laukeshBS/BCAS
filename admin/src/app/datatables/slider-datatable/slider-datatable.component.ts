@@ -109,9 +109,17 @@ export class SliderDatatableComponent {
 
   saveEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.slug || !this.selectedEvent.description || 
-        !this.selectedEvent.status) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'slug',
+      'title',
+      'description',
+      'status',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -147,9 +155,17 @@ export class SliderDatatableComponent {
 
   modifyEvent(): void {
     // Validate the form data
-    if (!this.selectedEvent.title || !this.selectedEvent.slug || !this.selectedEvent.description || 
-      !this.selectedEvent.status) {
-      console.error('Missing required fields');
+    const requiredFields = [
+      'slug',
+      'title',
+      'description',
+      'status',
+    ];
+    
+    const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
+
+    if (missingFields.length > 0) {
+      alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
 
@@ -187,7 +203,7 @@ export class SliderDatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.sliderService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
-        alert('Deleted Successfully');
+        alert('Deleted Successfully!');
       });
     }
   }

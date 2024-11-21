@@ -247,7 +247,7 @@ export class FormsdatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.FormsService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
-        alert('Deleted Successfully');
+        alert('Deleted Successfully!');
       });
     }
   }

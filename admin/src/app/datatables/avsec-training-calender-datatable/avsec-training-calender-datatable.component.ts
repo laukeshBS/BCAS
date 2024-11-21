@@ -221,7 +221,7 @@ export class AvsecTrainingCalenderDatatableComponent {
     if (confirm('Are you sure you want to delete?')) {
       this.avsecTrainingCalenderService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
-        alert('Deleted Successfuly!');
+        alert('Deleted Successfully!');
       });
     }
   }

@@ -232,7 +232,7 @@ export class ContactDatatableComponent {
     if (confirm('Are you sure you want to delete this event?')) {
       this.ContactService.deleteEvent(id).subscribe(() => {
         this.events = this.events.filter(event => event.id !== id);
-        alert('Deleted Successfully');
+        alert('Deleted Successfully!');
       });
     }
   }
