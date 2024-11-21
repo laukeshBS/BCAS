@@ -55,6 +55,47 @@ class MenuController extends BaseController
         // Return the menu list as a successful response
         return response()->json(['success' => true, 'data' => $menus], 200);
     }
+    public function cms_data(Request $request)
+    {
+        // Get the parameters from the request
+        $lang_code = $request->input('lang_code');
+        $menu_child_id = $request->input('menu_child_id', 0);
+        $menu_position = $request->input('menu_position');
+        //dd($request);
+        // Validate the lang_code parameter
+        if (!$lang_code) {
+            return response()->json(['error' => 'Lang code parameter is missing.'], 400);
+        }
+
+        // Retrieve the menu items
+        $menus = Menu::where('language_id', $lang_code)
+            ->where('menu_child_id', $menu_child_id)
+            ->when($menu_position, function ($query) use ($menu_position) {
+                return $query->where('menu_position', $menu_position);
+            })
+            ->with(['children' => function ($query) use ($menu_position) {
+                $query->when($menu_position, function ($query) use ($menu_position) {
+                        return $query->where('menu_position', $menu_position);
+                    })
+                    ->orderBy('page_order', 'ASC');
+            }])
+            ->orderBy('page_order', 'ASC')
+            ->get();
+
+        // Check if any menus were found
+        if ($menus->isEmpty()) {
+            return response()->json(['error' => 'No menus found for the given language code.'], 404);
+        }
+
+        // Prepare the base URL for media paths
+        // $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
+
+        // // Append base URL to media paths in the menu items
+        // $this->appendBaseUrlToMedia($menus, $baseUrl);
+
+        // Return the menu list as a successful response
+        return response()->json(['success' => true, 'data' => $menus], 200);
+    }
     public function menu_list(Request $request)
     {
         // Get the parameters from the request
@@ -77,6 +118,47 @@ class MenuController extends BaseController
             ->with(['children' => function ($query) use ($menu_position) {
                 $query->where('approve_status', 3)
                     ->when($menu_position, function ($query) use ($menu_position) {
+                        return $query->where('menu_position', $menu_position);
+                    })
+                    ->orderBy('page_order', 'ASC');
+            }])
+            ->orderBy('page_order', 'ASC')
+            ->get();
+
+        // Check if any menus were found
+        if ($menus->isEmpty()) {
+            return response()->json(['error' => 'No menus found for the given language code.'], 404);
+        }
+
+        // Prepare the base URL for media paths
+        // $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
+
+        // // Append base URL to media paths in the menu items
+        // $this->appendBaseUrlToMedia($menus, $baseUrl);
+
+        // Return the menu list as a successful response
+        return response()->json(['success' => true, 'data' => $menus], 200);
+    }
+    public function cms_menu_list(Request $request)
+    {
+        // Get the parameters from the request
+        $lang_code = $request->input('lang_code');
+        $menu_child_id = $request->input('menu_child_id', 0);
+        $menu_position = $request->input('menu_position');
+        //dd($request);
+        // Validate the lang_code parameter
+        if (!$lang_code) {
+            return response()->json(['error' => 'Lang code parameter is missing.'], 400);
+        }
+
+        // Retrieve the menu items
+        $menus = Menu::where('language_id', $lang_code)
+            ->where('menu_child_id', $menu_child_id)
+            ->when($menu_position, function ($query) use ($menu_position) {
+                return $query->where('menu_position', $menu_position);
+            })
+            ->with(['children' => function ($query) use ($menu_position) {
+                $query->when($menu_position, function ($query) use ($menu_position) {
                         return $query->where('menu_position', $menu_position);
                     })
                     ->orderBy('page_order', 'ASC');
@@ -144,7 +226,8 @@ class MenuController extends BaseController
             'welcomedescription',
             'banner_img',
             'updated_at',
-            'img_upload'
+            'img_upload',
+            'approve_status'
         )
         ->orderBy('id', 'ASC')
         ->paginate($perPage, ['*'], 'page', $page);
@@ -641,6 +724,47 @@ class MenuController extends BaseController
                 //         }
                 //     });
                 // });
+    
+                return $this->sendResponse($menus, 'Menu List For Instructor Retrieved Successfully.');
+            } else {
+                return $this->sendError('No menus found for the given language code.', 404);
+            }
+    }
+    public function cms_lang_pid_wise(Request $request): JsonResponse
+    {
+        $data = $request->all();
+        $pid = $data['pid'] ?? null;
+       
+        $lang_code = $data['lang_code'] ?? null;
+        //dd($data);
+        if (!$lang_code) {
+            return $this->sendError('Lang code parameter is missing.', 400);
+        }
+      
+        // Retrieve all matching menu items, not just the first one
+        $menus = Menu::where('language_id', $lang_code)
+            ->where('menu_child_id', $pid)->with(['children' => function ($query) {
+                $query->orderBy('page_order', 'ASC');
+            }])
+            ->select(
+                'id',
+                'menu_child_id',
+                'menu_name',
+                'menu_url',
+                'menu_title',
+                'menu_keyword',
+                'menu_description',
+                'content',
+                'doc_upload',
+                'menu_links',
+                'welcomedescription',
+                'updated_at',
+                'img_upload',
+                'approve_status'
+            )->orderBy('page_order','ASC')
+            ->get(); // Use get() to retrieve all matching records
+
+            if ($menus->isNotEmpty()) {
     
                 return $this->sendResponse($menus, 'Menu List For Instructor Retrieved Successfully.');
             } else {

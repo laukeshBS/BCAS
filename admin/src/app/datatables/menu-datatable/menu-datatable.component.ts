@@ -43,10 +43,10 @@ export class MenuDatatableComponent {
     ,private languageService: LanguageService,) {}
 
   ngOnInit(): void {
-   // this.loadList();
+   this.loadList(this.lang_code);
     this.loadUserId();
     this.loadLangList();
-    this.onlangChange(this.lang_code);
+    // this.onlangChange(this.lang_code);
   }
  
   loadList(langCode:any): void {
@@ -79,18 +79,18 @@ export class MenuDatatableComponent {
   }
   onlangChange(value:any){
     this.loadList(value);
-    this.PrimaryLink =  this.events;
-  //console.log(value);
-    this.lang_code=value;
-    this.loading = true; // Start loading
-    this.MenuService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
-      this.PrimaryLink = data.data;
-      this.formatEventDates();
-      this.loading = false; // Stop loading
-    }, error => {
-      console.error('Error loading events:', error);
-      this.loading = false; // Stop loading on error
-    });
+  //   this.PrimaryLink =  this.events;
+  // //console.log(value);
+  //   this.lang_code=value;
+  //   this.loading = true; // Start loading
+  //   this.MenuService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
+  //     this.PrimaryLink = data.data;
+  //     this.formatEventDates();
+  //     this.loading = false; // Stop loading
+  //   }, error => {
+  //     console.error('Error loading events:', error);
+  //     this.loading = false; // Stop loading on error
+  //   });
     
  }
   loadChidedList(pageID:any): void {
@@ -100,7 +100,7 @@ export class MenuDatatableComponent {
       this.events = data.data;
       this.totalItems = data.total; // Assuming the API returns total items
       this.lastPage = Math.ceil(this.totalItems / this.limit);
-      //this.formatEventDates();
+      this.formatEventDates();
       this.loading = false; // Stop loading
     }, error => {
       console.error('Error loading events:', error);
@@ -129,18 +129,21 @@ export class MenuDatatableComponent {
     this.events.forEach(event => {
       event.created_at = new Date(event.created_at).toLocaleDateString('en-GB');
     
-     this.pageStatus(event.approve_status)
-     switch (event.approve_status) {
-      case 3:
-        event.status = 'Published';
+    //  this.pageStatus(event.approve_status)
+       switch (event.approve_status) {
+        case 1:
+          event.approve_status = 'Draft';
           break;
-      case 2:
-        event.status = 'Pending';
+        case 2:
+          event.approve_status = 'Pending';
           break;
-      default:
-        event.status = 'Draft';
+        case 3:
+          event.approve_status = 'Published';
           break;
-       }
+        default:
+          event.approve_status = 'asc';
+          break;
+      }
       if (event.document!='') {
         event.document = '<a href="'+event.document+'">'+event.title+' Document</a>';
       }else{
