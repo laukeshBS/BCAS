@@ -38,7 +38,7 @@ class OrganizationStructureController  extends Controller
     public function organization_list(Request $request)
     {
         $lang_code = $request->input('lang_code');
-        $data = OrganizationStructure::where('lang_code', $lang_code)->get();
+        $data = OrganizationStructure::where('lang_code', $lang_code)->where('status', 3)->get();
 
         $data->transform(function ($item) {
             $item->created_at = date('d-m-Y', strtotime($item->created_at));

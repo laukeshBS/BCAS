@@ -37,6 +37,7 @@ class VacancyController extends Controller
         $query = Vacancy::select('*')
             ->where('lang_code', $lang_code)
             ->where('end_date','>', $date)
+            ->where('status',3)
             ->orderBy('id', 'desc');
         if (!empty($limit)) {
             $query->limit($limit);
@@ -70,6 +71,7 @@ class VacancyController extends Controller
         $query = Vacancy::select('*')
             ->where('lang_code', $lang_code)
             ->where('end_date','<', $date)
+            ->where('status',3)
             ->orderBy('id', 'desc');
         if (!empty($limit)) {
             $query->limit($limit);

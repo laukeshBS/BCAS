@@ -23,7 +23,7 @@ class Menu extends Model
     'start_date',
     'end_date',
     'create_date',
-    'update_date',
+    'updated_at',
     'approve_status',
     'created_by',
     'page_order',

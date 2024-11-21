@@ -143,6 +143,7 @@ class MenuController extends BaseController
             'current_version',
             'welcomedescription',
             'banner_img',
+            'updated_at',
             'img_upload'
         )
         ->orderBy('id', 'ASC')
@@ -162,6 +163,7 @@ class MenuController extends BaseController
             //     }
             //     return $item;
             // });
+            
             return response()->json([
                 'title' => 'Menu List',
                 'data' => $menus->items(), // Get items for the current page
@@ -536,11 +538,18 @@ class MenuController extends BaseController
                 'current_version',
                 'welcomedescription',
                 'banner_img',
+                'updated_at',
                 'img_upload'
             )->orderBy('page_order','ASC')
             ->get(); // Use get() to retrieve all matching records
 
             if ($menus->isNotEmpty()) {
+                $menus->each(function ($menu) {
+                    $menu->updated_at = date('d-m-Y H:i:s', strtotime($menu->updated_at));
+                    $menu->children->each(function ($childMenu) {
+                        $childMenu->updated_at = date('d-m-Y H:i:s', strtotime($childMenu->updated_at));
+                    });
+                });
                 // $baseUrl = url('public/uploads/admin/cmsfiles/menus/');
     
                 // Append base URL to media paths in the `children` relationship
@@ -601,6 +610,7 @@ class MenuController extends BaseController
                 'doc_upload',
                 'menu_links',
                 'welcomedescription',
+                'updated_at',
                 'img_upload'
             )->orderBy('page_order','ASC')
             ->get(); // Use get() to retrieve all matching records
