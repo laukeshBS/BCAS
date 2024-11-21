@@ -11,17 +11,18 @@
 
 .sidebar {
 
-    background: #033443
+    background: #293976
 
 }
 [class*=sidebar-dark-] .sidebar a {
     color: #ffffff;
     font-size: 13px;
     padding: 8px 4px;
+    font-weight: 500;
 }
 [class*=sidebar-dark] .brand-link {
-    border-bottom: 1px solid #4b545c;
-    background: #033443;
+    border-bottom: 1px solid #293976;
+    background: #293976
 }
 
 p.captcha-text {
@@ -73,4 +74,120 @@ button.btn.Login {
 .text-danger.mt-3 {
     font-size: 14px;
     color: #ed0505;
+}
+
+.main-header .navbar-nav .nav-item {
+    margin: 0;
+    display: inline-block;
+}
+ul.navbar-nav {
+    width: 100%;
+    display: inline-block;
+}
+.main-header .nav-link {
+    height: 2.5rem;
+    position: relative;
+    font-weight: 600;
+    color: #333 !important;
+}
+
+::marker {
+    color: #fff;
+}
+.content-header h1 {
+    font-size: 20px;
+    margin: 0;
+    line-height: 30px;
+    font-weight: 600;
+}
+.breadcrumb-item.active {
+    color: #333;
+    font-weight: 600;
+    font-size: 15px;
+}
+.breadcrumb-item a {
+    color: #293976;
+    font-weight: 600;
+}
+
+button.btn.btn-primary {
+    padding: 6px 15px;
+    font-size: 15px;
+    margin: 32px 0 0;
+    background: #293976;
+    border: 1px solid #293976;
+}
+.table-bordered td, .table-bordered th {
+    border: 1px solid #dee2e6;
+    font-size: 14px;
+    vertical-align: middle;
+}
+
+
+table.table.table-bordered {
+    margin: 10px 0 0;
+}
+.btn-outline-danger:hover {
+    color: #fff !important;
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+label:not(.form-check-label):not(.custom-file-label) {
+    font-weight: 600;
+    margin: 0 0 4px;
+    font-size: 15px;
+}
+
+
+button.btn.btn-outline-primary.btn-sm {
+    border: 1px solid #293976;
+    color: #333;
+}
+
+button.btn.btn-outline-primary.btn-sm:hover {
+    border: 1px solid #293976;
+    color: #ffffff;
+    background: #293976;
+}
+.modal-title {
+    font-size: 17px;
+}
+.content-header {
+    padding: 10px 6px 6px;
+}
+
+[class*=sidebar-dark-] {
+    background-color: #293976;
+}
+
+.form-select {
+    font-size: 15px;
+}
+
+.table thead th {
+    vertical-align: middle;
+    border-bottom: 2px solid #dee2e6;
+    background: #293976;
+    color: #fff;
+}
+button.btn.btn-success {
+    padding: 5px 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+}
+.pagination li.page-item {
+    display: inline-block;
+    margin: 10px 0 0;
+}
+ul.pagination {
+    text-align: center;
+    width: 100%;
+    display: inline-block;
+}
+.page-item.active .page-link {
+    z-index: 3;
+    color: #fff;
+    background-color: #293976;
+    border-color: #293976;
 }

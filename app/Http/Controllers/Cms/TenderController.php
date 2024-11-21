@@ -23,13 +23,13 @@ class TenderController extends Controller
         $perPage = $request->input('limit');
         $page = $request->input('currentPage');
         $lang_code = $request->input('lang_code');
-        
+
 
 
         // Fetch data from the database
-       
 
-    
+
+
         // Validate input
         if (!$lang_code) {
             return response()->json(['error' => 'Language code is required'], 400);
@@ -42,7 +42,7 @@ class TenderController extends Controller
             ->orderBy('id', 'desc')
             ->limit($perPage)
             ->paginate($perPage, ['*'], 'page', $page);
-    
+
         if ($data->isEmpty()) {
             return response()->json(['message' => 'No data found'], 404);
         }
@@ -56,14 +56,14 @@ class TenderController extends Controller
             return $item; // Return the transformed item
 
         });
-    
+
         return response()->json([
             'title' => 'List',
-            'data' => $data->items(), 
-            'total' => $data->total(), 
-            'current_page' => $data->currentPage(), 
-            'last_page' => $data->lastPage(), 
-            'per_page' => $data->perPage(), 
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'per_page' => $data->perPage(),
         ]);
     }
     public function archive(Request $request)
@@ -71,13 +71,13 @@ class TenderController extends Controller
         $perPage = $request->input('limit');
         $page = $request->input('currentPage');
         $lang_code = $request->input('lang_code');
-        
+
 
 
         // Fetch data from the database
-      
 
-    
+
+
         // Validate input
         if (!$lang_code) {
             return response()->json(['error' => 'Language code is required'], 400);
@@ -90,7 +90,7 @@ class TenderController extends Controller
             ->orderBy('id', 'desc')
             ->limit($perPage)
             ->paginate($perPage, ['*'], 'page', $page);
-    
+
         if ($data->isEmpty()) {
             return response()->json(['message' => 'No data found'], 404);
         }
@@ -104,14 +104,14 @@ class TenderController extends Controller
             return $item; // Return the transformed item
 
         });
-    
+
         return response()->json([
             'title' => 'List',
-            'data' => $data->items(), 
-            'total' => $data->total(), 
-            'current_page' => $data->currentPage(), 
-            'last_page' => $data->lastPage(), 
-            'per_page' => $data->perPage(), 
+            'data' => $data->items(),
+            'total' => $data->total(),
+            'current_page' => $data->currentPage(),
+            'last_page' => $data->lastPage(),
+            'per_page' => $data->perPage(),
         ]);
     }
     public function cms_data(Request $request)

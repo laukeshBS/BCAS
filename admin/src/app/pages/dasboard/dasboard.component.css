@@ -1,10 +1,11 @@
 .card-d {
-  background: #379f3a;
+  background: #fff !important;
   padding: 12px;
   display: inline-block;
   width: 100%;
   margin: 0 0 20px;
   border-radius: 4px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .wrapper-w {
   padding: 20px;
@@ -31,19 +32,20 @@ background: #fd4645;
 background: #033443;
 }
 h6 {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
+     color: #333;
+    font-size: 16px;
+    font-weight: 600;
 }
 p {
-  color: #fff;
-  font-size: 16px;
-  font-weight: 500;
+      color: #333;
+    font-size: 16px;
+    font-weight: 500;
 }
 
 .chart-w {
   border: 1px solid #d3d3d3;
-  min-height: 400px;
+    min-height: 270px;
+    background: #fff;
 }
 .chart-w h6 {
   color: #333 !important;
