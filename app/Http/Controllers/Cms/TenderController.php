@@ -27,12 +27,7 @@ class TenderController extends Controller
 
 
         // Fetch data from the database
-        $data = Tender::where('lang_code', $lang_code)
-            ->orderBy('id', 'desc')
-            // ->limit($limit) // Use the limit to restrict the number of results
-            ->get(); // Execute the query to get the results
-
-        // Transform the data
+       
 
     
         // Validate input
@@ -43,6 +38,7 @@ class TenderController extends Controller
         $data = Tender::select('*')
             ->where('lang_code', $lang_code)
             ->where('end_date','>', $date)
+            ->where('status',3)
             ->orderBy('id', 'desc')
             ->limit($perPage)
             ->paginate($perPage, ['*'], 'page', $page);
@@ -79,12 +75,7 @@ class TenderController extends Controller
 
 
         // Fetch data from the database
-        $data = Tender::where('lang_code', $lang_code)
-            ->orderBy('id', 'desc')
-            // ->limit($limit) // Use the limit to restrict the number of results
-            ->get(); // Execute the query to get the results
-
-        // Transform the data
+      
 
     
         // Validate input
@@ -95,6 +86,7 @@ class TenderController extends Controller
         $data = Tender::select('*')
             ->where('lang_code', $lang_code)
             ->where('end_date','<', $date)
+            ->where('status',3)
             ->orderBy('id', 'desc')
             ->limit($perPage)
             ->paginate($perPage, ['*'], 'page', $page);

@@ -33,7 +33,9 @@ class EventController extends Controller
         $events = Event::select('*')
             ->where('lang_code',$lang_code)
             ->where('end_date','>', $date)
+            ->where('status', 3)
             ->orderBy('id', 'desc')
+            
             ->limit($limit)
             ->get();
 
@@ -55,6 +57,7 @@ class EventController extends Controller
         $events = Event::select('*')
             ->where('lang_code', $lang_code)
             ->where('end_date','>', $date)
+            ->where('status', 3)
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -82,6 +85,7 @@ class EventController extends Controller
         $events = Event::select('*')
             ->where('lang_code', $lang_code)
             ->where('end_date','<', $date)
+            ->where('status', 3)
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -105,7 +109,7 @@ class EventController extends Controller
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
 
-        $events = Event::select('*')
+        $events = Event::select('*')->where('status', 3)
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -122,7 +126,7 @@ class EventController extends Controller
         $lang_code = $request->input('lang_code');
 
         $data = Event::select('*')
-            ->where('lang_code',$lang_code)
+            ->where('lang_code',$lang_code)->where('status', 3)
             ->orderBy('id', 'desc')
             ->limit($limit)
             ->get();

@@ -34,6 +34,7 @@ class CircularController extends Controller
         $circulars = Circular::select('*')
             ->where('lang_code',$lang_code)
             ->where('end_date','>', $date)
+            ->where('status', 3)
             ->orderBy('id', 'desc')
             ->limit($limit)
             ->get();
@@ -56,6 +57,7 @@ class CircularController extends Controller
         $circulars = Circular::select('*')
             ->orderBy('id', 'desc')
             ->where('lang_code', $lang_code)
+            ->where('status', 3)
             ->where('end_date','<', $date)
             ->paginate($perPage, ['*'], 'page', $page);
  
@@ -84,6 +86,7 @@ class CircularController extends Controller
             ->orderBy('id', 'desc')
             ->where('lang_code', $lang_code)
             ->where('end_date','>', $date)
+            ->where('status', 3)
             ->paginate($perPage, ['*'], 'page', $page);
  
         $circulars->getCollection()->transform(function ($item) {

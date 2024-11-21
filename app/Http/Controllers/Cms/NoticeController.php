@@ -36,6 +36,7 @@ class NoticeController extends Controller
     // Start with the base query
     $query = Notice::select('*')
         ->where('lang_code', $lang_code)
+        ->where('status', 3)
         ->where('end_date', '>', $date)
         ->orderBy('id', 'desc')
         ->limit($limit);
@@ -68,6 +69,7 @@ class NoticeController extends Controller
         $data = Notice::select('*') 
             ->where('lang_code', $lang_code)
             ->where('end_date','>', $date)
+            ->where('status', 3)
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -93,6 +95,7 @@ class NoticeController extends Controller
         $date=date('Y-m-d');
         $data = Notice::select('*') 
             ->where('lang_code', $lang_code)
+            ->where('status', 3)
             ->where('end_date','<', $date)
             ->orderBy('id', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
@@ -118,6 +121,7 @@ class NoticeController extends Controller
 
         $data = Notice::select('*')
             ->where('lang_code',$lang_code)
+            ->where('status', 3)
             ->orderBy('id', 'desc')
             ->limit($limit)
             ->get();
