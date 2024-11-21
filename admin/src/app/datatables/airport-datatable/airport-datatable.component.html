@@ -332,9 +332,9 @@
                           required 
                           #approved_status_clearance="ngModel">
                           <option value="">Select Status</option>
-                          <option value="1">Approved</option>
-                          <option value="2">Pending</option>
-                          <option value="3">Rejected</option>
+                          <option value="REJECTED">REJECTED</option>
+                        <option value="PENDING">PENDING</option>
+                        <option value="APPROVED">APPROVED</option>
                         </select>
                         <div *ngIf="approved_status_clearance.invalid && (approved_status_clearance.dirty || approved_status_clearance.touched)" class="text-danger">
                           <div *ngIf="approved_status_clearance.errors?.['required']">Approved Status Clearance is required.</div>
@@ -500,9 +500,9 @@
                         required 
                         #approved_status_programme="ngModel">
                         <option value="">Select Status</option>
-                        <option value="1">Approved</option>
-                        <option value="2">Pending</option>
-                        <option value="3">Rejected</option>
+                        <option value="REJECTED">REJECTED</option>
+                        <option value="PENDING">PENDING</option>
+                        <option value="APPROVED">APPROVED</option>
                       </select>
                       <div *ngIf="approved_status_programme.invalid && (approved_status_programme.dirty || approved_status_programme.touched)" class="text-danger">
                         <div *ngIf="approved_status_programme.errors?.['required']">Approved Status Programme is required.</div>
@@ -627,9 +627,9 @@
                         required 
                         #approved_status_clearance="ngModel">
                         <option value="">Select Status</option>
-                        <option value="1">Approved</option>
-                        <option value="2">Pending</option>
-                        <option value="3">Rejected</option>
+                        <option value="REJECTED">REJECTED</option>
+                        <option value="PENDING">PENDING</option>
+                        <option value="APPROVED">APPROVED</option>
                       </select>
                       <div *ngIf="approved_status_clearance.invalid && (approved_status_clearance.dirty || approved_status_clearance.touched)" class="text-danger">
                         <div *ngIf="approved_status_clearance.errors?.['required']">Approved Status Clearance is required.</div>
