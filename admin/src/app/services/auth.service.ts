@@ -13,6 +13,7 @@ interface LoginResponse {
       status: number;
       id: number;
       name: string;
+      roles: []; // Add roles array here
     };
   };
 }
@@ -25,8 +26,12 @@ export class AuthService {
   private apiUrl = environment.apiBaseUrl;
   private loggedInSubject = new BehaviorSubject<boolean>(this.isAuthenticated());
   loggedIn$ = this.loggedInSubject.asObservable();
+  private userRoles: string[] = []; // Store roles here
+  user: any;
   
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {
+    this.user = JSON.parse(localStorage.getItem('user') || '{}');
+  }
 
   public isAuthenticated(): boolean {
     return typeof window !== 'undefined' && localStorage.getItem('token') !== null;
@@ -77,6 +82,7 @@ export class AuthService {
                         } else if(response.data.user.status === 2) {
                             // User is logged in, redirect to dashboard
                             this.storeUserData(accessToken, response.data.user);
+                            this.userRoles = response.data.user.roles.map((role: any) => role.name);
                             this.loggedInSubject.next(true);
                             this.router.navigate(['dashboard']);
                         } else if(response.data.user.status === 3) {
@@ -130,6 +136,9 @@ export class AuthService {
 
   checkLoginStatus(): void {
     this.loggedInSubject.next(this.isAuthenticated());
+  }
+  getUserRoles(): string[] {
+    return this.userRoles; // Now it should return the role names correctly
   }
  
 }

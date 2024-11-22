@@ -45,7 +45,7 @@ import { QuarterlyReportOnlineiiComponent } from './pages/quarterly-report-onlin
 
 
 export const routes: Routes = [
-  { path: 'dashboard', component: DasboardComponent, canActivate: [AuthGuard]  },
+  { path: 'dashboard', component: DasboardComponent, canActivate: [AuthGuard], data: { roles: ['admin', 'user'] } },
     { path: 'acts-and-policies', component: ActsAndPoliciesComponent, canActivate: [AuthGuard]  },
     { path: 'circulars', component: CircularsComponent, canActivate: [AuthGuard]  },
     { path: 'events', component: EventsComponent, canActivate: [AuthGuard]  },
