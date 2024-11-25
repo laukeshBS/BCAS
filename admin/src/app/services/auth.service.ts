@@ -138,6 +138,8 @@ export class AuthService {
     this.loggedInSubject.next(this.isAuthenticated());
   }
   getUserRoles(): string[] {
+    this.userRoles = this.user.roles.map((role: any) => role.name);
+    console.log('user role'+ this.userRoles);
     return this.userRoles; // Now it should return the role names correctly
   }
  
