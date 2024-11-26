@@ -53,6 +53,7 @@ export class MenuDatatableComponent {
     this.loading = true; // Start loading
     this.lang_code=langCode;
     this.MenuService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
+      this.PrimaryLink = data.data;
       this.events = data.data;
       this.totalItems = data.total; // Assuming the API returns total items
       this.lastPage = Math.ceil(this.totalItems / this.limit);
@@ -97,6 +98,7 @@ export class MenuDatatableComponent {
     //alert(pageID);
     this.loading = true; // Start loading
     this.MenuService.loadChidedList(this.limit, this.lang_code, this.currentPage,pageID).subscribe(data => {
+      this.PrimaryLink = data.data;
       this.events = data.data;
       this.totalItems = data.total; // Assuming the API returns total items
       this.lastPage = Math.ceil(this.totalItems / this.limit);

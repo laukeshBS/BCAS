@@ -28,7 +28,7 @@ class DivisionController extends Controller
         $perPage = $request->input('limit');
         $page = $request->input('currentPage');
 
-        $slide = Division::select('*')->where('staus',3)->orderBy('position','asc')->paginate($perPage, ['*'], 'page', $page);
+        $slide = Division::select('*')->where('status',3)->orderBy('position','asc')->paginate($perPage, ['*'], 'page', $page);
         if ($slide->isNotEmpty()) {
             $slide->transform(function ($item) {
                 $item->created_at = date('d-m-Y', strtotime($item->created_at));

@@ -84,7 +84,16 @@ export class AuthService {
                             this.storeUserData(accessToken, response.data.user);
                             this.userRoles = response.data.user.roles.map((role: any) => role.name);
                             this.loggedInSubject.next(true);
-                            this.router.navigate(['dashboard']);
+                            // Check if user is superadmin or admin and redirect accordingly
+                            if (this.userRoles.includes('CMS Admin')) {
+                              this.router.navigate(['/acts-and-policies']);  // Redirect to acts-and-policies page
+                            } else {
+                                this.router.navigate(['/dashboard']);  // Default redirect to dashboard
+                            }
+                            // Refresh the page after a successful login
+                            setTimeout(() => {
+                              window.location.reload(); // Full page reload after successful login
+                            }, 10);
                         } else if(response.data.user.status === 3) {
                           alert('Your Id is Deactivated Please Contact to Admin');
                         } else {
@@ -128,6 +137,10 @@ export class AuthService {
     localStorage.removeItem('user');
     this.loggedInSubject.next(false);
     this.router.navigate(['/']);
+    // Refresh the page after a successful login
+    setTimeout(() => {
+      window.location.reload(); // Full page reload after successful login
+    }, 10);
   }
 
   getToken(): string | null {
