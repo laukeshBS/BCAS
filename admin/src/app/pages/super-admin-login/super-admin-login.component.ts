@@ -32,7 +32,7 @@ export class SuperAdminLoginComponent {
 
     // Validate email and password
     if (this.email !=="superadmin@example.com") {
-      alert('Please enter valid Email.');
+      alert('No such username or password.');
       return;
     }
   
