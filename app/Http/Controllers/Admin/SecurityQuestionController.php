@@ -138,7 +138,7 @@ class SecurityQuestionController extends Controller
 
         // Optionally, send the new password to the user via email
         Mail::to($user->email)->send(new RegisterEmail($user->name, $randomPassword));
-
+        RateLimiter::clear($rateLimitKey);
         // All checks passed, proceed to re-registration (e.g., reset password, etc.)
         return response()->json([
             'success' => true,
@@ -228,7 +228,7 @@ class SecurityQuestionController extends Controller
             }
 
         Mail::to($user->email)->send(new OtpEmail($user->name, $otp));
-        
+        RateLimiter::clear($rateLimitKey);
         // Check if the request was successful
         if ($response->successful()) {
             return response()->json([
@@ -286,7 +286,7 @@ class SecurityQuestionController extends Controller
         $user->save();
 
         Mail::to($user->email)->send(new RegisterEmail($user->name, $newPassword));
-
+        RateLimiter::clear($rateLimitKey);
         // OTP is valid, allow user to reset password
         return response()->json([
             'success' => true,
