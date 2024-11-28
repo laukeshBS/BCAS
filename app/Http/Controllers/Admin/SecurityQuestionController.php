@@ -16,12 +16,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Crypt;
 use App\Models\Admin\DocumentCategory;
 use App\Models\Admin\SecurityQuestion;
 use Illuminate\Support\Facades\Session;
 use App\Models\Admin\UserSecurityAnswer;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\RateLimiter;
 
 class SecurityQuestionController extends Controller
 {
@@ -58,6 +60,18 @@ class SecurityQuestionController extends Controller
 
     public function reRegister(Request $request)
     {
+        // Define the rate limit key based on email
+        $rateLimitKey = 'registeration:' . $request->input('email');
+        
+        // Check if the rate limit is exceeded (5 attempts per day)
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have exceeded the maximum attempts for registration today. Please try again tomorrow.'
+            ], 429); // 429 Too Many Requests
+        }
+        // Increment the attempt count by 1
+        RateLimiter::hit($rateLimitKey, 1440); // 1440 minutes = 24 hours (1 day)
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'email' => 'required|email', // Validate the email and check if it exists in the users table
@@ -134,6 +148,19 @@ class SecurityQuestionController extends Controller
 
     public function forgotPassword(Request $request)
     {
+        // Define the rate limit key based on email
+        $rateLimitKey = 'forgotPassword:' . $request->input('email');
+        
+        // Check if the rate limit is exceeded (5 attempts per day)
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have exceeded the maximum attempts for forget password today. Please try again tomorrow.'
+            ], 429); // 429 Too Many Requests
+        }
+        // Increment the attempt count by 1
+        RateLimiter::hit($rateLimitKey, 1440); // 1440 minutes = 24 hours (1 day)
+
         // Validate the incoming request data
         $validator = Validator::make($request->all(), [
             'email' => 'required|email', // Validate the email address
@@ -206,7 +233,7 @@ class SecurityQuestionController extends Controller
         if ($response->successful()) {
             return response()->json([
                 'success' => true,
-                'message' => 'OTP sent successfully to your phone.',
+                'message' => 'OTP sent successfully to your phone and email.',
             ],200);
         } else {
             return response()->json([
@@ -217,6 +244,20 @@ class SecurityQuestionController extends Controller
     }
     public function verifyOtp(Request $request)
     {
+        // Define the rate limit key based on email
+        $rateLimitKey = 'otpVerify:' . $request->input('email');
+        
+        // Check if the rate limit is exceeded (5 attempts per day)
+        if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You have exceeded the maximum attempts for otp verification today. Please try again tomorrow.'
+            ], 429); // 429 Too Many Requests
+        }
+        // Increment the attempt count by 1
+        RateLimiter::hit($rateLimitKey, 1440); // 1440 minutes = 24 hours (1 day)
+
+
         $request->validate([
             'email' => 'required|email',
             'otp' => 'required|numeric'

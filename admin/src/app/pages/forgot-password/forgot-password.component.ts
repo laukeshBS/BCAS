@@ -75,11 +75,13 @@ export class ForgotPasswordComponent {
           this.router.navigate(['/verify-otp']);
         } else {
           this.errorMessage = response.message || 'Paaswrod reset failed';
+          alert(response.message);
         }
       },
       error => {
         this.loading = false;
         this.errorMessage = error.message || 'An unexpected error occurred';
+        alert(error.error.message);
       }
     );
   }

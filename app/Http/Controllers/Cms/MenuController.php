@@ -55,6 +55,7 @@ class MenuController extends BaseController
         // Return the menu list as a successful response
         return response()->json(['success' => true, 'data' => $menus], 200);
     }
+
     public function cms_data(Request $request)
     {
         // Get the parameters from the request
@@ -96,6 +97,7 @@ class MenuController extends BaseController
         // Return the menu list as a successful response
         return response()->json(['success' => true, 'data' => $menus], 200);
     }
+
     public function menu_list(Request $request)
     {
         // Get the parameters from the request
@@ -139,6 +141,7 @@ class MenuController extends BaseController
         // Return the menu list as a successful response
         return response()->json(['success' => true, 'data' => $menus], 200);
     }
+
     public function cms_menu_list(Request $request)
     {
         // Get the parameters from the request
@@ -180,12 +183,14 @@ class MenuController extends BaseController
         // Return the menu list as a successful response
         return response()->json(['success' => true, 'data' => $menus], 200);
     }
+
     private function appendBaseUrlToMedia($menus, $baseUrl)
     {
         foreach ($menus as $menu) {
             $this->updateMediaUrls($menu, $baseUrl);
         }
     }
+
     private function updateMediaUrls($menu, $baseUrl)
     {
         if ($menu->doc_upload) {
@@ -259,6 +264,7 @@ class MenuController extends BaseController
             return $this->sendError('No menus found for the given language code.', 404);
         }
     }
+
     public function data_by_id($id)
     {
         // Validate the ID
@@ -283,6 +289,7 @@ class MenuController extends BaseController
         // Return the data as JSON
         return response()->json($data);
     }
+
     public function store(Request $request)
     {
         // Validate incoming data
@@ -356,6 +363,7 @@ class MenuController extends BaseController
 
         return response()->json(['data' => $menu, 'message' => 'Menu created successfully.'], 201);
     }
+
     public function update(Request $request, $id)
     {
         // Find the existing menu entry
@@ -441,6 +449,7 @@ class MenuController extends BaseController
             return response()->json(['error' => 'An error occurred while updating the menu.'], 500);
         }
     }
+
     public function delete($id)
     {
         $actandpolicy = Menu::find($id);
@@ -454,7 +463,6 @@ class MenuController extends BaseController
 
         return response()->json($actandpolicy);
     }
-
 
     // web
     // public function index(Request $request): JsonResponse
@@ -587,6 +595,7 @@ class MenuController extends BaseController
     //             return $this->sendError('No menus found for the given language code.', 404);
     //         }
     // }
+    
     public function lang_slugs_wise(Request $request): JsonResponse{
         $data = $request->all();
         $menu_url = $data['menu_url'] ?? null;
@@ -664,6 +673,7 @@ class MenuController extends BaseController
                 return $this->sendError('No menus found for the given language code.', 404);
             }
     }
+
     public function lang_pid_wise(Request $request): JsonResponse
     {
         $data = $request->all();
@@ -730,6 +740,7 @@ class MenuController extends BaseController
                 return $this->sendError('No menus found for the given language code.', 404);
             }
     }
+
     public function cms_lang_pid_wise(Request $request): JsonResponse
     {
         $data = $request->all();
@@ -771,7 +782,6 @@ class MenuController extends BaseController
                 return $this->sendError('No menus found for the given language code.', 404);
             }
     }
-    
     
     public function importCSVairports(Request $request)
     {
@@ -852,6 +862,7 @@ class MenuController extends BaseController
 
         return response()->json(['message' => 'CSV data imported successfully.'], 200);
     }
+
     public function importCSVAirlines(Request $request)
     {
         // Validate the uploaded file
@@ -940,6 +951,7 @@ class MenuController extends BaseController
 
         return response()->json(['message' => 'CSV data imported successfully.'], 200);
     }
+
     public function importCSVcatring(Request $request)
     {
         // Validate the uploaded file
@@ -1025,6 +1037,7 @@ class MenuController extends BaseController
 
         return response()->json(['message' => 'CSV data imported successfully.'], 200);
     }
+
     public function importCSVOps(Request $request)
     {
         // Validate the uploaded file
@@ -1116,6 +1129,7 @@ class MenuController extends BaseController
 
         return response()->json(['message' => 'CSV data imported successfully.'], 200);
     }
+
     public function import11CSV(Request $request)
     {
         // Validate the uploaded file
@@ -1301,6 +1315,7 @@ class MenuController extends BaseController
 
         return response()->json(['message' => 'CSV data imported successfully.'], 200);
     }
+
     public function importCSV(Request $request)
     {
         // Validate the uploaded file

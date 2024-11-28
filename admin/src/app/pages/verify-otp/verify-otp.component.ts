@@ -41,7 +41,8 @@ export class VerifyOtpComponent implements OnInit {
       },
       (error) => {
         this.isSuccess = false;
-        this.message = error.error.message || 'Invalid OTP';
+        // this.message = error.error.message || 'Invalid OTP';
+        alert(error.error.message);
       }
     );
   }

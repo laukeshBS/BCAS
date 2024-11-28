@@ -195,10 +195,10 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
     });
     Route::controller(SecurityQuestionController::class)->group(function () {
         Route::get('question-list', 'questions');
-        Route::post('re-register', 'reRegister');
         Route::post('forgot-password', 'forgotPassword');
+        Route::post('re-register', 'reRegister');
         Route::post('otp-verification', 'verifyOtp');
-        Route::post('quiz-results', 'store');
+        
         
     });
     Route::controller(MainGalleryController::class)->group(function(){
@@ -484,6 +484,7 @@ Route::middleware(['cors', 'throttle:30,1', 'auth:admin_api','removePoweredBy'])
     Route::controller(QuizResultController::class)->group(function () {
         Route::post('quiz-results-list', 'cms_data');
         Route::get('quiz-result-list-by-id/{id}', 'data_by_id');
+        Route::post('quiz-results', 'store');
     });
     Route::controller(QuarterlyReportOnlineFormsController::class)->group(function () {
         Route::post('quarterly-report-online-list', 'cms_data');

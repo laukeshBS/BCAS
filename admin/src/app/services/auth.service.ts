@@ -13,6 +13,7 @@ interface LoginResponse {
       status: number;
       id: number;
       name: string;
+      roles: []; // Add roles array here
     };
   };
 }
@@ -25,8 +26,12 @@ export class AuthService {
   private apiUrl = environment.apiBaseUrl;
   private loggedInSubject = new BehaviorSubject<boolean>(this.isAuthenticated());
   loggedIn$ = this.loggedInSubject.asObservable();
+  private userRoles: string[] = []; // Store roles here
+  user: any;
   
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private http: HttpClient, private router: Router) {
+    this.user = JSON.parse(localStorage.getItem('user') || '{}');
+  }
 
   public isAuthenticated(): boolean {
     return typeof window !== 'undefined' && localStorage.getItem('token') !== null;
@@ -77,8 +82,18 @@ export class AuthService {
                         } else if(response.data.user.status === 2) {
                             // User is logged in, redirect to dashboard
                             this.storeUserData(accessToken, response.data.user);
+                            this.userRoles = response.data.user.roles.map((role: any) => role.name);
                             this.loggedInSubject.next(true);
-                            this.router.navigate(['dashboard']);
+                            // Check if user is superadmin or admin and redirect accordingly
+                            if (this.userRoles.includes('CMS Admin')) {
+                              this.router.navigate(['/acts-and-policies']);  // Redirect to acts-and-policies page
+                            } else {
+                                this.router.navigate(['/dashboard']);  // Default redirect to dashboard
+                            }
+                            // Refresh the page after a successful login
+                            setTimeout(() => {
+                              window.location.reload(); // Full page reload after successful login
+                            }, 10);
                         } else if(response.data.user.status === 3) {
                           alert('Your Id is Deactivated Please Contact to Admin');
                         } else {
@@ -122,6 +137,10 @@ export class AuthService {
     localStorage.removeItem('user');
     this.loggedInSubject.next(false);
     this.router.navigate(['/']);
+    // Refresh the page after a successful login
+    setTimeout(() => {
+      window.location.reload(); // Full page reload after successful login
+    }, 10);
   }
 
   getToken(): string | null {
@@ -130,6 +149,11 @@ export class AuthService {
 
   checkLoginStatus(): void {
     this.loggedInSubject.next(this.isAuthenticated());
+  }
+  getUserRoles(): string[] {
+    this.userRoles = this.user.roles.map((role: any) => role.name);
+    console.log('user role'+ this.userRoles);
+    return this.userRoles; // Now it should return the role names correctly
   }
  
 }
