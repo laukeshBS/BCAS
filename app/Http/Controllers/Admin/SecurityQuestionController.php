@@ -47,7 +47,6 @@ class SecurityQuestionController extends Controller
             'answer' => 'required|min:2|max:255',
         ]);
 
-
         $data = new UserSecurityAnswer(); // Assuming you have a Document model
         $data->user_id = $validated['user_id'];
         $data->security_questions_id = $validated['security_questions_id'];
