@@ -22,8 +22,8 @@ export class MenuDatatableComponent {
   selectedMenuType: any;// Property to hold selected menu type
   selectedEvent: any = { menu_child_id: 0 };
   fileToUpload: File | null = null;
-  limit = 10; 
-  lang_code = 'en'; 
+  limit = 10;
+  lang_code = 'en';
   selectedFile: any;
   selectedFileError: string | null = null; // Initialized with null
   currentPage: number = 1; // Current page for pagination
@@ -34,7 +34,7 @@ export class MenuDatatableComponent {
   fileToUploadBanner: File | null = null;
   fileToUploadImg: File | null = null;
   userId: number | null = null;
-  language_id: string = ''; 
+  language_id: string = '';
   languages: any;
   PrimaryLink:any[] = [];
   pagesStatus: any;
@@ -46,15 +46,16 @@ export class MenuDatatableComponent {
    this.loadList(this.lang_code);
     this.loadUserId();
     this.loadLangList();
-    // this.onlangChange(this.lang_code);
+    this.onlangChange(this.lang_code);
   }
- 
+
   loadList(langCode:any): void {
     this.loading = true; // Start loading
     this.lang_code=langCode;
     this.MenuService.allList(this.limit, this.lang_code, this.currentPage).subscribe(data => {
       this.PrimaryLink = data.data;
       this.events = data.data;
+      this.PrimaryLink = data.data;
       this.totalItems = data.total; // Assuming the API returns total items
       this.lastPage = Math.ceil(this.totalItems / this.limit);
       //console.log(this.totalItems);
@@ -92,7 +93,7 @@ export class MenuDatatableComponent {
   //     console.error('Error loading events:', error);
   //     this.loading = false; // Stop loading on error
   //   });
-    
+
  }
   loadChidedList(pageID:any): void {
     //alert(pageID);
@@ -130,7 +131,7 @@ export class MenuDatatableComponent {
     //console.log(this.events);
     this.events.forEach(event => {
       event.created_at = new Date(event.created_at).toLocaleDateString('en-GB');
-    
+
     //  this.pageStatus(event.approve_status)
        switch (event.approve_status) {
         case 1:
@@ -186,7 +187,7 @@ export class MenuDatatableComponent {
   }
 
   saveEvent(): void {
-    
+
     // Validate the form data
     const requiredFields = [
       'menu_type',
@@ -197,14 +198,14 @@ export class MenuDatatableComponent {
       'menu_url',
       'approve_status',
     ];
-    
+
     const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
 
     if (missingFields.length > 0) {
       alert(`Missing required fields: ${missingFields.join(', ')}`);
       return;
     }
-    
+
      //console.log(this.selectedEvent);
     const formData = new FormData();
     formData.append('menu_type', this.selectedEvent.menu_type);
@@ -237,7 +238,7 @@ export class MenuDatatableComponent {
         alert(response.message || 'Created Successfully!');
         this.closeAddModal(); // Close the modal or form
         this.loadList(this.lang_code); // Refresh the list of events
-        
+
       },
       error => {
         // Check if the error contains validation messages (assuming error is an object)
@@ -257,7 +258,7 @@ export class MenuDatatableComponent {
   }
 
   modifyEvent(): void {
-    
+
     // Validate the form data
     const requiredFields = [
       'menu_type',
@@ -268,7 +269,7 @@ export class MenuDatatableComponent {
       'menu_url',
       'approve_status',
     ];
-    
+
     const missingFields = requiredFields.filter(field => !this.selectedEvent[field]);
 
     if (missingFields.length > 0) {
@@ -307,7 +308,7 @@ export class MenuDatatableComponent {
         alert(response.message || 'Updated Successfully!');
         this.closeEditModal(); // Close the modal or form
         this.loadList(this.lang_code); // Refresh the list of events
-        
+
       },
       error => {
         // Check if the error contains validation messages (assuming error is an object)
@@ -430,7 +431,7 @@ export class MenuDatatableComponent {
 
 
   // Method to handle changes in menu type
-  handleMenuType(id: any) { 
+  handleMenuType(id: any) {
     this.selectedMenuType = id; // Update the selected menu type
     //console.log(this.selectedMenuType);
     //this.selectedEvent.menu_type='';
