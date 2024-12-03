@@ -107,7 +107,7 @@ class LoginController extends Controller
             'module_item_title'     =>  'Login Unsuccessfull',
             'module_item_id'        =>  0,
             'action_by'             =>  0,
-            'old_data'              =>  response()->json(['success' => false,'message' => 'Invalid email or password'], 401),
+            'old_data'              =>  response()->json(['success' => false,'message' => 'No such username or password.'], 401),
             'new_data'              =>  $request,
             'action_name'           =>  'Login Attempt',
             //'page_category'         =>  '',
@@ -119,7 +119,7 @@ class LoginController extends Controller
         audit_trails($logs_data);
         return response()->json([
             'success' => false,
-            'message' => 'Invalid email or password',
+            'message' => 'No such username or password.',
         ], 401);
     }
 

@@ -97,23 +97,23 @@ export class AuthService {
                         } else if(response.data.user.status === 3) {
                           alert('Your Id is Deactivated Please Contact to Admin');
                         } else {
-                          alert('Login failed: No Status Found');
+                          alert('No Status Found');
                         }
                     } else {
-                        alert('Login failed: No Access Token Found');
+                        alert('No Access Token Found');
                     }
                 } else {
-                    alert('Login failed: No User Data Found');
+                    alert('No such username or password');
                 }
             } else {
-                alert('Login failed: ' + response.message);
+                alert('' + response.message);
             }
         } else {
             alert('No Response Found');
         }
     }, error => {
         // console.error('Login error:', error);
-        alert('Login error: ' + (error.error?.message || 'An unexpected error occurred'));
+        alert('' + (error.error?.message || 'An unexpected error occurred'));
     });
   }
 

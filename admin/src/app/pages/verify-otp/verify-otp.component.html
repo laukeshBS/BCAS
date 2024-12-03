@@ -13,7 +13,7 @@
                     </div>
                     <form (ngSubmit)="verifyOtp()" #reRegistrationForm="ngForm" autocomplete="off">
                         <div class="mb-3 d-flex justify-content-center">
-                            <input matInput type="text" [(ngModel)]="otp" name="otp" required />
+                            <input type="text" [(ngModel)]="otp" name="otp" required maxlength="6" (keydown)="onKeydown($event)" (input)="onInput($event)" [ngModelOptions]="{standalone: true}" />
                         </div>
 
                         <div *ngIf="message" class="message" [ngClass]="{ 'success': isSuccess, 'error': !isSuccess }">

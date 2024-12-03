@@ -198,8 +198,6 @@ Route::middleware(['cors','removePoweredBy'])->group(function () {
         Route::post('forgot-password', 'forgotPassword');
         Route::post('re-register', 'reRegister');
         Route::post('otp-verification', 'verifyOtp');
-        
-        
     });
     Route::controller(MainGalleryController::class)->group(function(){
         Route::post('gallery-list','data');

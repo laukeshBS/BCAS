@@ -139,13 +139,13 @@ class RolesController extends Controller
     }
     public function edit(int $id)
     {
-        // Check if the user is authorized to edit roles
-        if (is_null($this->user) || !$this->user->can('role.edit')) {
-            return response()->json([
-                'message' => 'Sorry !! You are Unauthorized to edit any role !',
-                'status' => false
-            ], 403);
-        }
+        // // Check if the user is authorized to edit roles
+        // if (is_null($this->user) || !$this->user->can('role.edit')) {
+        //     return response()->json([
+        //         'message' => 'Sorry !! You are Unauthorized to edit any role !',
+        //         'status' => false
+        //     ], 403);
+        // }
     
         // Fetch the role using its ID
         $role = Role::findById($id, 'admin');
@@ -179,9 +179,9 @@ class RolesController extends Controller
      */
     public function update(Request $request, int $id)
     {
-        if (is_null($this->user) || !$this->user->can('role.edit')) {
-            return response()->json(['error' => 'Unauthorized to edit role'], 403);
-        }
+        // if (is_null($this->user) || !$this->user->can('role.edit')) {
+        //     return response()->json(['error' => 'Unauthorized to edit role'], 403);
+        // }
 
         $request->validate([
             'name' => 'required|max:100|unique:mysql_admin.roles,name,' . $id

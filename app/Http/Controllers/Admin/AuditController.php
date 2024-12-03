@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use TCPDF;
 use Carbon\Carbon;
 use App\Models\Admin\Admin;
 use Illuminate\Http\Request;
@@ -52,6 +51,10 @@ class AuditController extends Controller
 
 private function generatePDF($data, $fromDate, $toDate)
 {
+
+    // Manually include the TCPDF library
+    require_once base_path('vendor/tecnickcom/tcpdf/tcpdf.php');
+
     // File name for the PDF
     $fileName = 'EXPORT_' . Carbon::now()->format('Y_m_d_H_i_s') . '.pdf';
 
@@ -59,7 +62,7 @@ private function generatePDF($data, $fromDate, $toDate)
     $pdfContent = view('pdf.export', compact('data', 'fromDate', 'toDate'))->render();
 
     // Initialize TCPDF
-    $pdf = new TCPDF();
+    $pdf = new \TCPDF();
     $pdf->AddPage();
 
     // Write HTML content into the PDF

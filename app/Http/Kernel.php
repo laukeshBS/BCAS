@@ -21,6 +21,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\TrimStrings::class,
         \Illuminate\Foundation\Http\Middleware\ConvertEmptyStringsToNull::class,
         \App\Http\Middleware\CorsMiddleware::class,
+        // \App\Http\Middleware\SetCspNonce::class,
         
     ];
 
@@ -73,6 +74,7 @@ class Kernel extends HttpKernel
         'resetLastActive' => \App\Http\Middleware\ResetLastActive::class,
         'cors' => \App\Http\Middleware\CorsMiddleware::class,
         'removePoweredBy' => \App\Http\Middleware\RemovePoweredByHeader::class,
+        // 'csp-nonce' => \App\Http\Middleware\SetCspNonce::class,
 
     ];
 }
