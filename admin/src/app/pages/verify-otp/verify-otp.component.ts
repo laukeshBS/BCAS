@@ -46,4 +46,21 @@ export class VerifyOtpComponent implements OnInit {
       }
     );
   }
+  // This function intercepts keydown event to prevent non-numeric input
+  onKeydown(event: KeyboardEvent): void {
+    const allowedKeys = ['Backspace', 'ArrowLeft', 'ArrowRight', 'Tab'];
+
+    // Allowing common keys like backspace, left and right arrows, and tab.
+    if (!/^\d$/.test(event.key) && !allowedKeys.includes(event.key)) {
+      event.preventDefault();  // Prevent any key that isn't a number or allowed key.
+    }
+  }
+
+  // This function handles the input event to restrict length to 6 digits
+  onInput(event: any): void {
+    // If the length exceeds 6 digits, trim it
+    if (this.otp.length > 6) {
+      this.otp = this.otp.slice(0, 6);
+    }
+  }
 }

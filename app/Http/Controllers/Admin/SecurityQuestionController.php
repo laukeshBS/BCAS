@@ -96,7 +96,7 @@ class SecurityQuestionController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found.'
+                'message' => 'No such username or password.'
             ], 404);
         }
         if ($user->status==2) {
@@ -185,7 +185,7 @@ class SecurityQuestionController extends Controller
         if (!$user) {
             return response()->json([
                 'success' => false,
-                'message' => 'User not found.'
+                'message' => 'No such username or password.'
             ], 404);
         }
 
@@ -213,7 +213,7 @@ class SecurityQuestionController extends Controller
         $user->save();
 
         // Send OTP via external API (assuming it's an SMS or other notification)
-        $apiUrl = "https://pgapi.smartping.ai/fe/api/v1/send?username=cscetrpg6.trans&password=LuRXO&unicode=false&from=BCASRM&to=".$user->phone."&dltPrincipalEntityId=1401665390000071833&dltContentId=1407173089732960387&text=".urlencode("".$otp." is your SMS OTP for reset of your password. This is valid for 5 minutes. Do not share your OTP with anyone. If not requested by you, please contact us or visit (https://bcasindia.gov.in/#!/hi_home) to block your account. Best regards, Team BCAS.");
+        $apiUrl = "https://pgapi.smartping.ai/fe/api/v1/send?username=cscetrpg6.trans&password=LuRXO&unicode=false&from=BCASRM&to=".$user->phone."&dltPrincipalEntityId=1401665390000071833&dltContentId=1407173089732960387&text=".urlencode("".$otp." is your SMS OTP for reset of your password. This is valid for 5 minutes. Do not share your OTP with anyone. If not requested by you, please contact us or visit (https://bcasindia.gov.in/#) to block your account. Best regards, Team BCAS.");
             $response = Http::get($apiUrl);  // Assuming GET request here since you're sending via URL.
 
             // Check response for success or failure
@@ -227,6 +227,12 @@ class SecurityQuestionController extends Controller
             }
 
         Mail::to($user->email)->send(new OtpEmail($user->name, $otp));
+
+        // Store OTP in cache with a 5-minute expiry time
+        Cache::put('otptimelimit:' . $user->id, $otp, now()->addMinutes(5));
+        $cachedOtp = Cache::get('otptimelimit:' . $user->id);
+        Log::info($cachedOtp);
+        
         RateLimiter::clear($rateLimitKey);
         // Check if the request was successful
         if ($response->successful()) {
@@ -245,6 +251,7 @@ class SecurityQuestionController extends Controller
     {
         // Define the rate limit key based on email
         $rateLimitKey = 'otpVerify:' . $request->input('email');
+        $rateLimitKey2 = 'forgotPassword:' . $request->input('email');
         
         // Check if the rate limit is exceeded (5 attempts per day)
         if (RateLimiter::tooManyAttempts($rateLimitKey, 5)) {
@@ -255,7 +262,7 @@ class SecurityQuestionController extends Controller
         }
         // Increment the attempt count by 1
         RateLimiter::hit($rateLimitKey, 1440); // 1440 minutes = 24 hours (1 day)
-
+        RateLimiter::hit($rateLimitKey2, 1440);
 
         $request->validate([
             'email' => 'required|email',
@@ -269,8 +276,13 @@ class SecurityQuestionController extends Controller
         if ($user->otp != $request->otp) {
             return response()->json([
                 'success' => false,
-                'message' => 'Invalid OTP or OTP expired.'
+                'message' => 'Invalid OTP.'
             ], 400);
+        }
+        $cachedOtp = Cache::get('otptimelimit:' . $user->id);
+
+        if ($cachedOtp != $request->otp) {
+            return response()->json(['success' => false,'message' => 'OTP expired.'], 400);
         }
 
         // // Generate a new random password (12 characters long)
@@ -285,7 +297,12 @@ class SecurityQuestionController extends Controller
         $user->save();
 
         Mail::to($user->email)->send(new RegisterEmail($user->name, $newPassword));
+
         RateLimiter::clear($rateLimitKey);
+        RateLimiter::clear($rateLimitKey2);
+
+        Cache::forget('otptimelimit:' . $user->id);
+        
         // OTP is valid, allow user to reset password
         return response()->json([
             'success' => true,
