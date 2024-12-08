@@ -21,7 +21,7 @@ class OpsiSecurityController extends Controller
         });
     }
 
-  
+
     public function opsisecurity_list(Request $request)
     {
        // dd('here');
@@ -44,20 +44,29 @@ class OpsiSecurityController extends Controller
         // Default pagination parameters
         $perPage = $request->input('per_page', 10);
         $page = $request->input('page', 1);
-    
+
         // Filter parameters
         $division = $request->input('division');
         $sec_type = $request->input('sec_type');
-    
+        $date_of_approval = $request->input('date_of_approval');
+        $application_id = $request->input('application_id');
+        $company_name = $request->input('company_name');
         // Query to fetch approved opssecuritys based on the provided filters
         $opssecuritys = OpsiSecurity::select('*')
         ->where('status', 'APPROVED')
         ->where('sec_type', 'like', "%{$sec_type}%") // Using like for partial match
-        
         ->when($division, function ($query, $division) {
             return $query->where('division', $division);
         })
-        
+        ->when($application_id, function ($query, $application_id) {
+            return $query->where('application_id', $application_id);
+        })
+        ->when($company_name, function ($query, $company_name) {
+            return $query->where('company_name', 'like', "%{$company_name}%");
+        })
+        ->when($date_of_approval, function ($query, $date_of_approval) {
+            return $query->whereRaw('YEAR(date_of_approval) = ?', [$date_of_approval]);
+        })
             ->orderBy('date_of_approval', 'DESC')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -86,7 +95,7 @@ class OpsiSecurityController extends Controller
             $item->start_date = date('d-m-Y', strtotime($item->start_date));
             $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-           
+
             return $item;
         });
 
@@ -112,7 +121,7 @@ class OpsiSecurityController extends Controller
             ], 404);
         }
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
-      
+
 
         // Return the data as JSON
         return response()->json($data);
@@ -149,19 +158,19 @@ class OpsiSecurityController extends Controller
 
         // Prepare data for insertion
         $data = $request->only([
-            'region_name', 
-            'sr_no', 
-            'opssecurity_name', 
-            'entity_name', 
-            'address', 
-            'mobile_no', 
-            'phone_no', 
-            'unique_reference_number', 
-            'approved_status_clearance', 
-            'date_of_approval_clearance', 
-            'approved_status_programme', 
-            'date_of_approval_programme', 
-            'valid_till', 
+            'region_name',
+            'sr_no',
+            'opssecurity_name',
+            'entity_name',
+            'address',
+            'mobile_no',
+            'phone_no',
+            'unique_reference_number',
+            'approved_status_clearance',
+            'date_of_approval_clearance',
+            'approved_status_programme',
+            'date_of_approval_programme',
+            'valid_till',
             'opssecurity_orders'
         ]);
         //$data['created_by'] = Auth::guard('admin')->user()->id;
@@ -216,7 +225,7 @@ class OpsiSecurityController extends Controller
             'date_of_approval_programme' => 'required|date',
             'valid_till' => 'required|date'
         ]);
-        
+
 
         $opssecuritydata = OpsiSecurity::find($id);
 

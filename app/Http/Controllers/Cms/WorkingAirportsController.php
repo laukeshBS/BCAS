@@ -21,7 +21,7 @@ class WorkingAirportsController extends Controller
         });
     }
 
-  
+
     public function airport_list(Request $request)
     {
        // dd('here');
@@ -48,16 +48,26 @@ class WorkingAirportsController extends Controller
         // Filter parameters
         $region_name = $request->input('region_name');
         $airport_name = $request->input('airport_name');
-
+        $entity_name = $request->input('entity_name');
+      echo  $date_of_approval = $request->input('date_of_approval');
         // Query to fetch approved airports based on the provided filters
         $airports = WorkingAirport::select('*')
-            ->where('approved_status_clearance', 'APPROVED')
+            // ->where('approved_status_clearance', 'APPROVED')
             ->where('approved_status_programme', 'APPROVED')
             ->when($region_name, function ($query, $region_name) {
                 return $query->where('region_name', $region_name);
             })
             ->when($airport_name, function ($query, $airport_name) {
                 return $query->where('airport_name', $airport_name);
+            })
+            ->when($entity_name, function ($query, $entity_name) {
+                return $query->where('entity_name', 'like', "%{$entity_name}%");
+            })
+            // ->when($date_of_approval, function ($query, $date_of_approval) {
+            //     return $query->whereRaw('YEAR(date_of_approval_clearance) = ?', [$date_of_approval]);
+            // })
+            ->when($date_of_approval, function ($query, $date_of_approval) {
+                return $query->whereRaw('YEAR(date_of_approval_programme) = ?', [$date_of_approval]);
             })
             ->orderBy('created_at', 'desc')
             ->paginate($perPage, ['*'], 'page', $page);
@@ -87,7 +97,7 @@ class WorkingAirportsController extends Controller
             $item->start_date = date('d-m-Y', strtotime($item->start_date));
             $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-           
+
             return $item;
         });
 
@@ -113,7 +123,7 @@ class WorkingAirportsController extends Controller
             ], 404);
         }
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
-      
+
 
         // Return the data as JSON
         return response()->json($data);
@@ -150,19 +160,19 @@ class WorkingAirportsController extends Controller
 
         // Prepare data for insertion
         $data = $request->only([
-            'region_name', 
-            'sr_no', 
-            'airport_name', 
-            'entity_name', 
-            'address', 
-            'mobile_no', 
-            'phone_no', 
-            'unique_reference_number', 
-            'approved_status_clearance', 
-            'date_of_approval_clearance', 
-            'approved_status_programme', 
-            'date_of_approval_programme', 
-            'valid_till', 
+            'region_name',
+            'sr_no',
+            'airport_name',
+            'entity_name',
+            'address',
+            'mobile_no',
+            'phone_no',
+            'unique_reference_number',
+            'approved_status_clearance',
+            'date_of_approval_clearance',
+            'approved_status_programme',
+            'date_of_approval_programme',
+            'valid_till',
             // 'airport_orders'
         ]);
         //$data['created_by'] = Auth::guard('admin')->user()->id;
@@ -217,7 +227,7 @@ class WorkingAirportsController extends Controller
             'date_of_approval_programme' => 'required|date',
             'valid_till' => 'required|date'
         ]);
-        
+
 
         $airportdata = WorkingAirport::find($id);
 

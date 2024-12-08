@@ -21,7 +21,7 @@ class AirlinesController extends Controller
         });
     }
 
-  
+
     public function airline_list(Request $request)
     {
        // dd('here');
@@ -49,15 +49,19 @@ class AirlinesController extends Controller
         $date_of_approval = $request->input('date_of_approval');
         $air_type = $request->input('air_type');
         $station_name = $request->input('station_name');
+        $entity_name = $request->input('entity_name');
         // Query to fetch approved airlines based on the provided filters
         $airlines = Airline::select('*')
         ->where('status', 'APPROVED')
         ->where('station_name', 'like', "%{$station_name}%")
         ->where('air_type', 'like', "%{$air_type}%") // Using like for partial match
+        ->when($entity_name, function ($query, $entity_name) {
+            return $query->where('entity_name', 'like', "%{$entity_name}%");
+        })
         ->when($date_of_approval, function ($query, $date_of_approval) {
             return $query->whereRaw('YEAR(date_of_approval) = ?', [$date_of_approval]);
         })
-        
+
             ->orderBy('date_of_approval', 'DESC')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -86,7 +90,7 @@ class AirlinesController extends Controller
             $item->start_date = date('d-m-Y', strtotime($item->start_date));
             $item->end_date = date('d-m-Y', strtotime($item->end_date));
             $item->created_at = date('d-m-Y', strtotime($item->created_at));
-           
+
             return $item;
         });
 
@@ -112,7 +116,7 @@ class AirlinesController extends Controller
             ], 404);
         }
         $data->created_at = date('d-m-Y', strtotime($data->created_at));
-      
+
 
         // Return the data as JSON
         return response()->json($data);
@@ -149,19 +153,19 @@ class AirlinesController extends Controller
 
         // Prepare data for insertion
         $data = $request->only([
-            'region_name', 
-            'sr_no', 
-            'airline_name', 
-            'entity_name', 
-            'address', 
-            'mobile_no', 
-            'phone_no', 
-            'unique_reference_number', 
-            'approved_status_clearance', 
-            'date_of_approval_clearance', 
-            'approved_status_programme', 
-            'date_of_approval_programme', 
-            'valid_till', 
+            'region_name',
+            'sr_no',
+            'airline_name',
+            'entity_name',
+            'address',
+            'mobile_no',
+            'phone_no',
+            'unique_reference_number',
+            'approved_status_clearance',
+            'date_of_approval_clearance',
+            'approved_status_programme',
+            'date_of_approval_programme',
+            'valid_till',
             'airline_orders'
         ]);
 
@@ -196,7 +200,7 @@ class AirlinesController extends Controller
             'date_of_approval_programme' => 'required|date',
             'valid_till' => 'required|date'
         ]);
-        
+
 
         $airlinedata = Airline::find($id);
 
@@ -249,7 +253,7 @@ class AirlinesController extends Controller
         // Return the data as JSON
         return response()->json($airlinedata);
     }
-    
+
     // CMS Api
     public function cms_data(Request $request)
     {
@@ -311,7 +315,7 @@ class AirlinesController extends Controller
         // Prepare data for insertion
         $data = $request->only([
             'application_id', 'entity_name', 'cso_acso_name', 'cso_acso_email',
-            'station_name', 'date_of_approval', 'status', 'air_type', 
+            'station_name', 'date_of_approval', 'status', 'air_type',
             'date_of_validity', 'lang_code'
         ]);
 
@@ -371,7 +375,7 @@ class AirlinesController extends Controller
         // Prepare data for update
         $data = $request->only([
             'application_id', 'entity_name', 'cso_acso_name', 'cso_acso_email',
-            'station_name', 'date_of_approval', 'status', 'air_type', 
+            'station_name', 'date_of_approval', 'status', 'air_type',
             'date_of_validity', 'lang_code'
         ]);
 
