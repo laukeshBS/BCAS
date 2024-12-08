@@ -21,7 +21,7 @@ class OpsSecurityController extends Controller
         });
     }
 
-  
+
     public function opssecurity_list(Request $request)
     {
        // dd('here');
@@ -50,6 +50,9 @@ class OpsSecurityController extends Controller
         $sec_type = $request->input('sec_type');
         $region_name = $request->input('region_name');
         $airport_name = $request->input('airport_name');
+        $entity_name = $request->input('entity_name');
+        $date_of_approval = $request->input('date_of_approval');
+        $agent_name = $request->input('agent_name');
         // Query to fetch approved opssecuritys based on the provided filters
         $opssecuritys = OpsSecurity::select('*')
         ->orWhere('status', 'APPROVED')
@@ -63,7 +66,16 @@ class OpsSecurityController extends Controller
         ->when($division, function ($query, $division) {
             return $query->where('division', $division);
         })
-        
+        ->when($entity_name, function ($query, $entity_name) {
+            return $query->where('entity_name', 'like', "%{$entity_name}%");
+        })
+        ->when($agent_name, function ($query, $agent_name) {
+            return $query->where('application_id', 'like', "%{$agent_name}%");
+        })
+        ->when($date_of_approval, function ($query, $date_of_approval) {
+            return $query->whereRaw('YEAR(date_of_approval) = ?', [$date_of_approval]);
+        })
+
             ->orderBy('date_of_approval', 'DESC')
             ->paginate($perPage, ['*'], 'page', $page);
 
@@ -190,7 +202,7 @@ class OpsSecurityController extends Controller
             'date_of_validity' => 'required|date',
             'lang_code' => 'required',
         ]);
-        
+
 
         $opssecuritydata = OpsSecurity::find($id);
 
